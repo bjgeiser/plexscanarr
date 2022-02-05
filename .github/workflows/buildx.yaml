@@ -1,0 +1,28 @@
+name: Docker Build
+
+on:
+  pull_request:
+    branches: main
+  push:
+    branches: main
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  buildx:
+    runs-on: [linux, docker, buildx]
+    steps:
+      # Get the code
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Docker Buildx Build
+        uses: ./.github/action/buildx
+        with:
+          image_name: bjgeiser/plexscanarr
+          registry_username: ${{ secrets.DOCKER_HUB_USER }}
+          registry_password: ${{ secrets.DOCKER_HUB_PW }}
+          platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v7,linux/arm/v6
+
+
