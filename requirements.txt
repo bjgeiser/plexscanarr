@@ -1,3 +1,6 @@
 plexapi
 pyyaml
-flask
+
+uvicorn
+fastapi
+fastapi_utils

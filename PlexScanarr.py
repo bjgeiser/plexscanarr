@@ -4,10 +4,12 @@ import json
 import yaml
 import os
 from plexapi.server import PlexServer
-from flask import Flask, request, json
+from fastapi import FastAPI, Response, Request, Body
+import uvicorn
+import argparse
+import sys
 
-
-app = Flask(__name__)
+app = FastAPI()
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -45,15 +47,22 @@ def transformToPlexPath(notificationPath):
 
 def scanPlex(notificationPath):
     global plex, sections
+    scanned = False
+    sections = plex.library.sections()
 
     plexPath = transformToPlexPath(notificationPath)
+    if plexPath != notificationPath:
+        logger.info(f"Path transformed from: {notificationPath} to {plexPath}")
 
     for section in sections:
         for location in section.locations:
-            if notificationPath.startswith(location):
+            if plexPath.startswith(location):
                 logger.info(f"Requesting Scan {plexPath} in {section.title}")
                 section.update(plexPath)
+                scanned = True
 
+    if not scanned:
+        logger.info(f"Not matches found for {notificationPath}")
 
 def webPage():
     global plex, section
@@ -67,34 +76,52 @@ def webPage():
         html += "</td></tr>"
     html += "</table>"
 
-
     return html
 
-@app.route('/', methods=['POST','GET'])
-def handler():
+@app.get('/')
+def get_handler():
+    global sections, plex
+    sections = plex.library.sections()
+    return Response(webPage())
+
+@app.put('/')
+@app.post('/')
+def post_handler(request: Request, notification: dict = Body(...)):
     global sections, plex
 
-    if request.method == 'GET':
-        return webPage()
-    if request.method == "POST":
+    agent = request.headers['user-agent']
+    address = request.client
+    eventType = notification.get("eventType") if notification.get("eventType") else "Unknown"
 
-        notification = json.loads(request.data)
-        logger.info(notification)
+    logger.info(f"Rx Event {eventType} from {agent} at {request.scope['client']} ")
+    logger.debug(f"Event Json: {notification}")
 
-        if notification.get("eventType"):
-            eventType = notification['eventType']
-            if not eventType == "Grab":
-                if notification.get("series"):
-                    #filePath = os.path.join(normalizeFolders(notification['series']['path']), notification['episodeFile']['relativePath'])
-                    scanPlex(notification['series']['path'])
-                elif notification.get("movie"):
-                    scanPlex(notification['movie']['folderPath'])
+    if notification.get("eventType"):
+        eventType = notification['eventType']
+        if not eventType == "Grab":
+            if agent.startswith("Sonarr"):
+                scanPlex(notification['series']['path'])
+            elif agent.startswith("Radarr"):
+                scanPlex(notification['movie']['folderPath'])
 
-        return 'Hook accepted'
+    return 'Hook accepted'
 
 
 if __name__ == '__main__':
     global sections, plex, config
+
+    '''Process command line argurments'''
+    parser = argparse.ArgumentParser(description='PlexScanarr', epilog=f'Example of use: {sys.argv[0]} -v')
+    parser.add_argument("-v", '--verbose', action='store_true', default=False, help='Verbose logging (Default: off)')
+    args = parser.parse_args()
+
+    with open("VERSION", "r") as f:
+        logger.info(f"Starting version: {f.read()} of PlexScanarr")
+
+    logger.info(f"Command Line Args: {args}")
+
+    if args.verbose:
+        logger.level = logging.DEBUG
 
     f = open('config.yaml', 'r')
     config = yaml.safe_load(f)
@@ -106,5 +133,5 @@ if __name__ == '__main__':
 
     port = config.get("port") if config.get("port") else 5000
     host = config.get("listen-address") if config.get("listen-address") else "0.0.0.0"
-    app.run(debug=True, host=host, port=port)
-    
+
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="debug", log_config=None)
