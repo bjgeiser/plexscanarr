@@ -1,6 +1,7 @@
 import logging
 import plexapi
 import json
+import yaml
 import os
 from plexapi.server import PlexServer
 from flask import Flask, request, json
@@ -95,8 +96,8 @@ def handler():
 if __name__ == '__main__':
     global sections, plex, config
 
-    f = open('config.json', 'r')
-    config = json.loads(f.read())
+    f = open('config.yaml', 'r')
+    config = yaml.safe_load(f)
 
     plex = PlexServer(config["plex-server"], config["plex-token"])
     sections = plex.library.sections()
