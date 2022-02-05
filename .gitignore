@@ -105,3 +105,4 @@ dmypy.json
 .pyre/
 .idea/
 *.bak
+config.yaml

@@ -1,5 +1,13 @@
+# required
 plex-server: http://{plexserver}}:32400
-plex-token: replace with token https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+
+# optional
+# some plex servers require tokens to access, such as those with multiple local users
+# https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+plex-token: replace with token
+
+# optional
+# if your xxarr software uses different file paths for plex and downloads enter conversions here
 path-converters:
   - download-path: \\10.0.1.1\
     plex-path: /mnt/nas/
@@ -7,4 +15,12 @@ path-converters:
     plex-path: /mnt/media/Videos
   - download-path: /mnt/downloads/TV
     plex-path: /mnt/media/TV
+
+# optional
+# server port, will default to 5000
+#port: 5000
+
+# optional
+# listen address, will default to 0.0.0.0 (any address)
+#listen-address: 127.0.0.1
 

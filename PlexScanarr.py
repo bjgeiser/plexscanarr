@@ -104,5 +104,7 @@ if __name__ == '__main__':
 
     logger.info(f"Connected to {plex.friendlyName} running: {plex.platform} version: {plex.version}")
 
-    app.run(debug=True, host="0.0.0.0")
+    port = config.get("port") if config.get("port") else 5000
+    host = config.get("listen-address") if config.get("listen-address") else "0.0.0.0"
+    app.run(debug=True, host=host, port=port)
     
