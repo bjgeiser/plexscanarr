@@ -120,8 +120,10 @@ if __name__ == '__main__':
 
     logger.info(f"Command Line Args: {args}")
 
+    uvicornLog = 'error'
     if args.verbose:
         logger.level = logging.DEBUG
+        uvicornLog = "debug"
 
     f = open('config.yaml', 'r')
     config = yaml.safe_load(f)
@@ -134,4 +136,4 @@ if __name__ == '__main__':
     port = config.get("port") if config.get("port") else 5000
     host = config.get("listen-address") if config.get("listen-address") else "0.0.0.0"
 
-    uvicorn.run(app, host="0.0.0.0", port=port, log_level="debug", log_config=None)
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level=uvicornLog, log_config=None)
