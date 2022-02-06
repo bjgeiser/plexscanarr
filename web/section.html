@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>plexscanarr</title>
+    <link rel="stylesheet" href="/files/style.css">
 </head>
 <body>
+    <a href=/>🏠</a><br>
     <b>plexscanarr</b><br>
     <br>
     Connected to: {plex.friendlyName}<br>
@@ -12,7 +14,7 @@
     Version: {plex.version}<br>
     <br>
     <b>{section.title}: {count} items </b>
-    <table border=1>
+    <table>
         <tr><th>Title</th><th>Paths</th><th>Scan</th><tr>
         {tableRows}
     </table>

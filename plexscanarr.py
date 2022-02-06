@@ -9,7 +9,7 @@ import plexapi
 import uvicorn
 import yaml
 from fastapi import FastAPI, Response, Request, Body
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from plexapi.server import PlexServer
 
 app = FastAPI()
@@ -34,6 +34,11 @@ def normalizeFolders(path):
             path = path + "/"
     return path
 
+def getFolderPath(path):
+    root, ext = os.path.splitext(path)
+    if ext:
+        path = os.path.dirname(root)
+    return path
 
 def transformToPlexPath(notificationPath):
     global config
@@ -121,15 +126,17 @@ def item_scan_handler(itemKey: int):
     item = plex.fetchItem(itemKey)
     section = plex.library.sectionByID(item.librarySectionID)
     for location in item.locations:
-        root, ext = os.path.splitext(location)
-        if ext:
-            location = os.path.dirname(root)
+        location = getFolderPath(location)
 
         logger.info(f"Requesting Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}")
         section.update(location)
 
     time.sleep(1)
     return RedirectResponse(url='/')
+
+@app.get("/files/{name}")
+def get_file(name: str):
+    return FileResponse(f"web/files/{name}")
 
 def sectionPage(section):
     global plex
@@ -139,7 +146,7 @@ def sectionPage(section):
     for item in items:
         tableRows += f"<tr><td>{item.title}</td><td>"
         for location in item.locations:
-            tableRows += f"{location}<br>"
+            tableRows += f"{getFolderPath(location)}<br>"
         scanning = f"<a href=/item/{item.ratingKey}/scan>🔎<a>"# if item.refreshing else f"<a href=/section/{section.key}/scan>🔎</a>"
         tableRows += f"<td>{scanning}</td>"
         tableRows += "</td></tr>"
