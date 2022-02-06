@@ -4,7 +4,9 @@ FROM python:3.11.0a5-alpine3.15
 WORKDIR /PlexScanarr
 COPY *.py requirements.txt /PlexScanarr/
 
-RUN pip install -r requirements.txt  && \
+RUN apk add  --no-cache build-base python3-dev linux-headers && \
+    pip install -r requirements.txt  && \
+    apk del build-base python3-dev linux-headers && \
     rm -rf /var/cache/apk/* && \
     rm -rf ~/.cache/pip
 
