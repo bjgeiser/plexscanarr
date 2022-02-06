@@ -128,6 +128,7 @@ def item_scan_handler(itemKey: int):
         logger.info(f"Requesting Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}")
         section.update(location)
 
+    time.sleep(1)
     return RedirectResponse(url='/')
 
 def sectionPage(section):

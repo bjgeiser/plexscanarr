@@ -44,5 +44,5 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./config.yaml:/PlexScanarr/config.yaml
+      - ./config.yaml:/plexscanarr/config.yaml
 ```
