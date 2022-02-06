@@ -2,7 +2,7 @@
 Webhook server to start plex scans initiated by Sonarr, Radarr and Lidarr webhook posts.  This will limit the scan to only the media item being added and not the full library.
 
 ### Setup
-Configure a webhook connector to send events to plexscannar it then apply any path transformations supplied and search the configured plex server for scans to initiate.
+Configure a webhook connector to send events to plexscannar it will then apply any path transformations supplied and search the configured plex server for scans to initiate.
 
 ### Sample `config.yaml`
 ```yaml
@@ -45,5 +45,4 @@ services:
       - 5000:5000
     volumes:
       - ./config.yaml:/PlexScanarr/config.yaml
-
 ```
