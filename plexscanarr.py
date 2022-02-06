@@ -206,13 +206,13 @@ def post_handler(request: Request, notification: dict = Body(...)):
     if notification.get("eventType"):
         eventType = notification['eventType']
         if not eventType == "Grab":
-            if agent.startswith("Sonarr"):
+            if agent.startswith("Sonarr") and notification.get('series'):
                 scanPlex(notification['series']['path'])
-            elif agent.startswith("Radarr"):
+            elif agent.startswith("Radarr") and notification.get('movie'):
                 scanPlex(notification['movie']['folderPath'])
-            elif agent.startswith("Lidarr"):
+            elif agent.startswith("Lidarr") and notification.get('artist'):
                 scanPlex(notification['artist']['path'])
-            elif agent.startswith("Readarr"):
+            elif agent.startswith("Readarr") and notification.get('author'):
                 scanPlex(notification['author']['path'])
     elif notification.get("path"):
         scanPlex(notification['path'])
