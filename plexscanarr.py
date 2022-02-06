@@ -57,7 +57,7 @@ def transformToPlexPath(notificationPath):
 
 
 def scanPlex(notificationPath):
-    global plex, sections
+    global plex
     scanned = False
     sections = plex.library.sections()
 
@@ -78,7 +78,8 @@ def scanPlex(notificationPath):
 
 
 def mainPage():
-    global plex, sections
+    global plex
+    sections = plex.library.sections()
     tableRows = ""
     for section in sections:
         tableRows += f"<tr><td><a href=/section/{section.key}>{section.title}</a></td><td>"
@@ -89,7 +90,7 @@ def mainPage():
         tableRows += "</td></tr>"
 
     scanning = False
-    for section in plex.library.sections():
+    for section in sections:
         if section.refreshing:
             scanning = True
             break
@@ -102,18 +103,12 @@ def mainPage():
 
     return html
 
-def getSection(key):
-    global sections, plex
-    sections = plex.library.sections()
-    for section in sections:
-        if section.key == int(key):
-            return section
-    return None
+
 
 @app.get('/section/{key}/stop')
 def stop_scan_handler(key: int):
-    global sections, plex
-    section = getSection(key)
+    global plex
+    section = plex.library.sectionByID(key)
     if section:
         section.cancelUpdate()
         time.sleep(1)
@@ -122,8 +117,8 @@ def stop_scan_handler(key: int):
 
 @app.get('/section/{key}/scan')
 def start_scan_handler(key: int):
-    global sections, plex
-    section = getSection(key)
+    global plex
+    section = plex.library.sectionByID(key)
     if section:
         section.update()
         time.sleep(1)
@@ -132,13 +127,12 @@ def start_scan_handler(key: int):
 
 @app.get('/item/{itemKey}/scan')
 def item_scan_handler(itemKey: int):
-    global sections, plex
+    global plex
     item = plex.fetchItem(itemKey)
     section = plex.library.sectionByID(item.librarySectionID)
     for location in item.locations:
         location = getFolderPath(location)
-
-        logger.info(f"Requesting Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}")
+        logger.info(f"Requesting Manual Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}")
         section.update(location)
 
     time.sleep(1)
@@ -169,7 +163,7 @@ def sectionPage(section):
         tableRows += f"<tr><td>{item.title}</td><td>"
         for location in item.locations:
             tableRows += f"{getFolderPath(location)}<br>"
-        scanning = f"<a href=/item/{item.ratingKey}/scan>🔎<a>"# if item.refreshing else f"<a href=/section/{section.key}/scan>🔎</a>"
+        scanning = f"<a href=/item/{item.ratingKey}/scan>🔎<a>"
         tableRows += f"<td>{scanning}</td>"
         tableRows += "</td></tr>"
 
@@ -180,14 +174,14 @@ def sectionPage(section):
 
 @app.get('/section/{key}')
 def section_scanner_handler(key: int):
-    global sections, plex
-    section = getSection(key)
+    global plex
+    section = plex.library.sectionByID(key)
     logger.info(f"Loading section page for: {section.title}")
     return Response(sectionPage(section))
 
 @app.get('/')
 def get_handler():
-    global sections, plex
+    global plex
     sections = plex.library.sections()
     return Response(mainPage())
 
@@ -195,9 +189,9 @@ def get_handler():
 @app.put('/')
 @app.post('/')
 def post_handler(request: Request, notification: dict = Body(...)):
-    global sections, plex
+    global plex
 
-    agent = request.headers['user-agent']
+    agent = request.headers.get('user-agent')
     address = request.client
     eventType = notification.get("eventType") if notification.get("eventType") else "Unknown"
 
@@ -228,7 +222,7 @@ def post_handler(request: Request, notification: dict = Body(...)):
 
 
 if __name__ == '__main__':
-    global sections, plex, config
+    global plex, config
 
     '''Process command line argurments'''
     parser = argparse.ArgumentParser(description='PlexScanarr', epilog=f'Example of use: {sys.argv[0]} -v')
@@ -250,7 +244,6 @@ if __name__ == '__main__':
 
     try:
         plex = PlexServer(config.get("plex-server"), config.get("plex-token"))
-        sections = plex.library.sections()
         logger.info(f"Connected to {plex.friendlyName} running: {plex.platform} version: {plex.version}")
     except Exception as e:
         logger.error(f"Failed to connect to plex server Error: {e}")
