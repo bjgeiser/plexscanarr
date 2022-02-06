@@ -210,6 +210,12 @@ def post_handler(request: Request, notification: dict = Body(...)):
                 scanPlex(notification['series']['path'])
             elif agent.startswith("Radarr"):
                 scanPlex(notification['movie']['folderPath'])
+            elif agent.startswith("Lidarr"):
+                scanPlex(notification['artist']['path'])
+            elif agent.startswith("Readarr"):
+                scanPlex(notification['author']['path'])
+    elif notification.get("path"):
+        scanPlex(notification['path'])
 
     return 'Hook accepted'
 
