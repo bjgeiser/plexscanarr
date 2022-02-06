@@ -3,11 +3,13 @@ import json
 import logging
 import os
 import sys
+import time
 
 import plexapi
 import uvicorn
 import yaml
 from fastapi import FastAPI, Response, Request, Body
+from fastapi.responses import RedirectResponse
 from plexapi.server import PlexServer
 
 app = FastAPI()
@@ -69,26 +71,95 @@ def scanPlex(notificationPath):
         logger.info(f"Not matches found for {notificationPath}")
 
 
-def webPage():
-    global plex, section
-    html = "<b>PlexScanarr</b><br><br>"
-    html += f"Connected to: {plex.friendlyName}<br>running: {plex.platform}<br>version: {plex.version}<br><br>"
-    html += "<table border=1><tr><td><b>Library</b></td><td><b>Paths</b></td>"
+def mainPage():
+    global plex, sections
+    tableRows = ""
     for section in sections:
-        html += f"<tr><td>{section.title}</td><td>"
+        tableRows += f"<tr><td><a href=/section/{section.key}>{section.title}</a></td><td>"
         for location in section.locations:
-            html += f"{location}<br>"
-        html += "</td></tr>"
-    html += "</table>"
+            tableRows += f"{location}<br>"
+        scanning = f"<a href=/section/{section.key}/stop>🛑<a>" if section.refreshing else f"<a href=/section/{section.key}/scan>🔎</a>"
+        tableRows += f"<td>{scanning}</td>"
+        tableRows += "</td></tr>"
+
+    with open('web/main.html', 'r') as file:
+        html = f"{file.read()}".format(**globals(), **locals())
 
     return html
 
+def getSection(key):
+    global sections, plex
+    sections = plex.library.sections()
+    for section in sections:
+        if section.key == int(key):
+            return section
+    return None
+
+@app.get('/section/{key}/stop')
+def stop_scan_handler(key: int):
+    global sections, plex
+    section = getSection(key)
+    if section:
+        section.cancelUpdate()
+        time.sleep(1)
+
+    return RedirectResponse(url='/')
+
+@app.get('/section/{key}/scan')
+def start_scan_handler(key: int):
+    global sections, plex
+    section = getSection(key)
+    if section:
+        section.update()
+        time.sleep(1)
+
+    return RedirectResponse(url='/')
+
+@app.get('/item/{itemKey}/scan')
+def item_scan_handler(itemKey: int):
+    global sections, plex
+    item = plex.fetchItem(itemKey)
+    section = plex.library.sectionByID(item.librarySectionID)
+    for location in item.locations:
+        root, ext = os.path.splitext(location)
+        if ext:
+            location = os.path.dirname(root)
+
+        logger.info(f"Requesting Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}")
+        section.update(location)
+
+    return RedirectResponse(url='/')
+
+def sectionPage(section):
+    global plex
+    tableRows = ""
+    items = section.all()
+    count = len(items)
+    for item in items:
+        tableRows += f"<tr><td>{item.title}</td><td>"
+        for location in item.locations:
+            tableRows += f"{location}<br>"
+        scanning = f"<a href=/item/{item.ratingKey}/scan>🔎<a>"# if item.refreshing else f"<a href=/section/{section.key}/scan>🔎</a>"
+        tableRows += f"<td>{scanning}</td>"
+        tableRows += "</td></tr>"
+
+    with open('web/section.html', 'r') as file:
+        html = f"{file.read()}".format(**globals(), **locals())
+
+    return html
+
+@app.get('/section/{key}')
+def section_scanner_handler(key: int):
+    global sections, plex
+    section = getSection(key)
+    logger.info(f"Loading section page for: {section.title}")
+    return Response(sectionPage(section))
 
 @app.get('/')
 def get_handler():
     global sections, plex
     sections = plex.library.sections()
-    return Response(webPage())
+    return Response(mainPage())
 
 
 @app.put('/')
