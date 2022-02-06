@@ -1,24 +1,27 @@
-import logging
-import plexapi
-import json
-import yaml
-import os
-from plexapi.server import PlexServer
-from fastapi import FastAPI, Response, Request, Body
-import uvicorn
 import argparse
+import json
+import logging
+import os
 import sys
+
+import plexapi
+import uvicorn
+import yaml
+from fastapi import FastAPI, Response, Request, Body
+from plexapi.server import PlexServer
 
 app = FastAPI()
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def normalizeSlashes(path, plexPath):
     if "\\" in plexPath:
-        return path.replace("/","\\")
+        return path.replace("/", "\\")
     else:
-        return path.replace("\\","/")
+        return path.replace("\\", "/")
+
 
 def normalizeFolders(path):
     if "\\" in path:
@@ -28,6 +31,7 @@ def normalizeFolders(path):
         if not path.endswith("/"):
             path = path + "/"
     return path
+
 
 def transformToPlexPath(notificationPath):
     global config
@@ -64,6 +68,7 @@ def scanPlex(notificationPath):
     if not scanned:
         logger.info(f"Not matches found for {notificationPath}")
 
+
 def webPage():
     global plex, section
     html = "<b>PlexScanarr</b><br><br>"
@@ -78,11 +83,13 @@ def webPage():
 
     return html
 
+
 @app.get('/')
 def get_handler():
     global sections, plex
     sections = plex.library.sections()
     return Response(webPage())
+
 
 @app.put('/')
 @app.post('/')
@@ -128,12 +135,17 @@ if __name__ == '__main__':
     f = open('config.yaml', 'r')
     config = yaml.safe_load(f)
 
-    plex = PlexServer(config["plex-server"], config["plex-token"])
-    sections = plex.library.sections()
-
-    logger.info(f"Connected to {plex.friendlyName} running: {plex.platform} version: {plex.version}")
+    try:
+        plex = PlexServer(config.get("plex-server"), config.get("plex-token"))
+        sections = plex.library.sections()
+        logger.info(f"Connected to {plex.friendlyName} running: {plex.platform} version: {plex.version}")
+    except Exception as e:
+        logger.error(f"Failed to connect to plex server Error: {e}")
+        logger.debug(e, exc_info=True)
+        exit(-1)
 
     port = config.get("port") if config.get("port") else 5000
     host = config.get("listen-address") if config.get("listen-address") else "0.0.0.0"
 
-    uvicorn.run(app, host="0.0.0.0", port=port, log_level=uvicornLog, log_config=None)
+    logger.info(f"Starting server at: http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port, log_level=uvicornLog, log_config=None)
