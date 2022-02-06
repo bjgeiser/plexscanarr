@@ -1,8 +1,8 @@
-FROM python:3.11.0a5-alpine3.15
+FROM python:3.10.2-alpine3.15
 
 #set the working directory to /bright/
 WORKDIR /PlexScanarr
-COPY *.py requirements.txt /PlexScanarr/
+COPY *.py VERSION requirements.txt /PlexScanarr/
 
 RUN apk add  --no-cache build-base python3-dev linux-headers && \
     pip install -r requirements.txt  && \
@@ -11,4 +11,4 @@ RUN apk add  --no-cache build-base python3-dev linux-headers && \
     rm -rf ~/.cache/pip
 
 EXPOSE 5000
-ENTRYPOINT ["python", "/PlexScanarr/PlexScanarr.py", "-c"]
+ENTRYPOINT ["python", "/PlexScanarr/PlexScanarr.py"]
