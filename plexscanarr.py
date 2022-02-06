@@ -194,24 +194,23 @@ def post_handler(request: Request, notification: dict = Body(...)):
     agent = request.headers.get('user-agent')
     address = request.client
     eventType = notification.get("eventType") if notification.get("eventType") else "Unknown"
-
     logger.info(f"Rx Event {eventType} from {agent} at {request.scope['client']} ")
-    logger.debug(f"Event Json: {notification}")
     scanned = False
+    ignoredEventTypes = ["Grab", "Test"]
 
-    if notification.get("eventType"):
-        eventType = notification['eventType']
-        if not eventType == "Grab":
-            if agent.startswith("Sonarr") and notification.get('series'):
-                scanned = scanPlex(notification['series']['path'])
-            elif agent.startswith("Radarr") and notification.get('movie'):
-                scanned = scanPlex(notification['movie']['folderPath'])
-            elif agent.startswith("Lidarr") and notification.get('artist'):
-                scanned = scanPlex(notification['artist']['path'])
-            elif agent.startswith("Readarr") and notification.get('author'):
-                scanned = scanPlex(notification['author']['path'])
-    elif notification.get("path"):
+    if eventType == "Unknown" and notification.get("path"):
         scanned = scanPlex(notification['path'])
+    elif not eventType in ignoredEventTypes:
+        if agent.startswith("Sonarr") and notification.get('series'):
+            scanned = scanPlex(notification['series']['path'])
+        elif agent.startswith("Radarr") and notification.get('movie'):
+            scanned = scanPlex(notification['movie']['folderPath'])
+        elif agent.startswith("Lidarr") and notification.get('artist'):
+            scanned = scanPlex(notification['artist']['path'])
+        elif agent.startswith("Readarr") and notification.get('author'):
+            scanned = scanPlex(notification['author']['path'])
+    elif eventType in ignoredEventTypes: #don't dump ignored types to logs
+        scanned = True
 
     if scanned:
         logger.debug(f"Event Json: {notification}")
