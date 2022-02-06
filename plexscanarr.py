@@ -73,7 +73,8 @@ def scanPlex(notificationPath):
                 scanned = True
 
     if not scanned:
-        logger.info(f"Not matches found for {notificationPath}")
+        logger.info(f"No matches found for {notificationPath}")
+    return scanned
 
 
 def mainPage():
@@ -202,20 +203,26 @@ def post_handler(request: Request, notification: dict = Body(...)):
 
     logger.info(f"Rx Event {eventType} from {agent} at {request.scope['client']} ")
     logger.debug(f"Event Json: {notification}")
+    scanned = False
 
     if notification.get("eventType"):
         eventType = notification['eventType']
         if not eventType == "Grab":
             if agent.startswith("Sonarr") and notification.get('series'):
-                scanPlex(notification['series']['path'])
+                scanned = scanPlex(notification['series']['path'])
             elif agent.startswith("Radarr") and notification.get('movie'):
-                scanPlex(notification['movie']['folderPath'])
+                scanned = scanPlex(notification['movie']['folderPath'])
             elif agent.startswith("Lidarr") and notification.get('artist'):
-                scanPlex(notification['artist']['path'])
+                scanned = scanPlex(notification['artist']['path'])
             elif agent.startswith("Readarr") and notification.get('author'):
-                scanPlex(notification['author']['path'])
+                scanned = scanPlex(notification['author']['path'])
     elif notification.get("path"):
-        scanPlex(notification['path'])
+        scanned = scanPlex(notification['path'])
+
+    if scanned:
+        logger.debug(f"Event Json: {notification}")
+    else:
+        logger.info(f"Event Json: {notification}")
 
     return 'Hook accepted'
 
