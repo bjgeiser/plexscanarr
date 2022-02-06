@@ -6,12 +6,19 @@
     <link rel="stylesheet" href="/files/style.css">
 </head>
 <body>
-<a href=/>🏠</a><br>
-<b>plexscanarr</b><br>
+    <a href=/>🏠</a>&nbsp;<b>plexscanarr</b><br>
     <br>
     Connected to: {plex.friendlyName}<br>
     Running: {plex.platform}<br>
     Version: {plex.version}<br>
+    <br>
+    <table>
+        <tr>
+            <td><b>Server Scan Status:</b></td>
+            <td>{scanStatus}</td>
+            <td>{scanCommand}</td>
+        </tr>
+    </table>
     <br>
     <table>
         <tr><th>Library</th><th>Paths</th><th>Scan</th><tr>

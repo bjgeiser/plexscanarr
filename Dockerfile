@@ -2,9 +2,9 @@ FROM python:3.10.2-alpine3.15
 
 #set the working directory to /bright/
 WORKDIR /plexscanarr
-COPY *.py VERSION requirements.txt web /plexscanarr/
-COPY web/main.html /plexscanarr/web/
-COPY web/section.html /plexscanarr/web/
+COPY *.py VERSION requirements.txt ./web /plexscanarr/
+COPY web /plexscanarr/web
+
 
 RUN apk add  --no-cache build-base python3-dev linux-headers && \
     pip install -r requirements.txt  && \

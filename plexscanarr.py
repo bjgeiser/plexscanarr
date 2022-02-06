@@ -87,6 +87,15 @@ def mainPage():
         tableRows += f"<td>{scanning}</td>"
         tableRows += "</td></tr>"
 
+    scanning = False
+    for section in plex.library.sections():
+        if section.refreshing:
+            scanning = True
+            break
+
+    scanStatus = "Idle" if not scanning else "Scanning"
+    scanCommand = "<a href=/scan>🔎</a>" if not scanning else "<a href=/stop>🛑</a>"
+
     with open('web/main.html', 'r') as file:
         html = f"{file.read()}".format(**globals(), **locals())
 
@@ -132,6 +141,18 @@ def item_scan_handler(itemKey: int):
         section.update(location)
 
     time.sleep(1)
+    return RedirectResponse(url='/')
+
+@app.get("/stop")
+def stop_full_scan():
+    global plex
+    plex.library.cancelUpdate()
+    return RedirectResponse(url='/')
+
+@app.get("/scan")
+def start_full_scan():
+    global plex
+    plex.library.update()
     return RedirectResponse(url='/')
 
 @app.get("/files/{name}")

@@ -1,7 +1,9 @@
 * {
     font-family: Verdana;
     font-size: small;
-
+}
+th, td {
+  padding: 3px;
 }
 
 body {
