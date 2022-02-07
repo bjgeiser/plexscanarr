@@ -17,6 +17,8 @@ app = FastAPI()
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+STOP_EMOJI_HTML = "&#x1F6D1;"
+MAGNIFY_EMOJI_HTML = "&#x1F50E;"
 
 def normalizeSlashes(path, plexPath):
     if "\\" in plexPath:
@@ -55,7 +57,6 @@ def transformToPlexPath(notificationPath):
 
     return notificationPath
 
-
 def scanPlex(notificationPath):
     global plex
     scanned = False
@@ -80,12 +81,13 @@ def scanPlex(notificationPath):
 def mainPage():
     global plex
     sections = plex.library.sections()
+    totalItems = 0
     tableRows = ""
     for section in sections:
         tableRows += f"<tr><td><a href=/section/{section.key}>{section.title}</a></td><td>"
         for location in section.locations:
             tableRows += f"{location}<br>"
-        scanning = f"<a href=/section/{section.key}/stop>🛑<a>" if section.refreshing else f"<a href=/section/{section.key}/scan>🔎</a>"
+        scanning = f"<a href=/section/{section.key}/stop>{STOP_EMOJI_HTML}<a>" if section.refreshing else f"<a href=/section/{section.key}/scan>{MAGNIFY_EMOJI_HTML}</a>"
         tableRows += f"<td>{scanning}</td>"
         tableRows += "</td></tr>"
 
@@ -96,7 +98,7 @@ def mainPage():
             break
 
     scanStatus = "Idle" if not scanning else "Scanning"
-    scanCommand = "<a href=/scan>🔎</a>" if not scanning else "<a href=/stop>🛑</a>"
+    scanCommand = f"<a href=/scan>{MAGNIFY_EMOJI_HTML}</a>" if not scanning else f"<a href=/stop>{STOP_EMOJI_HTML}</a>"
 
     with open('web/main.html', 'r') as file:
         html = f"{file.read()}".format(**globals(), **locals())
@@ -163,7 +165,7 @@ def sectionPage(section):
         tableRows += f"<tr><td>{item.title}</td><td>"
         for location in item.locations:
             tableRows += f"{getFolderPath(location)}<br>"
-        scanning = f"<a href=/item/{item.ratingKey}/scan>🔎<a>"
+        scanning = f"<a href=/item/{item.ratingKey}/scan>{MAGNIFY_EMOJI_HTML}<a>"
         tableRows += f"<td>{scanning}</td>"
         tableRows += "</td></tr>"
 
