@@ -50,6 +50,11 @@ path-converters:
 # Allow webhook events to cancel a currently active scan in order to scan new media faster 
 # default: false
 #preempt-active-scan: true
+
+# optional
+# Turn on verbose logging
+# default: false
+#verbose: true
 ```
 
 ### Sample `docker-compose.yaml`

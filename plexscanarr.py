@@ -252,17 +252,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open("VERSION", "r") as f:
-        logger.info(f"Starting version: {f.read()} of PlexScanarr")
+        logger.info(f"Starting version: {f.read()} of plexscanarr")
 
     logger.info(f"Command Line Args: {args}")
 
-    uvicornLog = 'error'
-    if args.verbose:
-        logger.level = logging.DEBUG
-        uvicornLog = "debug"
-
     f = open('config.yaml', 'r')
     config = yaml.safe_load(f)
+
+    uvicornLog = 'error'
+    if args.verbose or config.get("verbose"):
+        logger.level = logging.DEBUG
+        uvicornLog = "debug"
 
     try:
         plex = PlexServer(config.get("plex-server"), config.get("plex-token"))
