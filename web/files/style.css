@@ -6,6 +6,10 @@ th, td {
   padding: 3px;
 }
 
+.headerRow {
+    background: linear-gradient(90deg, #c17f34, #db961f, #eebd41, #db961f,#c17f34);
+    color: #333b3a;
+}
 body {
     background-image: linear-gradient( 90deg,#333b3a,#374141 25%,#40362b 75%,#211a17);
     color: whitesmoke;

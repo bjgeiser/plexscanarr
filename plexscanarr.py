@@ -4,12 +4,13 @@ import logging
 import os
 import sys
 import time
+import string
 
 import plexapi
 import uvicorn
 import yaml
 from fastapi import FastAPI, Response, Request, Body
-from fastapi.responses import RedirectResponse, FileResponse
+from fastapi.responses import RedirectResponse, FileResponse, StreamingResponse
 from plexapi.server import PlexServer
 
 app = FastAPI()
@@ -87,33 +88,43 @@ def scanPlex(notificationPath):
         logger.info(f"No matches found for {notificationPath}")
     return scanned
 
+def human_readable_filesize(size, decimal_places=2):
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB', 'PB']:
+        if size < 1024.0 or unit == 'PB':
+            break
+        size /= 1024.0
+    return f"{size:.{decimal_places}f} {unit}"
 
+@app.get('/')
 def mainPage():
     global plex
     sections = plex.library.sections()
     totalItems = 0
-    tableRows = ""
-    for section in sections:
-        tableRows += f"<tr><td><a href=/section/{section.key}>{section.title}</a></td><td>"
-        for location in section.locations:
-            tableRows += f"{location}<br>"
-        scanning = f"<a href=/section/{section.key}/stop>{STOP_EMOJI_HTML}<a>" if section.refreshing else f"<a href=/section/{section.key}/scan>{MAGNIFY_EMOJI_HTML}</a>"
-        tableRows += f"<td>{scanning}</td>"
-        tableRows += "</td></tr>"
 
-    scanning = False
-    for section in sections:
-        if section.refreshing:
-            scanning = True
-            break
+    def loadMainPage():
+        scanning = False
+        for section in sections:
+            if section.refreshing:
+                scanning = True
+                break
 
-    scanStatus = "Idle" if not scanning else "Scanning"
-    scanCommand = f"<a href=/scan>{MAGNIFY_EMOJI_HTML}</a>" if not scanning else f"<a href=/stop>{STOP_EMOJI_HTML}</a>"
+        scanStatus = "Idle" if not scanning else "Scanning"
+        scanCommand = f"<a href=/scan>{MAGNIFY_EMOJI_HTML}</a>" if not scanning else f"<a href=/stop>{STOP_EMOJI_HTML}</a>"
 
-    with open('web/main.html', 'r') as file:
-        html = f"{file.read()}".format(**globals(), **locals())
+        with open('web/main.html', 'r') as file:
+            yield f"{file.read()}".format(**globals(), **locals())
 
-    return html
+        for section in sections:
+            yield f"<tr><td><a href=/section/{section.key}>{section.title}</a></td><td>"
+            for location in section.locations:
+                yield f"{location}<br>"
+            scanning = f"<a href=/section/{section.key}/stop>{STOP_EMOJI_HTML}<a>" if section.refreshing else f"<a href=/section/{section.key}/scan>{MAGNIFY_EMOJI_HTML}</a>"
+            yield f"<td>{scanning}</td>"
+            yield "</td></tr>"
+
+        yield "</table></body></html>"
+
+    return StreamingResponse(loadMainPage(), media_type="text/html")
 
 
 
@@ -177,32 +188,37 @@ def start_full_scan():
 def get_file(name: str):
     return FileResponse(f"web/files/{name}")
 
-def sectionPage(section):
-    global plex
-    tableRows = ""
-    items = section.all()
-    count = len(items)
-    for item in items:
-        tableRows += f"<tr><td>{item.title}</td><td>"
-        for location in item.locations:
-            tableRows += f"{getFolderPath(location)}<br>"
-        scanning = f"<a href=/item/{item.ratingKey}/scan>{MAGNIFY_EMOJI_HTML}<a>"
-        tableRows += f"<td>{scanning}</td>"
-        tableRows += "</td></tr>"
-
-    with open('web/section.html', 'r') as file:
-        html = f"{file.read()}".format(**globals(), **locals())
-
-    return html
 
 @app.get('/section/{key}')
 def section_scanner_handler(key: int):
     global plex
     section = plex.library.sectionByID(key)
     logger.info(f"Loading section page for: {section.title}")
-    return Response(sectionPage(section))
 
-@app.get('/')
+    def loadSectionPage():  #
+        tableRows = ""
+        humanReadableSize = human_readable_filesize(section.totalStorage)
+        count = section.totalSize
+        with open('web/section.html', 'r') as file:
+            yield f"{file.read()}".format(**globals(), **locals())
+
+        alphabet_list = list("0123456789" + string.ascii_lowercase)
+        for letter in alphabet_list:
+            items = section.search(filters={"title<": f"{letter}"})
+
+            for item in items:
+                yield f"<tr><td>{item.title}</td><td>"
+                for location in item.locations:
+                    yield f"{getFolderPath(location)}<br>"
+                scanning = f"<a href=/item/{item.ratingKey}/scan>{MAGNIFY_EMOJI_HTML}<a>"
+                yield f"<td>{scanning}</td>"
+                yield "</td></tr>"
+
+        yield "</table></body></html>"
+
+    return StreamingResponse(loadSectionPage(), media_type="text/html")
+
+
 def get_handler():
     global plex
     sections = plex.library.sections()

@@ -12,10 +12,8 @@
     Running: {plex.platform}<br>
     Version: {plex.version}<br>
     <br>
-    <b>{section.title}: {count} items </b>
+
     <table>
-        <tr><th>Title</th><th>Paths</th><th>Scan</th><tr>
-        {tableRows}
-    </table>
-</body>
-</html>
+        <tr class="headerRow"><th colspan="3"><b>{section.title}:</b> {section.totalSize} items ({humanReadableSize})</th></tr>
+        <tr class="headerRow"><th>Title</th><th>Paths</th><th>Scan</th><tr>
+
