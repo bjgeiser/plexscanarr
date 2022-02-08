@@ -58,7 +58,7 @@ def transformToPlexPath(notificationPath):
     return notificationPath
 
 def scanPlex(notificationPath):
-    global plex
+    global plex, config
     scanned = False
     sections = plex.library.sections()
 
@@ -69,6 +69,16 @@ def scanPlex(notificationPath):
     for section in sections:
         for location in section.locations:
             if plexPath.startswith(location):
+                if config.get("preempt-active-scan"):
+                    cancel = False
+                    for s in sections:
+                        if s.refreshing:
+                            cancel = True
+                            logger.info(f"Preempt scan in {s.title}, canceling")
+                    if cancel:
+                        logger.info(f"Canceling all active scans in order to handle requested scan")
+                        plex.library.cancelUpdate()
+
                 logger.info(f"Requesting Scan {plexPath} in {section.title}")
                 section.update(plexPath)
                 scanned = True
@@ -132,6 +142,17 @@ def item_scan_handler(itemKey: int):
     global plex
     item = plex.fetchItem(itemKey)
     section = plex.library.sectionByID(item.librarySectionID)
+
+    if config.get("preempt-active-scan"):
+        cancel = False
+        for s in plex.library.sections():
+            if s.refreshing:
+                cancel = True
+                logger.info(f"Preempt scan in {s.title}, canceling")
+        if cancel:
+            logger.info(f"Canceling all active scans in order to handle requested scan")
+            plex.library.cancelUpdate()
+
     for location in item.locations:
         location = getFolderPath(location)
         logger.info(f"Requesting Manual Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}")

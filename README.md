@@ -45,6 +45,11 @@ path-converters:
 # optional
 # listen address, will default to 0.0.0.0 (any address)
 #listen-address: 127.0.0.1
+
+# optional
+# Allow webhook events to cancel a currently active scan in order to scan new media faster 
+# default: false
+#preempt-active-scan: true
 ```
 
 ### Sample `docker-compose.yaml`

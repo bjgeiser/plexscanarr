@@ -1,5 +1,5 @@
 # required
-plex-server: http://{plexserver}}:32400
+plex-server: http://{plexserver}:32400
 
 # optional
 # some plex servers require tokens to access, such as those with multiple local users
@@ -9,10 +9,16 @@ plex-token: replace with token
 # optional
 # if your xxarr software uses different file paths for plex and downloads enter conversions here
 path-converters:
+  # UNC windows path to posix path
   - download-path: \\10.0.1.1\
     plex-path: /mnt/nas/
+  # windows path to posix path
   - download-path: C:\Videos\
     plex-path: /mnt/media/Videos
+  # windows path to windows path
+  - download-path: C:\Videos\
+    plex-path: T:\
+  # posix path to posix path
   - download-path: /mnt/downloads/TV
     plex-path: /mnt/media/TV
 
@@ -23,4 +29,9 @@ path-converters:
 # optional
 # listen address, will default to 0.0.0.0 (any address)
 #listen-address: 127.0.0.1
+
+#optional
+# Allow webhook events to cancel a currently active scan in order to scan new media faster
+# default: false
+#preempt-active-scan: true
 
