@@ -9,7 +9,7 @@ import string
 import plexapi
 import uvicorn
 import yaml
-from fastapi import FastAPI, Response, Request, Body
+from fastapi import FastAPI, Response, Request, Body, WebSocket
 from fastapi.responses import RedirectResponse, FileResponse, StreamingResponse
 from plexapi.server import PlexServer
 
@@ -124,6 +124,34 @@ def mainPage():
 
         yield "</table></body></html>"
 
+        yield """
+        <h1>WebSocket Chat</h1>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+        <script>
+            var ws = new WebSocket("ws://localhost:5001/ws");
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+            function sendMessage(event) {
+                var input = document.getElementById("messageText")
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        </script>
+        """
+
+
+
     return StreamingResponse(loadMainPage(), media_type="text/html")
 
 
@@ -179,9 +207,10 @@ def stop_full_scan():
     return RedirectResponse(url='/')
 
 @app.get("/scan")
-def start_full_scan():
+async def start_full_scan():
     global plex
     plex.library.update()
+    await log_to_browser("scan")
     return RedirectResponse(url='/')
 
 @app.get("/files/{name}")
@@ -227,8 +256,8 @@ def get_handler():
 
 @app.put('/')
 @app.post('/')
-def post_handler(request: Request, notification: dict = Body(...)):
-    global plex
+async def post_handler(request: Request, notification: dict = Body(...)):
+    global plex, ws
 
     agent = request.headers.get('user-agent')
     address = request.client
@@ -236,6 +265,7 @@ def post_handler(request: Request, notification: dict = Body(...)):
     logger.info(f"Rx Event {eventType} from {agent} at {request.scope['client']} ")
     scanned = False
     ignoredEventTypes = ["Grab", "Test"]
+    await log_to_browser(f"Rx Event {eventType} from {agent} at {request.scope['client']} ")
 
     if eventType == "Unknown" and notification.get("path"):
         scanned = scanPlex(notification['path'])
@@ -258,6 +288,34 @@ def post_handler(request: Request, notification: dict = Body(...)):
 
     return 'Hook accepted'
 
+
+
+#@app.websocket("/ws")
+#async def websocket_endpoint(websocket: WebSocket):
+#    global ws
+#    await websocket.accept()
+#    ws = websocket
+#    while True:
+#        data = await websocket.receive_text()
+#        await websocket.send_text(f"Message text was: {data}")
+
+from asyncio import Queue
+
+queue: Queue = None
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    global queue
+    queue = Queue()
+    while True:
+        msg = await queue.get()
+        await websocket.send_text(msg)
+
+
+async def log_to_browser(msg):
+    if queue:
+      await queue.put(msg)
 
 if __name__ == '__main__':
     global plex, config
