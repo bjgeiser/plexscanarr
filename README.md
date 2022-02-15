@@ -1,7 +1,8 @@
 # plexscanarr
 Webhook server to start plex scans initiated by Sonarr, Radarr and Lidarr webhook posts.  This will limit the scan to only the media item being added and not the full library.  
 
-Docker Hub: https://hub.docker.com/r/bjgeiser/plexscanarr
+Docker Hub: https://hub.docker.com/r/bjgeiser/plexscanarr <br>
+GitHub: https://github.com/bjgeiser/plexscanarr
 
 ## Features
 * Start targeted scans based on webhook posts/puts from Sonarr, Radarr and Lidar
