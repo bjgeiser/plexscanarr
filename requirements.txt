@@ -1,6 +1,7 @@
 plexapi
 pyyaml
 
+click
 uvicorn
 fastapi
 fastapi_utils
