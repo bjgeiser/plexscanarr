@@ -45,13 +45,13 @@ async def main_async(
     plex = PlexScan(server=plex_server, token=plex_token, preempt_active_scan=preempt_active_scan)
     arr_webhook = ArrWebhook(plex=plex, path_converter=path_converter)
     frontend = FrontEnd()
-    websocket = PlexWebsocket(handle_rx=None)
+    plex_websocket = PlexWebsocket(handle_rx=None)
 
     app = FastAPI()
     app.include_router(arr_webhook.router, tags=["Webhook"])
     app.include_router(frontend.router, tags=["Frontend"])
     app.include_router(plex.router, tags=["Plex"], prefix="/plex")
-    app.include_router(websocket.router, tags=["Websocket"])
+    app.include_router(plex_websocket.router, tags=["Websocket"])
 
     app.add_middleware(
         CORSMiddleware,
@@ -60,7 +60,7 @@ async def main_async(
         allow_headers=["*"],
     )
 
-    webserver_port = config.get("port", 5000)
+    webserver_port = config.get("port", 5002)
     config = uvicorn.Config(app=app, host="0.0.0.0", port=webserver_port, log_level=log_level.lower())
     server = uvicorn.Server(config=config)
 

@@ -1,8 +1,8 @@
 import logging
-import asyncio
 from fastapi.responses import FileResponse
 
 import classy_fastapi as cfa
+
 logger = logging.getLogger(__name__)
 
 
@@ -12,4 +12,4 @@ class FrontEnd(cfa.Routable):
 
     @cfa.get("/")
     async def get_home(self):
-        return FileResponse("html/build/index.html")
+        return FileResponse("html/public/index.html")

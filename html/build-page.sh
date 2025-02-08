@@ -13,5 +13,5 @@ PATH=$PATH:$PWD/nodejs/node-$VERSION-$DISTRO/bin
 PATH=$PATH bash -c "npm install"
 PATH=$PATH bash -c "npm run build"
 
-rm -rf ./nodejs
+# rm -rf ./nodejs
 

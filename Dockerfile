@@ -11,7 +11,7 @@ FROM python:3.13
 WORKDIR /plexscanarr
 COPY VERSION pyproject.toml /plexscanarr/
 #COPY web /plexscanarr/web
-COPY --from=react_builder /html/build/index.html /plexscanarr/html/build/index.html
+COPY --from=react_builder /html/public/index.html /plexscanarr/html/index.html
 COPY source /plexscanarr/source
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
