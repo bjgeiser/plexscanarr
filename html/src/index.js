@@ -1,11 +1,12 @@
-// index.js
-
+// filepath: /Users/ryangoss/Dev/plexscanarr/html/src/index.js
 import React from "react";
-import './main.css';
-
-import { createRoot } from "react-dom/client";
+import ReactDOM from "react-dom";
 import Main from "./main";
+import "./main.css";
 
-const container = document.getElementById("root");
-const root = createRoot(container);
-root.render(<Main />);
+ReactDOM.render(
+  <React.StrictMode>
+    <Main />
+  </React.StrictMode>,
+  document.getElementById("root")
+);

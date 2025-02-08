@@ -26,6 +26,12 @@ function Libraries(props) {
             })
     }, [])
 
+    const handleScanClick = (library) => {
+        console.log('Scan button clicked for library:', library);
+        // Set a breakpoint on the line below
+        debugger;
+    };
+
 
     return (
         <div className="overflow-x-auto">
@@ -63,7 +69,7 @@ function Libraries(props) {
                                     <button id={"active_" + library["key"]+"_stop_scanning"} className="text-sm font-bold">Stop</button>
                                 </div>)
                                 :
-                                (<button id={"active_" + library["key"]+"_not_scanning"} className="text-sm font-bold">Scan</button>)
+                                (<button id={"active_" + library["key"]+"_not_scanning"} className="text-sm font-bold" onClick={() => handleScanClick(library)}>Scan</button>)
                             }
                         </td>
                     </tr>
@@ -73,7 +79,7 @@ function Libraries(props) {
             </table>
             )}
         </div>
-    );
+   );
 }
 
 export default Libraries;

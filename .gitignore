@@ -108,3 +108,5 @@ dmypy.json
 config.yaml
 
 html/node_modules/
+html/nodejs/
+.DS_Store
