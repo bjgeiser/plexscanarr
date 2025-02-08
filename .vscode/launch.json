@@ -6,15 +6,17 @@
       "request": "launch",
       "name": "Launch Chrome against localhost",
       "url": "http://localhost:8080",
-      "webRoot": "${workspaceFolder}/html/src",
+      "webRoot": "${workspaceFolder}/html/",
       "sourceMaps": true,
       "trace": true,
       "sourceMapPathOverrides": {
-        "webpack:///src/*": "${webRoot}/*",
-        "webpack:///*": "${workspaceFolder}/*",
-        "webpack:///./*": "${workspaceFolder}/*",
-        "webpack:///src/src/*": "${webRoot}/*"
-      }
+        "webpack:///./~/*": "${webRoot}/node_modules/*",
+        "webpack:////*": "/*",
+        "webpack://@?:*/*": "${workspaceFolder}/html/*",
+
+  // and some more patterns...
+}
+
     }
   ]
 }
