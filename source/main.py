@@ -13,7 +13,6 @@ from plex_websocket import PlexWebsocket
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from websocket_service import WebsocketService
 from source.frontend import FrontEnd
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
@@ -46,13 +45,13 @@ async def main_async(
     plex = PlexScan(server=plex_server, token=plex_token, preempt_active_scan=preempt_active_scan)
     arr_webhook = ArrWebhook(plex=plex, path_converter=path_converter)
     frontend = FrontEnd()
-    websocket = PlexWebsocket(handle_rx=None)
+    plex_websocket = PlexWebsocket(handle_rx=None)
 
     app = FastAPI()
     app.include_router(arr_webhook.router, tags=["Webhook"])
     app.include_router(frontend.router, tags=["Frontend"])
     app.include_router(plex.router, tags=["Plex"], prefix="/plex")
-    app.include_router(websocket.router, tags=["Websocket"])
+    app.include_router(plex_websocket.router, tags=["Websocket"])
 
     app.add_middleware(
         CORSMiddleware,
