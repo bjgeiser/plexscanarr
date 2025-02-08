@@ -107,3 +107,4 @@ dmypy.json
 *.bak
 config.yaml
 
+html/node_modules/

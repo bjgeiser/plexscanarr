@@ -10,7 +10,7 @@ from path_converter import PathConverter
 from arr_webhook import ArrWebhook
 from plex_scan import PlexScan
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -44,6 +44,14 @@ async def main_async(
 
     app = FastAPI()
     app.include_router(arr_webhook.router, tags=["Webhook"])
+    app.include_router(plex.router, tags=["Plex"], prefix="/plex")
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     webserver_port = config.get("port", 5000)
     config = uvicorn.Config(app=app, host="0.0.0.0", port=webserver_port, log_level=log_level.lower())

@@ -1,13 +1,17 @@
 import logging
 import asyncio
 from plexapi.server import PlexServer
+import classy_fastapi as cfa
+
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+type_lut = { "artist" : "Music" , "show" :  "TV Shows", "series" :  "TV Shows", "movie" : "Movies" }
 
-class PlexScan:
+class PlexScan(cfa.Routable):
     def __init__(self, server: str, token: str, preempt_active_scan: bool = False) -> None:
+        super().__init__()
         self.preempt_active_scan = preempt_active_scan
         self.plex = PlexServer(baseurl=server, token=token)
         self.version = self.plex.version
@@ -16,15 +20,42 @@ class PlexScan:
         logger.info(f"Connected to {self.friendly_name} running: {self.platform} version: {self.version}")
         self.work_queue = asyncio.Queue()
 
+    @cfa.get("/info")
+    async def info(self):
+        return {"server": self.friendly_name, "version": self.version, "platform": self.platform, "scan_active": self.scan_active()}
 
-    async def get_locations(self) -> list[str]:
-        locations = []
+    @cfa.get("/libraries")
+    async def get_libraries(self) -> list[str]:
+        return_list = []
         sections = self.plex.library.sections()
+
         for section in sections:
+            _type = section.type
+
+            if "none" in section.agent:
+                _type = section.CONTENT_TYPE
+            else:
+                _type = section.agent.split(".")[-1]
+
+            if _type in type_lut:
+                _type = type_lut[_type]
+
+            _type = _type[0].upper() + _type[1:]
+
+            section_json = {"name": section.title, "key": section.key, "locations": [], "type": _type, "scan_active": section.refreshing}
             for location in section.locations:
-                logger.info(f"{location}")
-                locations.append(location)
-        return locations
+                section_json["locations"].append(location)
+            return_list.append(section_json)
+
+        return return_list
+
+    def scan_active(self) -> bool:
+        sections = self.plex.library.sections()
+        scanning = False
+        for section in sections:
+            if section.refreshing:
+                scanning = True
+        return scanning
 
 
     async def scan_path(self, path) -> bool:
