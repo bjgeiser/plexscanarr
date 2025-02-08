@@ -18,7 +18,7 @@ function Libraries(props) {
         console.log("Scan started:", data);
         // Start polling
         const intervalId = setInterval(() => {
-          fetch(`${rest_url}plex/libraries/status?key=${library.key}`)
+          fetch(`${rest_url}plex/libraries?key=${library.key}`)
             .then((response) => response.json())
             .then((status) => {
               setLibraries((prevLibraries) => prevLibraries.map((lib) => (lib.key === library.key ? { ...lib, scan_active: status.scan_active } : lib)));

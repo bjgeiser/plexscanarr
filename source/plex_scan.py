@@ -60,33 +60,46 @@ class PlexScan(cfa.Routable):
             self.plex.library.update()
 
     @cfa.get("/libraries")
-    async def get_libraries(self) -> list[str]:
+    async def get_libraries(self, key: int | None = None) -> list[str]:
         return_list = []
-        sections = self.plex.library.sections()
+        if key:
+            section = self.plex.library.sectionByID(key)
+            if section:
+                return_list.append(
+                    {
+                        "name": section.title,
+                        "key": section.key,
+                        "locations": section.locations,
+                        "type": section.type,
+                        "scan_active": section.refreshing,
+                    }
+                )
+        else:
+            sections = self.plex.library.sections()
 
-        for section in sections:
-            _type = section.type
+            for section in sections:
+                _type = section.type
 
-            if "none" in section.agent:
-                _type = section.CONTENT_TYPE
-            else:
-                _type = section.agent.split(".")[-1]
+                if "none" in section.agent:
+                    _type = section.CONTENT_TYPE
+                else:
+                    _type = section.agent.split(".")[-1]
 
-            if _type in type_lut:
-                _type = type_lut[_type]
+                if _type in type_lut:
+                    _type = type_lut[_type]
 
-            _type = _type[0].upper() + _type[1:]
+                _type = _type[0].upper() + _type[1:]
 
-            section_json = {
-                "name": section.title,
-                "key": section.key,
-                "locations": [],
-                "type": _type,
-                "scan_active": section.refreshing,
-            }
-            for location in section.locations:
-                section_json["locations"].append(location)
-            return_list.append(section_json)
+                section_json = {
+                    "name": section.title,
+                    "key": section.key,
+                    "locations": [],
+                    "type": _type,
+                    "scan_active": section.refreshing,
+                }
+                for location in section.locations:
+                    section_json["locations"].append(location)
+                return_list.append(section_json)
         return return_list
 
     @cfa.delete("/libraries")
