@@ -9,16 +9,16 @@ function Libraries(props) {
   const [loading, setLoading] = useState(true);
 
   const handleScanClick = (library) => {
-    console.log("Scan clicked for", library);
-    // fetch(`${rest_url}plex/libraries/${library.key}/scan`, { method: "POST" })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log("Scan started:", data);
-    //     // Optionally update the library state to reflect the scan status
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error starting scan:", error);
-    //   });
+    console.log("Scan clicked for", library["key"]);
+    fetch(`${rest_url}plex/libraries?key=${library["key"]}`, { method: "POST" })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Scan started:", data);
+        // Optionally update the library state to reflect the scan status
+      })
+      .catch((error) => {
+        console.error("Error starting scan:", error);
+      });
   };
 
   useEffect(() => {

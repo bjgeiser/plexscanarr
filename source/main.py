@@ -13,6 +13,7 @@ from plex_websocket import PlexWebsocket
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from websocket_service import WebsocketService
 from source.frontend import FrontEnd
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
@@ -60,7 +61,7 @@ async def main_async(
         allow_headers=["*"],
     )
 
-    webserver_port = config.get("port", 5000)
+    webserver_port = config.get("port", 5002)
     config = uvicorn.Config(app=app, host="0.0.0.0", port=webserver_port, log_level=log_level.lower())
     server = uvicorn.Server(config=config)
 

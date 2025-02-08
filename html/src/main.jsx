@@ -5,8 +5,8 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import Libraries from "./Libraries";
 
 //const WS_URL = "ws://" + window.location.host + "/ws";
-const WS_URL = "ws://10.1.1.5:5000/ws";
-const REST_URL = "http://10.1.1.5:5000/";
+const WS_URL = "ws://localhost:5002/ws";
+const REST_URL = "http://localhost:5002/";
 // const WS_URL = "ws://" + (window.location.href.startsWith("file")? "10.1.1.5:5000" : window.location.host) + "/ws";
 // const REST_URL = (window.location.href.startsWith("file")? "http://10.1.1.5:5000/" : window.location.protocol+ "//" +window.location.host + "/");
 
