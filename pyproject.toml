@@ -27,6 +27,8 @@ dependencies = [
     "starlette==0.45.3",
     "typing-extensions==4.12.2",
     "urllib3==2.3.0",
+    "websocket-client>=1.8.0",
+    "websockets>=14.2",
 ]
 
 [build-system]
