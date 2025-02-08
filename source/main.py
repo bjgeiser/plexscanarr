@@ -35,8 +35,6 @@ async def main_async(
         f = open('config.yaml', 'r')
     config = yaml.safe_load(f)
 
-
-
     path_converter = PathConverter(config)
     plex_server = config.get("plex-server")
     plex_token = config.get("plex-token")
@@ -50,7 +48,6 @@ async def main_async(
     webserver_port = config.get("port", 5000)
     config = uvicorn.Config(app=app, host="0.0.0.0", port=webserver_port, log_level=log_level.lower())
     server = uvicorn.Server(config=config)
-
 
     async with asyncio.TaskGroup() as task_group:
         task_group.create_task(server.serve())

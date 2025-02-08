@@ -17,6 +17,7 @@ class ArrWebhook(cfa.Routable):
     @cfa.post('/')
     async def webhook_handler(self, request: Request, notification: dict = Body(...)):
 
+        logger.debug(f"Received webhook request: {notification}")
         agent = request.headers.get('user-agent')
         address = request.client
         event_type = notification.get("eventType") if notification.get("eventType") else "Unknown"
@@ -40,14 +41,6 @@ class ArrWebhook(cfa.Routable):
             plex_path = self.path_converter.convert(arr_path)
             logger.info(f"Converted {arr_path} to {plex_path} and requesting scan")
             await self.plex.scan_path(plex_path)
-
-        #elif eventType in ignoredEventTypes:  # don't dump ignored types to logs
-        #    scanned = True
-
-        #if scanned:
-        #    logger.debug(f"Event Json: {notification}")
-        #else:
-        #    logger.info(f"Event Json: {notification}")
 
         return 'Hook accepted'
 

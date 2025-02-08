@@ -5,3 +5,4 @@ click
 uvicorn
 fastapi
 fastapi_utils
+classy_fastapi
