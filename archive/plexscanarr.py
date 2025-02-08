@@ -111,7 +111,7 @@ def mainPage():
         scanStatus = "Idle" if not scanning else "Scanning"
         scanCommand = f"<a href=/scan>{MAGNIFY_EMOJI_HTML}</a>" if not scanning else f"<a href=/stop>{STOP_EMOJI_HTML}</a>"
 
-        with open('web/main.html', 'r') as file:
+        with open('../web/main.html', 'r') as file:
             yield f"{file.read()}".format(**globals(), **locals())
 
         for section in sections:
@@ -199,7 +199,7 @@ def section_scanner_handler(key: int):
         tableRows = ""
         humanReadableSize = human_readable_filesize(section.totalStorage)
         count = section.totalSize
-        with open('web/section.html', 'r') as file:
+        with open('../web/section.html', 'r') as file:
             yield f"{file.read()}".format(**globals(), **locals())
 
         alphabet_list = list("0123456789" + string.ascii_lowercase)
@@ -267,7 +267,7 @@ if __name__ == '__main__':
     parser.add_argument("-v", '--verbose', action='store_true', default=False, help='Verbose logging (Default: off)')
     args = parser.parse_args()
 
-    with open("VERSION", "r") as f:
+    with open("../VERSION", "r") as f:
         logger.info(f"Starting version: {f.read()} of plexscanarr")
 
     logger.info(f"Command Line Args: {args}")

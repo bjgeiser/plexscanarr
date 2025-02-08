@@ -106,4 +106,4 @@ dmypy.json
 .idea/
 *.bak
 config.yaml
-/example/
+
