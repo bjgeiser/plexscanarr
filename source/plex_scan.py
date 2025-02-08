@@ -1,11 +1,5 @@
 import logging
 import asyncio
-import pathlib
-import sys
-from dataclasses import dataclass
-
-#from plex_api_client import PlexAPI
-
 from plexapi.server import PlexServer
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)

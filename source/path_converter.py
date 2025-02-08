@@ -1,9 +1,5 @@
 import logging
 import os
-import classy_fastapi as cfa
-
-from source.plex_scan import PlexScan
-from fastapi import FastAPI, Response, Request, Body
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)

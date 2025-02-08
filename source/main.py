@@ -5,7 +5,6 @@ import yaml
 import click
 import asyncio
 import uvicorn
-from pydantic.types import PathType
 
 from path_converter import PathConverter
 from arr_webhook import ArrWebhook

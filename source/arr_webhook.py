@@ -1,8 +1,8 @@
 import logging
 import classy_fastapi as cfa
 
-from source.path_converter import PathConverter
-from source.plex_scan import PlexScan
+from path_converter import PathConverter
+from plex_scan import PlexScan
 from fastapi import FastAPI, Response, Request, Body
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
