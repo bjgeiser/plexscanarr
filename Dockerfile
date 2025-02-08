@@ -1,9 +1,13 @@
-FROM --platform=amd64 ubuntu as react_builder
+FROM --platform=linux/amd64 ubuntu:20.04 as react_builder
 
-WORKDIR /html
+WORKDIR /html_build
 COPY /html/. .
 
-RUN ./build-page.sh
+RUN apt update && apt install -y dos2unix wget xz-utils
+
+RUN ls -la
+RUN cd /html_build && chmod +x build-page.sh
+RUN dos2unix *.sh && ./build-page.sh
 
 FROM python:3.13
 
@@ -11,7 +15,7 @@ FROM python:3.13
 WORKDIR /plexscanarr
 COPY VERSION pyproject.toml /plexscanarr/
 #COPY web /plexscanarr/web
-COPY --from=react_builder /html/public/index.html /plexscanarr/html/index.html
+COPY --from=react_builder /html_build/public/index.html /plexscanarr/html/index.html
 COPY source /plexscanarr/source
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
