@@ -1,4 +1,3 @@
-
 import logging
 import classy_fastapi as cfa
 
@@ -12,6 +11,7 @@ import json
 from asyncio import Queue
 
 logger = logging.getLogger(__name__)
+
 
 class Connection:
     def __init__(self, websocket: WebSocket):
@@ -30,6 +30,7 @@ class Connection:
 
     def enqueue_message(self, message):
         self.queue.put_nowait(message)
+
 
 class ConnectionManager:
     def __init__(self):
@@ -51,7 +52,7 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
-        #logger.debug(f"Broadcasting: {message}")
+        # logger.debug(f"Broadcasting: {message}")
         for connection in self.active_connections:
             connection.enqueue_message(message)
 
@@ -71,7 +72,7 @@ class PlexWebsocket(cfa.Routable):
     async def websocket_endpoint(self, websocket: WebSocket):
         connection = await self.connection_manager.connect(websocket)
         try:
-            #await send_current_state(websocket)
+            # await send_current_state(websocket)
 
             while True:
                 data = await websocket.receive_text()
@@ -79,20 +80,13 @@ class PlexWebsocket(cfa.Routable):
                     self.handle_rx(data)
 
         except WebSocketDisconnect:
-           self.connection_manager.disconnect(connection)
+            self.connection_manager.disconnect(connection)
 
 
-
-
-
-
-
-
-
-#last_values = {"label": {}, "disabled": {}, "progress": {}}
-#stored_logs = []
+# last_values = {"label": {}, "disabled": {}, "progress": {}}
+# stored_logs = []
 #
-#async def send_current_state(websocket):
+# async def send_current_state(websocket):
 #    global stored_logs, last_values
 #
 #    for key in last_values.keys():
@@ -102,7 +96,7 @@ class PlexWebsocket(cfa.Routable):
 #        await websocket.send_text(log)
 #
 #
-#def update_progress(identifier, value):
+# def update_progress(identifier, value):
 #    global last_values
 #
 #    msg_json = {"type": "progress", "params": {"id": identifier, "value": value}}
@@ -113,7 +107,7 @@ class PlexWebsocket(cfa.Routable):
 #    queue.put_nowait(json_str)
 #
 #
-#def update_label(identifier, value):
+# def update_label(identifier, value):
 #    global last_values
 #
 #    msg_json = {"type": "label", "params": {"id": identifier, "value": value}}
@@ -124,7 +118,7 @@ class PlexWebsocket(cfa.Routable):
 #    queue.put_nowait(json_str)
 #
 #
-#def element_disabled(identifier, value):
+# def element_disabled(identifier, value):
 #    msg_json = {"type": "disabled", "params": {"id": identifier, "value": value}}
 #    json_str = json.dumps(msg_json)
 #
@@ -133,7 +127,7 @@ class PlexWebsocket(cfa.Routable):
 #    queue.put_nowait(json_str)
 #
 #
-#def log_to_websocket(message, level):
+# def log_to_websocket(message, level):
 #    global stored_logs
 #
 #    msg_json = {"type": "log", "params": {"level": level.lower(), "message": message}}
@@ -146,7 +140,7 @@ class PlexWebsocket(cfa.Routable):
 #    queue.put_nowait(json_str)
 #
 #
-#async def run_logging():
+# async def run_logging():
 #    try:
 #        while True:
 #            msg = await queue.get()
