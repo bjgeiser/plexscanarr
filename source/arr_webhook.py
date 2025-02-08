@@ -5,7 +5,6 @@ from path_converter import PathConverter
 from plex_scan import PlexScan
 from fastapi import Request, Body
 
-logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 

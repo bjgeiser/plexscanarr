@@ -3,8 +3,6 @@ import asyncio
 from plexapi.server import PlexServer
 import classy_fastapi as cfa
 
-
-logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 type_lut = { "artist" : "Music" , "show" :  "TV Shows", "series" :  "TV Shows", "movie" : "Movies" }
@@ -19,6 +17,28 @@ class PlexScan(cfa.Routable):
         self.platform = self.plex.platform
         logger.info(f"Connected to {self.friendly_name} running: {self.platform} version: {self.version}")
         self.work_queue = asyncio.Queue()
+        self.listener = self.plex.startAlertListener(callback=self.plex_event_callback, callbackError=self.plex_error_callback)
+
+    def plex_event_callback(self, event):
+        #logger.debug(f"Received {event}")
+        if event["type"] == "status":
+            logger.debug(f"Received Status {event}")
+            if event.get("StatusNotification"):
+                status_notification = event.get("StatusNotification")
+                for notify in status_notification:
+                    title = notify.get("title")
+                    name = notify.get("notificationName")
+                    logger.info(f"Plex status notification: {title} {name}")
+                    if title.startswith("Scanning"):
+                        title = title[14:][:-9]
+                        logger.info(f"Scanning {title}")
+                    elif title.startswith("Library scan complete") or title.startswith("Library scan canceled"):
+                        logger.info(f"Scanning Complete {title}")
+
+
+
+    def plex_error_callback(self, error):
+        logger.info(f"Received error: {error}")
 
     @cfa.get("/info")
     async def info(self):
