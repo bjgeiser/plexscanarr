@@ -25,6 +25,6 @@ jobs:
           image_name: bjgeiser/plexscanarr
           registry_username: ${{ secrets.DOCKER_HUB_USER }}
           registry_password: ${{ secrets.DOCKER_HUB_PW }}
-          platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v7,linux/arm/v6
+          platforms: linux/amd64,linux/arm64
 
 
