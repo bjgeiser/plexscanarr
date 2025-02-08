@@ -22,6 +22,7 @@ leveldict = {
     "critical": logging.CRITICAL,
 }
 
+
 async def main_async(
     log_level: str,
     config_path: pathlib.Path,
@@ -29,9 +30,9 @@ async def main_async(
     logging.getLogger().setLevel(leveldict[log_level])
 
     if config_path and config_path.is_file():
-        f = open(config_path, 'r')
+        f = open(config_path, "r")
     else:
-        f = open('config.yaml', 'r')
+        f = open("config.yaml", "r")
     config = yaml.safe_load(f)
 
     path_converter = PathConverter(config)
@@ -55,9 +56,8 @@ async def main_async(
 
 @click.command()
 @click.option("--log_level", envvar="LOGGING_LEVEL", type=str, default="info", help="Logging Level")
-@click.option("--config", envvar="CONFIG",
-              type=click.Path(path_type=pathlib.Path),
-              help="Config file path")
+@click.option("--webserver_port", envvar="WEBSERVER_PORT", type=int, default=5000, help="Webserver Port")
+@click.option("--config", envvar="CONFIG", type=click.Path(path_type=pathlib.Path), help="Config file path")
 def main(
     log_level: str,
     config: pathlib.Path,
