@@ -1,9 +1,17 @@
+FROM --platform=amd64 ubuntu as react_builder
+
+WORKDIR /html
+COPY /html/. .
+
+RUN ./build-page.sh
+
 FROM python:3.13
 
 #set the working directory to /bright/
 WORKDIR /plexscanarr
-COPY VERSION pyproject.toml ./web /plexscanarr/
-COPY web /plexscanarr/web
+COPY VERSION pyproject.toml /plexscanarr/
+#COPY web /plexscanarr/web
+COPY --from=react_builder /html/build/index.html /plexscanarr/html/index.html
 COPY source /plexscanarr/source
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh

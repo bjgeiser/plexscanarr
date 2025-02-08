@@ -12,6 +12,8 @@ from plex_scan import PlexScan
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from source.frontend import FrontEnd
+
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 leveldict = {
@@ -41,9 +43,11 @@ async def main_async(
     preempt_active_scan = config.get("preempt-active-scan")
     plex = PlexScan(server=plex_server, token=plex_token, preempt_active_scan=preempt_active_scan)
     arr_webhook = ArrWebhook(plex=plex, path_converter=path_converter)
+    frontend = FrontEnd()
 
     app = FastAPI()
     app.include_router(arr_webhook.router, tags=["Webhook"])
+    app.include_router(frontend.router, tags=["Frontend"])
     app.include_router(plex.router, tags=["Plex"], prefix="/plex")
 
     app.add_middleware(

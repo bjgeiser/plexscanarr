@@ -6,7 +6,7 @@ import Libraries from "./Libraries";
 
 //const WS_URL = "ws://" + window.location.host + "/ws";
 const WS_URL = "ws://" + (window.location.href.startsWith("file")? "localhost:5000" : window.location.host) + "/ws";
-const REST_URL = (window.location.href.startsWith("file")? "http://localhost:5000/" : window.location.protocol+ "//" +window.location.host);
+const REST_URL = (window.location.href.startsWith("file")? "http://localhost:5000/" : window.location.protocol+ "//" +window.location.host + "/");
 
 const Main = (props) =>
 {

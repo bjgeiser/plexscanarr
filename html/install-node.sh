@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=v18.16.0
+VERSION=v23.7.0
 DISTRO=linux-x64
 https://nodejs.org/dist/$VERSION/node-$VERSION-$DISTRO.tar.xz
 sudo mkdir -p /usr/local/lib/nodejs

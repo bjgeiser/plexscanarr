@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # this script requires node be installed first
-VERSION=v18.16.0
+VERSION=v23.7.0
 DISTRO=linux-x64
 wget https://nodejs.org/dist/$VERSION/node-$VERSION-$DISTRO.tar.xz
 sudo mkdir -p ./nodejs
