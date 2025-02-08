@@ -14,20 +14,19 @@ class ArrWebhook(cfa.Routable):
         self.plex = plex
         self.path_converter = path_converter
 
-    @cfa.put('/')
     @cfa.post('/')
     async def webhook_handler(self, request: Request, notification: dict = Body(...)):
 
         agent = request.headers.get('user-agent')
         address = request.client
-        eventType = notification.get("eventType") if notification.get("eventType") else "Unknown"
-        logger.info(f"Rx Event {eventType} from {agent} at {request.scope['client']} ")
+        event_type = notification.get("eventType") if notification.get("eventType") else "Unknown"
+        logger.info(f"Rx Event {event_type} from {agent} at {request.scope['client']} ")
         arr_path = None
-        ignoredEventTypes = ["Grab", "Test"]
+        ignored_event_types = ["Grab", "Test"]
 
-        if eventType == "Unknown" and notification.get("path"):
+        if event_type == "Unknown" and notification.get("path"):
             arr_path = await self.plex.scan_path(notification['path'])
-        elif not eventType in ignoredEventTypes:
+        elif not event_type in ignored_event_types:
             if agent.startswith("Sonarr") and notification.get('series'):
                 arr_path = notification['series']['path']
             elif agent.startswith("Radarr") and notification.get('movie'):
@@ -51,3 +50,7 @@ class ArrWebhook(cfa.Routable):
         #    logger.info(f"Event Json: {notification}")
 
         return 'Hook accepted'
+
+    @cfa.put('/')
+    async def put_webhook_handler(self, request: Request, notification: dict = Body(...)):
+        return await self.webhook_handler(request, notification)

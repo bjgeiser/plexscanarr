@@ -25,7 +25,6 @@ leveldict = {
 
 async def main_async(
     log_level: str,
-    webserver_port: int,
     config_path: pathlib.Path,
 ):
     logging.getLogger().setLevel(leveldict[log_level])
@@ -39,15 +38,16 @@ async def main_async(
 
 
     path_converter = PathConverter(config)
-
     plex_server = config.get("plex-server")
     plex_token = config.get("plex-token")
-    plex = PlexScan(server=plex_server, token=plex_token)
+    preempt_active_scan = config.get("preempt-active-scan")
+    plex = PlexScan(server=plex_server, token=plex_token, preempt_active_scan=preempt_active_scan)
     arr_webhook = ArrWebhook(plex=plex, path_converter=path_converter)
 
     app = FastAPI()
-    app.include_router(arr_webhook.router)
+    app.include_router(arr_webhook.router, tags=["Webhook"])
 
+    webserver_port = config.get("port", 5000)
     config = uvicorn.Config(app=app, host="0.0.0.0", port=webserver_port, log_level=log_level.lower())
     server = uvicorn.Server(config=config)
 
@@ -59,13 +59,11 @@ async def main_async(
 
 @click.command()
 @click.option("--log_level", envvar="LOGGING_LEVEL", type=str, default="info", help="Logging Level")
-@click.option("--webserver_port", envvar="WEBSERVER_PORT", type=int, default=5000, help="Webserver Port")
 @click.option("--config", envvar="CONFIG",
               type=click.Path(path_type=pathlib.Path),
               help="Config file path")
 def main(
     log_level: str,
-    webserver_port: int,
     config: pathlib.Path,
 ):
     logger.setLevel(leveldict[log_level])
@@ -77,7 +75,6 @@ def main(
     asyncio.run(
         main_async(
             log_level=log_level,
-            webserver_port=webserver_port,
             config_path=config,
         ),
     )
