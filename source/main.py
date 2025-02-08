@@ -7,6 +7,8 @@ import asyncio
 import uvicorn
 from pydantic.types import PathType
 
+from path_converter import PathConverter
+from arr_webhook import ArrWebhook
 from plex_scan import PlexScan
 from fastapi import FastAPI
 
@@ -35,14 +37,20 @@ async def main_async(
     config = yaml.safe_load(f)
 
 
-    app = FastAPI()
+
+    path_converter = PathConverter(config)
 
     plex_server = config.get("plex-server")
     plex_token = config.get("plex-token")
     plex = PlexScan(server=plex_server, token=plex_token)
+    arr_webhook = ArrWebhook(plex=plex, path_converter=path_converter)
+
+    app = FastAPI()
+    app.include_router(arr_webhook.router)
 
     config = uvicorn.Config(app=app, host="0.0.0.0", port=webserver_port, log_level=log_level.lower())
     server = uvicorn.Server(config=config)
+
 
     async with asyncio.TaskGroup() as task_group:
         task_group.create_task(server.serve())
