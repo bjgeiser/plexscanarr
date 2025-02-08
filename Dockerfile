@@ -1,16 +1,15 @@
-FROM python:3.12-alpine3.21
+FROM python:3.13
 
 #set the working directory to /bright/
 WORKDIR /plexscanarr
-COPY source/*.py VERSION requirements.txt ./web /plexscanarr/
+COPY VERSION pyproject.toml ./web /plexscanarr/
 COPY web /plexscanarr/web
+COPY source /plexscanarr/source
 
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
+RUN uv pip install --system -e .
 
-RUN apk add  --no-cache build-base python3-dev linux-headers && \
-    pip install -r requirements.txt  && \
-    apk del build-base python3-dev linux-headers && \
-    rm -rf /var/cache/apk/* && \
-    rm -rf ~/.cache/pip
 
 EXPOSE 5000
-ENTRYPOINT ["python", "/plexscanarr/main.py"]
+ENTRYPOINT ["python", "/plexscanarr/source/main.py"]

@@ -56,7 +56,6 @@ async def main_async(
 
 @click.command()
 @click.option("--log_level", envvar="LOGGING_LEVEL", type=str, default="info", help="Logging Level")
-@click.option("--webserver_port", envvar="WEBSERVER_PORT", type=int, default=5000, help="Webserver Port")
 @click.option("--config", envvar="CONFIG", type=click.Path(path_type=pathlib.Path), help="Config file path")
 def main(
     log_level: str,
