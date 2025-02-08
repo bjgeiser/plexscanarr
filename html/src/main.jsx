@@ -162,24 +162,15 @@ const Main = (props) => {
               <h1>Scan Active: </h1>
               {scanActive ? (
                 <div>
-                  <div
-                    id="active_scan_scanning"
-                    className="text-sm font-bold text-orange-600"
-                  >
+                  <div id="active_scan_scanning" className="text-sm font-bold text-orange-600">
                     Scanning
                   </div>
-                  <button
-                    id="active_stop_scanning"
-                    className="text-sm font-bold"
-                  >
+                  <button id="active_stop_scanning" className="text-sm font-bold">
                     Stop
                   </button>
                 </div>
               ) : (
-                <div
-                  id="active_scan_not_scanning"
-                  className="text-sm font-bold"
-                >
+                <div id="active_scan_not_scanning" className="text-sm font-bold">
                   Scan
                 </div>
               )}
