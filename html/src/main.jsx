@@ -35,8 +35,7 @@ const Main = (props) => {
 
   const logIndexRef = useRef(0);
 
-  const div1Ref = useRef(null);
-  const div2Ref = useRef(null);
+  const notificationRef = useRef(null);
   const [height, setHeight] = useState(0);
 
   const queryClient = useQueryClient();
@@ -121,9 +120,7 @@ const Main = (props) => {
       }
     };
     const updateHeight = () => {
-      if (div1Ref.current && div2Ref.current) {
-        setHeight(div1Ref.current.offsetHeight);
-      }
+      setHeight(window.innerHeight - notificationRef.current.offsetTop - 10);
     };
 
     updateHeight();
@@ -238,7 +235,7 @@ const Main = (props) => {
             <li>
               <h1>Version: {version}</h1>
             </li>
-            <li className="flex flex-row">
+            <li className="flex flex-row ">
               <h1>Scan Active: </h1>
               {scanActive ? (
                 <div>
@@ -262,11 +259,11 @@ const Main = (props) => {
       </div>
 
       <div className="w-full flex pt-3 px-3">
-        <div ref={div1Ref} className="card bg-base-300 rounded-box grid w-fit place-items-center">
+        <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
           <Libraries rest_url={REST_URL}></Libraries>
         </div>
-        <div className="divider divider-horizontal"></div>
-        <div ref={div2Ref} style={{ height: height, overflow: 'auto' }} className="card bg-neutral rounded-box grow grid">
+
+        <div ref={notificationRef} style={{ height: height, overflow: 'auto' }} className="card bg-neutral ml-5 rounded-box grow ">
           <Notifications messageHistory={messageHistory}> </Notifications>
         </div>
       </div>

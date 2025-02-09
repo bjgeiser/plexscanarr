@@ -63,7 +63,7 @@ function Libraries(props) {
       {loading || isLoading ? (
         <div>Loading...</div>
       ) : (
-        <table className="table">
+        <table className="table-sm">
           <thead>
             <tr>
               <th>Library Name</th>

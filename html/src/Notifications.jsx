@@ -86,7 +86,7 @@ function Notifications(props) {
                             { _message["cover_art_url"] !== null ? (<img className="rounded-box h-24" src={_message["cover_art_url"]}/>) : (<div/>) }
                         </div>
                         <div className="flex flex-col">
-                            <div className="text-2xl pl-3">{_message["pretty_name"]}</div>
+                            <div className="font-bold text-orange-400 pl-3">{_message["pretty_name"]}</div>
                             <div className="font-mono pl-3">{_message["file_path"]}</div>
                             { _message["release_title"] !== null ? (<div className="font-mono text-xs pl-3">{_message["release_title"]} {_message["file_size"]} </div>) : (<div/>) }
                             <div className="text-xs w-full pl-3">{getLocalTime(_message)}</div>
