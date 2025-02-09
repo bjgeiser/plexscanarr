@@ -60,7 +60,7 @@ async def main_async(
         allow_headers=["*"],
     )
 
-    webserver_port = config.get("port", 5002)
+    webserver_port = config.get("port", 5000)
     config = uvicorn.Config(app=app, host="0.0.0.0", port=webserver_port, log_level=log_level.lower())
     server = uvicorn.Server(config=config)
 
