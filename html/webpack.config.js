@@ -8,11 +8,12 @@ module.exports = {
   entry: "./src/index.jsx",
   output: {
     filename: "main.js",
-    path: path.resolve(__dirname, "public"),
+    path: path.resolve(__dirname, "dist"),
+    publicPath: "/",
   },
   performance: {
     maxEntrypointSize: 512000,
-    maxAssetSize: 512000
+    maxAssetSize: 512000,
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -43,15 +44,15 @@ module.exports = {
         test: /\.(png|jpe?g|gif|svg)$/i,
         use: [
           {
-            loader: 'url-loader',
+            loader: "url-loader",
             options: {
               limit: 8192, // Inline files smaller than 8kb as base64 data URI
-              name: 'images/[name].[hash:8].[ext]', // Output file naming
-              fallback: 'file-loader', // Fallback to file-loader if above limit
+              name: "images/[name].[hash:8].[ext]", // Output file naming
+              fallback: "file-loader", // Fallback to file-loader if above limit
             },
           },
           {
-            loader: 'image-webpack-loader', // Optional: Image optimization
+            loader: "image-webpack-loader", // Optional: Image optimization
             options: {
               mozjpeg: {
                 progressive: true,
@@ -60,15 +61,15 @@ module.exports = {
                 enabled: false,
               },
               pngquant: {
-                quality: [0.65, 0.90],
-                speed: 4
+                quality: [0.65, 0.9],
+                speed: 4,
               },
               gifsicle: {
                 interlaced: false,
               },
               webp: {
-                quality: 75
-              }
+                quality: 75,
+              },
             },
           },
         ],
@@ -78,5 +79,13 @@ module.exports = {
   // pass all js files through Babel
   resolve: {
     extensions: ["*", ".js", ".jsx"], // <-- added `.jsx` here
+  },
+  devServer: {
+    historyApiFallback: true,
+    static: {
+      directory: path.join(__dirname, "public"),
+    },
+    compress: true,
+    port: 8080,
   },
 };

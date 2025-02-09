@@ -1,15 +1,20 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import { React, useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import Main from "./main";
 import "./main.css";
-
-// Create a client
+import { LibraryRoutes } from "./Libraries";
 const queryClient = new QueryClient();
 
-ReactDOM.render(
+const container = document.getElementById("root");
+const root = createRoot(container);
+
+root.render(
   <QueryClientProvider client={queryClient}>
-    <Main />
+    <HashRouter>
+      {/* <Main /> */}
+      <LibraryRoutes />
+    </HashRouter>
   </QueryClientProvider>,
-  document.getElementById("root"),
 );

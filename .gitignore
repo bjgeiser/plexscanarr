@@ -109,5 +109,5 @@ config.yaml
 
 html/node_modules/
 html/nodejs/
-html/public/
+html/dist/
 .DS_Store
