@@ -1,69 +1,53 @@
-import React, { useState, useEffect, useRef  } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
-import BazarrIcon from "./img/bazarr.png"
-import SonarrIcon from "./img/sonarr.png"
+import BazarrIcon from "./img/bazarr.png";
+import SonarrIcon from "./img/sonarr.png";
 import PlexscanarrIcon from "./img/favicon.png";
-import RadarrIcon from "./img/radarr.png"
-import ReadarrIcon from "./img/readarr.png"
-import LidarIcon from "./img/lidarr.png"
-import NoCoverIcon from "./img/no_cover.png"
+import RadarrIcon from "./img/radarr.png";
+import ReadarrIcon from "./img/readarr.png";
+import LidarIcon from "./img/lidarr.png";
+import NoCoverIcon from "./img/no_cover.png";
 
 function Notifications(props) {
+  //This in combination of useEffect is how new messages make it into thie component
+  const { messageHistory } = props;
+  const LoggingEndRef = useRef(null);
 
-    //This in combination of useEffect is how new messages make it into thie component
-    const {messageHistory} = props;
-    const LoggingEndRef = useRef(null)
+  useEffect(() => {});
 
-    useEffect(() => {
+  function getLocalTime(_message) {
+    const dt = new Date(_message["timestamp"]);
+    return dt.toLocaleString("en-US");
+  }
 
-    });
-
-    function getLocalTime(_message) {
-        const dt = new Date(_message["timestamp"]);
-        return dt.toLocaleString("en-US")
+  function getServiceIcon(_message) {
+    if (_message["type"].toLowerCase() === "sonarr") {
+      return SonarrIcon;
+    } else if (_message["type"].toLowerCase() === "radarr") {
+      return RadarrIcon;
+    } else if (_message["type"].toLowerCase() === "lidarr") {
+      return LidarIcon;
+    } else if (_message["type"].toLowerCase() === "readarr") {
+      return ReadarrIcon;
+    } else if (_message["type"].toLowerCase() === "plexscanarr") {
+      return PlexscanarrIcon;
+    } else if (_message["type"].toLowerCase() === "bazarr") {
+      return BazarrIcon;
     }
 
-    function getServiceIcon(_message) {
-        if (_message["type"].toLowerCase() === "sonarr")
-        {
-            return SonarrIcon;
-        }
-        else if (_message["type"].toLowerCase() === "radarr")
-        {
-            return RadarrIcon;
-        }
-        else if (_message["type"].toLowerCase() === "lidarr")
-        {
-            return LidarIcon;
-        }
-        else if (_message["type"].toLowerCase() === "readarr")
-        {
-            return ReadarrIcon;
-        }
-        else if (_message["type"].toLowerCase() === "plexscanarr")
-        {
-            return PlexscanarrIcon;
-        }
-        else if (_message["type"].toLowerCase() === "bazarr")
-        {
-            return BazarrIcon;
-        }
+    return NoCoverIcon;
+  }
 
-        return NoCoverIcon
+  function getPoster(_message) {
+    if (_message["cover_art_url"].toLowerCase() !== null) {
+      return _message["cover_art_url"];
     }
+    return null;
+  }
 
-    function getPoster(_message)
-    {
-       if ( _message["cover_art_url"].toLowerCase() !== null)
-       {
-           return _message["cover_art_url"];
-       }
-       return null
-    }
-
-    function getJsonString(_message) {
-        return JSON.stringify(_message, null, 2);
-    }
+  function getJsonString(_message) {
+    return JSON.stringify(_message, null, 2);
+  }
 
     return (
         <div>

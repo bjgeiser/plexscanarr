@@ -6,7 +6,9 @@ import Libraries from "./Libraries";
 import JobLog from "./Notifications";
 import Notifications from "./Notifications";
 import { useQuery, useQueryClient } from "react-query";
-import PlexscanarrIcon from "./img/favicon.png"
+import { useNavigate } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
+import Banner from "./Banner";
 
 //const WS_URL = "ws://" + window.location.host + "/ws";
 const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
@@ -15,7 +17,16 @@ const SERVER_ADDR_PORT = SERVER_ADDR + ":" + SERVER_PORT;
 const WS_URL = "ws://" + (window.location.href.startsWith("file") ? SERVER_ADDR_PORT : window.location.host) + "/ws";
 const REST_URL = window.location.href.startsWith("file") ? "http://" + SERVER_ADDR_PORT + "/" : window.location.protocol + "//" + window.location.host + "/";
 
-const Main = (props) => {
+export const fetchLibraries = async () => {
+  const response = await fetch(`${REST_URL}plex/libraries`);
+  return response.json();
+};
+
+export const toRoutePath = (name) => "/" + name.replace(/\s+/g, "");
+
+const Main = ({ libraries }) => {
+  console.log("Main - Libraries:", libraries);
+
   const [startBtnDisabled, setStartBtnDisabled] = useState(false);
   const [reprintBtnDisabled, setReprintBtnDisabled] = useState(true);
   const [socketUrl, setSocketUrl] = useState(WS_URL);
@@ -28,10 +39,8 @@ const Main = (props) => {
   const [progress, setProgress] = useState(0);
   const [serverConnectionStatus, setServerConnectionStatus] = useState("Disconnected");
 
-  const [version, setVersion] = useState("Unknown");
-  const [os, setOs] = useState("Unknown");
-  const [server, setServer] = useState("Unknown");
-  const [scanActive, setScanActive] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const logIndexRef = useRef(0);
 
@@ -48,51 +57,34 @@ const Main = (props) => {
     shouldReconnect: (closeEvent) => true,
   });
 
-  const fetchLibraries = async () => {
-    const response = await fetch(`${REST_URL}plex/libraries`);
-    return response.json();
-  };
+  const toRoutePath = (name) => "/" + name.replace(/\s+/g, "");
 
-  const { data, isLoading } = useQuery("scanActive", fetchLibraries, {
-    onSuccess: (data) => {
-      setScanActive(data);
-      setLoading(false);
-    },
-    onError: (error) => {
-      console.error("Error fetching libraries:", error);
-      setLoading(false);
-    },
-  });
-
-  const handleScanClick = () => {
-    console.log("Scan clicked for GLOBAL");
-
-    fetch(`${REST_URL}plex/libraries`, { method: "POST" })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Scan started:", data);
-        queryClient.invalidateQueries("scanStatus");
-      })
-      .catch((error) => {
-        console.error("Error starting scan:", error);
-      });
-  };
+  //   const { data, isLoading } = useQuery("scanActive", fetchLibraries, {
+  //     onSuccess: (data) => {
+  //       setScanActive(data);
+  //       setLoading(false);
+  //     },
+  //     onError: (error) => {
+  //       console.error("Error fetching libraries:", error);
+  //       setLoading(false);
+  //     },
+  //   });
 
   const fetchScanStatus = async () => {
     const response = await fetch(`${REST_URL}plex/libraries`);
     return response.json();
   };
 
-  useQuery("scanActive", fetchScanStatus, {
-    refetchInterval: 5000, // Poll every 5 seconds
-    onSuccess: (statusData) => {
-      const anyScanActive = statusData.some((status) => status.scan_active);
-      setScanActive(anyScanActive);
-    },
-    onError: (error) => {
-      console.error("Error fetching scan status:", error);
-    },
-  });
+  //   useQuery("scanActive", fetchScanStatus, {
+  //     refetchInterval: 5000, // Poll every 5 seconds
+  //     onSuccess: (statusData) => {
+  //       const anyScanActive = statusData.some((status) => status.scan_active);
+  //       setScanActive(anyScanActive);
+  //     },
+  //     onError: (error) => {
+  //       console.error("Error fetching scan status:", error);
+  //     },
+  //   });
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
@@ -103,52 +95,31 @@ const Main = (props) => {
   }[readyState];
 
   useEffect(() => {
-    const getServerInfo = async () => {
-      try {
-        const response = await fetch(REST_URL + "plex/info");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const json = await response.json();
-        setOs(json["platform"]);
-        setServer(json["server"]);
-        setVersion(json["version"]);
-        setScanActive(json["scan_active"]);
-        console.log(json);
-      } catch (e) {
-        console.error(e);
-      }
-    };
     const updateHeight = () => {
       setHeight(window.innerHeight - notificationRef.current.offsetTop - 10);
     };
 
     updateHeight();
-    getServerInfo();
     window.addEventListener("resize", updateHeight);
 
     if (lastMessage != null) {
       try {
-        const msgJson = JSON.parse(lastMessage.data)
-        console.log(msgJson)
+        const msgJson = JSON.parse(lastMessage.data);
+        console.log(msgJson);
         console.log("Main Rx Json: " + msgJson);
         if (msgJson.hasOwnProperty("type")) {
-
-            logIndexRef.current += 1;
-            msgJson.index = logIndexRef.current;
-            setMessageHistory((history) => {
-              if ((history.length === 1 && history[0]["pretty_name"]  === "Welcome to Plexscanarr") ||
-                  (msgJson["pretty_name"] === "Welcome to Plexscanarr"))
-              {
-                history.length = 0;
-              }
-              while (history.length > 500) {
-
-                // Drop last message to reduce size by 1
-                history.pop();
-              }
-              return [msgJson, ...history];
-            });
+          logIndexRef.current += 1;
+          msgJson.index = logIndexRef.current;
+          setMessageHistory((history) => {
+            if ((history.length === 1 && history[0]["pretty_name"] === "Welcome to Plexscanarr") || msgJson["pretty_name"] === "Welcome to Plexscanarr") {
+              history.length = 0;
+            }
+            while (history.length > 500) {
+              // Drop last message to reduce size by 1
+              history.pop();
+            }
+            return [msgJson, ...history];
+          });
 
           /*else if (msgJson["type"] === "progress") {
             if (msgJson["params"]["id"] === "flash_progress") {
@@ -212,55 +183,13 @@ const Main = (props) => {
 
   return (
     <div>
-      <div className="navbar bg-base-200">
-        <div className="avatar">
-          <div className="m-2 w-10">
-            <img src={PlexscanarrIcon}/>
-          </div>
-        </div>
-        <div className="flex-1">
-          <a className="btn btn-ghost text-xl">Plexscanarr</a>
-        </div>
-        <div className="flex-none">
-          <div></div>
-        </div>
-        <div className="flex-none">
-          <ul className="menu menu-horizontal px-1">
-            <li>
-              <h1>Server: {server}</h1>
-            </li>
-            <li>
-              <h1>Server Platform: {os}</h1>
-            </li>
-            <li>
-              <h1>Version: {version}</h1>
-            </li>
-            <li className="flex flex-row ">
-              <h1>Scan Active: </h1>
-              {scanActive ? (
-                <div>
-                  <div id="active_scan_scanning" className="text-sm font-bold text-orange-600">
-                    Scanning
-                  </div>
-                  <button id="active_stop_scanning" className="text-sm font-bold">
-                    Stop
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <button id="active_scan_not_scanning" className="text-sm font-bold" onClick={() => handleScanClick()}>
-                    Scan
-                  </button>
-                </div>
-              )}
-            </li>
-          </ul>
-        </div>
+      <div style={{ border: "1px solid blue" }}>
+        <Banner REST_URL={REST_URL} />
       </div>
 
       <div className="w-full flex pt-3 px-3">
         <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
-          <Libraries rest_url={REST_URL}></Libraries>
+          <Libraries rest_url={REST_URL} libraries={libraries} />
         </div>
 
         <div ref={notificationRef} style={{ height: height, overflow: 'auto' }} className="card bg-neutral ml-5 rounded-box grow ">

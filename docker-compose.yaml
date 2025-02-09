@@ -1,8 +1,7 @@
-version: '3'
-
 services:
   plexscannar:
     image: bjgeiser/plexscanarr:latest
+    # build: .
     restart: always
     ports:
       - 5000:5000

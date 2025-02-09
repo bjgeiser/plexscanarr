@@ -13,6 +13,9 @@ from plex_websocket import PlexWebsocket
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.requests import Request
+from starlette.templating import _TemplateResponse
+from fastapi.templating import Jinja2Templates
 
 from source.frontend import FrontEnd
 
@@ -50,11 +53,16 @@ async def main_async(
 
     app = FastAPI(favicon_url="/static/favicon.ico")
     app.include_router(arr_webhook.router, tags=["Webhook"])
-    app.include_router(frontend.router, tags=["Frontend"])
     app.include_router(plex.router, tags=["Plex"], prefix="/plex")
     app.include_router(plex_websocket.router, tags=["Websocket"])
 
     app.mount("/static", StaticFiles(directory="web/files"), name="static")
+    templates = Jinja2Templates(directory="html/dist")
+
+    # Load of the static page for the default route
+    @app.get("/{full_path:path}")
+    def index(request: Request) -> _TemplateResponse:
+        return templates.TemplateResponse("index.html", {"request": request})
 
     app.add_middleware(
         CORSMiddleware,

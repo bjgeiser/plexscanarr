@@ -1,29 +1,66 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { HashRouter, Route, Routes, Link } from "react-router-dom";
+import Main, { fetchLibraries, toRoutePath } from "./main";
+import Library from "./Library";
+import { useNavigate } from "react-router-dom";
+import Details from "./Details";
 
-function Libraries(props) {
-  const { rest_url } = props;
+export const LibraryRoutes = () => {
   const [libraries, setLibraries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const queryClient = useQueryClient();
 
-  const fetchLibraries = async () => {
-    const response = await fetch(rest_url + "plex/libraries");
-    return response.json();
-  };
-
-  const { data, isLoading } = useQuery("libraries", fetchLibraries, {
-    refetchInterval: 5000, // Poll every 5 seconds
-    onSuccess: (data) => {
-      console.log("Libraries fetched:", data);
+  // Simulate retrieving your list of names from an API when the component mounts.
+  useEffect(() => {
+    // For example, the API could return: ["Home Movies", "TV Shows", "News"]
+    fetchLibraries().then((data) => {
+      console.log(data);
       setLibraries(data);
-      setLoading(false);
-    },
-    onError: (error) => {
-      console.error("Error fetching libraries:", error);
-      setLoading(false);
-    },
-  });
+    });
+  }, []);
+
+  // Helper function that converts a name to a URL-friendly route path.
+  // const toRoutePath = (name) => name.replace(/\s+/g, "");
+
+  return (
+    // We define all our routes here.
+    <Routes>
+      {/* The main page route at "/" passing the categories list */}
+      <Route path="/" element={<Main libraries={libraries} />} />
+      <Route path="details" element={<Details />} />
+      {/* For each category, create a dynamic child page route. */}
+      {libraries.map((library) => (
+        <Route key={library.name} path={toRoutePath(library.name)} element={<Library name={library.name} />} />
+        // <Route key={name} path={`/${toRoutePath(name)}`} element={<ChildPage name={name} />} />
+      ))}
+      {/* Optional: a catch-all route if the URL doesn't match any defined route */}
+      <Route path="*" element={<Main libraries={libraries} />} />
+    </Routes>
+  );
+};
+
+function Libraries({ libraries, rest_url }) {
+  console.log("Libraries - Libraries:", libraries);
+  // const [libraries, setLibraries] = useState([]);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  // const fetchLibraries = async () => {
+  //   const response = await fetch(rest_url + "plex/libraries");
+  //   return response.json();
+  // };
+
+  // const { data, isLoading } = useQuery("libraries", fetchLibraries, {
+  //   refetchInterval: 5000, // Poll every 5 seconds
+  //   onSuccess: (data) => {
+  //     console.log("Libraries fetched:", data);
+  //     setLibraries(data);
+  //     setLoading(false);
+  //   },
+  //   onError: (error) => {
+  //     console.error("Error fetching libraries:", error);
+  //     setLoading(false);
+  //   },
+  // });
 
   const handleScanClick = (library) => {
     console.log("Scan clicked for", library);
@@ -38,30 +75,35 @@ function Libraries(props) {
       });
   };
 
+  const handleLibraryDetailClick = (library) => {
+    console.log("Detail clicked for", library);
+    navigate(toRoutePath(library.name));
+  };
+
   const fetchScanStatus = async () => {
     const response = await fetch(`${rest_url}plex/libraries`);
     return response.json();
   };
 
-  useQuery("scanActive", fetchScanStatus, {
-    refetchInterval: 5000, // Poll every 5 seconds
-    onSuccess: (statusData) => {
-      setLibraries((prevLibraries) =>
-        prevLibraries.map((lib) => {
-          const status = statusData.find((status) => status.key === lib.key);
-          return status ? { ...lib, scan_active: status.scan_active } : lib;
-        }),
-      );
-    },
-    onError: (error) => {
-      console.error("Error fetching scan status:", error);
-    },
-  });
+  // useQuery("scanActive", fetchScanStatus, {
+  //   refetchInterval: 5000, // Poll every 5 seconds
+  //   onSuccess: (statusData) => {
+  //     setLibraries((prevLibraries) =>
+  //       prevLibraries.map((lib) => {
+  //         const status = statusData.find((status) => status.key === lib.key);
+  //         return status ? { ...lib, scan_active: status.scan_active } : lib;
+  //       }),
+  //     );
+  //   },
+  //   onError: (error) => {
+  //     console.error("Error fetching scan status:", error);
+  //   },
+  // });
 
   return (
     <div className="overflow-x-auto">
-      {loading || isLoading ? (
-        <div>Loading...</div>
+      {libraries.length === 0 ? (
+        <div>No libraries available.</div>
       ) : (
         <table className="table-sm">
           <thead>
@@ -78,7 +120,11 @@ function Libraries(props) {
               return (
                 <tr key={library.key}>
                   <td>
-                    <div className="font-bold">{library.name}</div>
+                    <div className="font-bold">
+                      <button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
+                        {library.name}
+                      </button>
+                    </div>
                   </td>
                   <td>
                     <div className="font-medium">{library.type}</div>

@@ -13,7 +13,7 @@ FROM python:3.13
 WORKDIR /plexscanarr
 COPY VERSION pyproject.toml /plexscanarr/
 #COPY web /plexscanarr/web
-COPY --from=react_builder /html_build/public/index.html /plexscanarr/html/public/index.html
+COPY --from=react_builder /html_build/dist/index.html /plexscanarr/html/dist/index.html
 COPY source /plexscanarr/source
 COPY web /plexscanarr/web
 
