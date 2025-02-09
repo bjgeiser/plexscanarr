@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
+const Dotenv = require("dotenv-webpack");
 
 module.exports = {
   devtool: "source-map",
@@ -16,6 +17,9 @@ module.exports = {
     }),
     new HtmlInlineScriptPlugin({
       scriptMatchPattern: [/.+[.]js$/],
+    }),
+    new Dotenv({
+      path: path.resolve(__dirname, ".env"),
     }),
   ],
 

@@ -5,10 +5,11 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import Libraries from "./Libraries";
 
 //const WS_URL = "ws://" + window.location.host + "/ws";
-const WS_URL = "ws://localhost:5002/ws";
-const REST_URL = "http://localhost:5002/";
-// const WS_URL = "ws://" + (window.location.href.startsWith("file")? "10.1.1.5:5000" : window.location.host) + "/ws";
-// const REST_URL = (window.location.href.startsWith("file")? "http://10.1.1.5:5000/" : window.location.protocol+ "//" +window.location.host + "/");
+const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
+const SERVER_PORT = process.env.WEB_SERVER_PORT || "5000";
+const SERVER_ADDR_PORT = SERVER_ADDR + ":" + SERVER_PORT;
+const WS_URL = "ws://" + (window.location.href.startsWith("file") ? SERVER_ADDR_PORT : window.location.host) + "/ws";
+const REST_URL = window.location.href.startsWith("file") ? "http://" + SERVER_ADDR_PORT + "/" : window.location.protocol + "//" + window.location.host + "/";
 
 const Main = (props) => {
   const [startBtnDisabled, setStartBtnDisabled] = useState(false);
