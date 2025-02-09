@@ -2,7 +2,7 @@
   "name": "plexscanarr",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.jsx",
   "scripts": {
     "build": "webpack --mode production",
     "start": "webpack serve --mode development"
@@ -33,6 +33,7 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-query": "^3.39.3"
   }
 }
