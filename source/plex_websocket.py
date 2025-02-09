@@ -3,13 +3,8 @@ import logging
 import classy_fastapi as cfa
 
 import asyncio
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-import websockets
+from fastapi import WebSocket, WebSocketDisconnect
 from typing import List
-from fastapi.responses import FileResponse
-import logging
-import json
-from asyncio import Queue
 
 from arr_notification import ArrNotificationModel, ArrSource
 
@@ -20,7 +15,7 @@ class Connection:
     def __init__(self, websocket: WebSocket):
         self.websocket = websocket
         self.queue = asyncio.Queue()
-        self.relay_task = asyncio.create_task(Connection.relay(self.queue, self.websocket))
+        self.relay_task = asyncio.create_task(self.relay(self.queue, self.websocket))
 
     def close(self):
         self.relay_task.cancel()
