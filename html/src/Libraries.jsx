@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { HashRouter, Route, Routes, Link } from "react-router-dom";
-import Main, { fetchLibraries, toRoutePath } from "./main";
+import Main, { fetchLibraries, toRoutePath, REST_URL } from "./main";
 import Library from "./Library";
 import { useNavigate } from "react-router-dom";
 import Details from "./Details";
+import Layout from "./Layout";
 
 export const LibraryRoutes = () => {
   const [libraries, setLibraries] = useState([]);
@@ -24,16 +25,15 @@ export const LibraryRoutes = () => {
   return (
     // We define all our routes here.
     <Routes>
-      {/* The main page route at "/" passing the categories list */}
-      <Route path="/" element={<Main libraries={libraries} />} />
-      <Route path="details" element={<Details />} />
-      {/* For each category, create a dynamic child page route. */}
-      {libraries.map((library) => (
-        <Route key={library.name} path={toRoutePath(library.name)} element={<Library name={library.name} />} />
-        // <Route key={name} path={`/${toRoutePath(name)}`} element={<ChildPage name={name} />} />
-      ))}
-      {/* Optional: a catch-all route if the URL doesn't match any defined route */}
-      <Route path="*" element={<Main libraries={libraries} />} />
+      <Route path="/" element={<Layout REST_URL={REST_URL} />}>
+        <Route index element={<Main libraries={libraries} />} />
+        <Route path="details" element={<Details />} />
+        {/* For each category, create a dynamic child page route. */}
+        {libraries.map((library) => (
+          <Route key={library.name} path={toRoutePath(library.name)} element={<Library name={library.name} />} />
+          // <Route key={name} path={`/${toRoutePath(name)}`} element={<ChildPage name={name} />} />
+        ))}
+      </Route>
     </Routes>
   );
 };

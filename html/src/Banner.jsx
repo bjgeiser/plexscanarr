@@ -10,6 +10,10 @@ const Banner = ({ REST_URL }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const handleHomeClick = () => {
+    navigate("/");
+  };
+
   const handleDetailsClick = () => {
     navigate("/details");
   };
@@ -54,11 +58,15 @@ const Banner = ({ REST_URL }) => {
     <div className="navbar bg-base-200">
       <div className="avatar">
         <div className="m-2 w-10">
-          <img src={PlexscanarrIcon} />
+          <button onClick={() => handleHomeClick()}>
+            <img src={PlexscanarrIcon} alt="Plexscanarr Icon" />
+          </button>
         </div>
       </div>
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">Plexscanarr</a>
+        <button onClick={() => handleHomeClick()}>
+          <a className="btn btn-ghost text-xl">Plexscanarr</a>
+        </button>
       </div>
       <div className="flex-none">
         <div></div>

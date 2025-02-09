@@ -14,8 +14,8 @@ import Banner from "./Banner";
 const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
 const SERVER_PORT = process.env.WEB_SERVER_PORT || "5000";
 const SERVER_ADDR_PORT = SERVER_ADDR + ":" + SERVER_PORT;
-const WS_URL = "ws://" + (window.location.href.startsWith("file") ? SERVER_ADDR_PORT : window.location.host) + "/ws";
-const REST_URL = window.location.href.startsWith("file") ? "http://" + SERVER_ADDR_PORT + "/" : window.location.protocol + "//" + window.location.host + "/";
+export const WS_URL = "ws://" + (window.location.href.startsWith("file") ? SERVER_ADDR_PORT : window.location.host) + "/ws";
+export const REST_URL = window.location.href.startsWith("file") ? "http://" + SERVER_ADDR_PORT + "/" : window.location.protocol + "//" + window.location.host + "/";
 
 export const fetchLibraries = async () => {
   const response = await fetch(`${REST_URL}plex/libraries`);
@@ -183,16 +183,12 @@ const Main = ({ libraries }) => {
 
   return (
     <div>
-      <div style={{ border: "1px solid blue" }}>
-        <Banner REST_URL={REST_URL} />
-      </div>
-
       <div className="w-full flex pt-3 px-3">
         <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
           <Libraries rest_url={REST_URL} libraries={libraries} />
         </div>
 
-        <div ref={notificationRef} style={{ height: height, overflow: 'auto' }} className="card bg-neutral ml-5 rounded-box grow ">
+        <div ref={notificationRef} style={{ height: height, overflow: "auto" }} className="card bg-neutral ml-5 rounded-box grow ">
           <Notifications messageHistory={messageHistory}> </Notifications>
         </div>
       </div>
