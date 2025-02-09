@@ -30,6 +30,7 @@ dependencies = [
     "websocket-client>=1.8.0",
     "websockets>=14.2",
     "jinja2>=3.1.5",
+    "ruff>=0.9.5",
 ]
 
 [build-system]
