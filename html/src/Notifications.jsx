@@ -57,7 +57,7 @@ function Notifications(props) {
 
 
                         <div className="m-1 flex flex-col items-center">
-                            <div>
+                          <div className="tooltip tooltip-right" data-tip={"Click to open " + _message["server_name"]}>
                                 <img onClick={()=> window.open(_message["service_link"], "_blank")} className="h-8" src={getServiceIcon(_message)}/>
                             </div>
                             <div className="m-1 font-bold text-sm">{_message["server_name"]}</div>
@@ -66,12 +66,18 @@ function Notifications(props) {
 
                         <div className="divider divider-horizontal"></div>
 
-                        <div className="m-1">
+                        <div className="m-1 tooltip tooltip-right"  data-tip={"Click to open " + _message["pretty_name"] + " on  " + _message["server_name"]}>
                             { _message["cover_art_url"] !== null ? (<img onClick={()=> window.open(_message["content_link"], "_blank")}  className="rounded-box h-24" src={_message["cover_art_url"]}/>) : (<div/>) }
                         </div>
                         <div className="flex flex-col">
-                            <div className="font-bold text-orange-400 pl-3" onClick={()=> window.open(_message["content_link"], "_blank")}>
-                              {_message["pretty_name"]}
+                            <div>
+                              <div className="tooltip tooltip-right" data-tip={"Click to open " + _message["pretty_name"] + " on  " + _message["server_name"]}>
+                                <div className="font-bold text-orange-400 pl-3"
+                                     onClick={()=> window.open(_message["content_link"], "_blank")}
+                                     >
+                                  {_message["pretty_name"]}
+                                </div>
+                              </div>
                             </div>
                             <div className="font-mono pl-3">{_message["file_path"]}</div>
                             { _message["release_title"] !== null ? (<div className="font-mono text-xs pl-3">{_message["release_title"]} {_message["file_size"]} </div>) : (<div/>) }
