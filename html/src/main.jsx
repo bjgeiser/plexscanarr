@@ -31,6 +31,7 @@ const Main = (props) => {
   const [os, setOs] = useState("Unknown");
   const [server, setServer] = useState("Unknown");
   const [scanActive, setScanActive] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const logIndexRef = useRef(0);
 
@@ -53,9 +54,9 @@ const Main = (props) => {
     return response.json();
   };
 
-  const { data, isLoading } = useQuery("libraries", fetchLibraries, {
+  const { data, isLoading } = useQuery("scanActive", fetchLibraries, {
     onSuccess: (data) => {
-      setLibraries(data);
+      setScanActive(data);
       setLoading(false);
     },
     onError: (error) => {
@@ -67,7 +68,7 @@ const Main = (props) => {
   const handleScanClick = () => {
     console.log("Scan clicked for GLOBAL");
 
-    fetch(`${REST_URL}plex/libraries?key=${library.key}`, { method: "POST" })
+    fetch(`${REST_URL}plex/libraries`, { method: "POST" })
       .then((response) => response.json())
       .then((data) => {
         console.log("Scan started:", data);
@@ -79,19 +80,15 @@ const Main = (props) => {
   };
 
   const fetchScanStatus = async () => {
-    const response = await fetch(`${REST_URL}plex/libraries/status`);
+    const response = await fetch(`${REST_URL}plex/libraries`);
     return response.json();
   };
 
-  useQuery("scanStatus", fetchScanStatus, {
+  useQuery("scanActive", fetchScanStatus, {
     refetchInterval: 5000, // Poll every 5 seconds
     onSuccess: (statusData) => {
-      setLibraries((prevLibraries) =>
-        prevLibraries.map((lib) => {
-          const status = statusData.find((status) => status.key === lib.key);
-          return status ? { ...lib, scan_active: status.scan_active } : lib;
-        }),
-      );
+      const anyScanActive = statusData.some((status) => status.scan_active);
+      setScanActive(anyScanActive);
     },
     onError: (error) => {
       console.error("Error fetching scan status:", error);
