@@ -5,6 +5,7 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import Libraries from "./Libraries";
 import JobLog from "./Notifications";
 import Notifications from "./Notifications";
+import { useQuery, useQueryClient } from "react-query";
 
 //const WS_URL = "ws://" + window.location.host + "/ws";
 const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
@@ -37,12 +38,64 @@ const Main = (props) => {
   const div2Ref = useRef(null);
   const [height, setHeight] = useState(0);
 
+  const queryClient = useQueryClient();
+
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
     share: true,
     onOpen: () => {
       console.log("WebSocket connection established.");
     },
     shouldReconnect: (closeEvent) => true,
+  });
+
+  const fetchLibraries = async () => {
+    const response = await fetch(`${REST_URL}plex/libraries`);
+    return response.json();
+  };
+
+  const { data, isLoading } = useQuery("libraries", fetchLibraries, {
+    onSuccess: (data) => {
+      setLibraries(data);
+      setLoading(false);
+    },
+    onError: (error) => {
+      console.error("Error fetching libraries:", error);
+      setLoading(false);
+    },
+  });
+
+  const handleScanClick = () => {
+    console.log("Scan clicked for GLOBAL");
+
+    fetch(`${REST_URL}plex/libraries?key=${library.key}`, { method: "POST" })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Scan started:", data);
+        queryClient.invalidateQueries("scanStatus");
+      })
+      .catch((error) => {
+        console.error("Error starting scan:", error);
+      });
+  };
+
+  const fetchScanStatus = async () => {
+    const response = await fetch(`${REST_URL}plex/libraries/status`);
+    return response.json();
+  };
+
+  useQuery("scanStatus", fetchScanStatus, {
+    refetchInterval: 5000, // Poll every 5 seconds
+    onSuccess: (statusData) => {
+      setLibraries((prevLibraries) =>
+        prevLibraries.map((lib) => {
+          const status = statusData.find((status) => status.key === lib.key);
+          return status ? { ...lib, scan_active: status.scan_active } : lib;
+        }),
+      );
+    },
+    onError: (error) => {
+      console.error("Error fetching scan status:", error);
+    },
   });
 
   const connectionStatus = {
@@ -78,24 +131,23 @@ const Main = (props) => {
 
     updateHeight();
     getServerInfo();
-    window.addEventListener('resize', updateHeight);
+    window.addEventListener("resize", updateHeight);
 
     if (lastMessage != null) {
       try {
-        const msgJson = JSON.parse(lastMessage.data)
-        console.log(msgJson)
+        const msgJson = JSON.parse(lastMessage.data);
+        console.log(msgJson);
         console.log("Main Rx Json: " + msgJson);
         if (msgJson.hasOwnProperty("type")) {
-
-            logIndexRef.current += 1;
-            msgJson.index = logIndexRef.current;
-            setMessageHistory((history) => {
-              while (history.length > 500) {
-                // Drop first message to reduce size by 1
-                history.shift();
-              }
-              return [...history, msgJson];
-            });
+          logIndexRef.current += 1;
+          msgJson.index = logIndexRef.current;
+          setMessageHistory((history) => {
+            while (history.length > 500) {
+              // Drop first message to reduce size by 1
+              history.shift();
+            }
+            return [...history, msgJson];
+          });
 
           /*else if (msgJson["type"] === "progress") {
             if (msgJson["params"]["id"] === "flash_progress") {
@@ -148,7 +200,7 @@ const Main = (props) => {
       }
     }
 
-    return () => window.removeEventListener('resize', updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
   }, [lastMessage]);
 
   //const handleClickSendMessage = useCallback(() => sendMessage('{"type": "command", "params": {"action": "start_flash"}'), []);
@@ -189,8 +241,10 @@ const Main = (props) => {
                   </button>
                 </div>
               ) : (
-                <div id="active_scan_not_scanning" className="text-sm font-bold">
-                  Scan
+                <div>
+                  <button id="active_scan_not_scanning" className="text-sm font-bold" onClick={() => handleScanClick()}>
+                    Scan
+                  </button>
                 </div>
               )}
             </li>
@@ -203,8 +257,10 @@ const Main = (props) => {
           <Libraries rest_url={REST_URL}></Libraries>
         </div>
         <div className="divider divider-horizontal"></div>
-        <div ref={div2Ref} style={{ height: height, overflow: 'auto' }} className="card bg-neutral rounded-box grow grid place-items-center">
-          <Notifications className="grow" messageHistory={messageHistory}> </Notifications>
+        <div ref={div2Ref} style={{ height: height, overflow: "auto" }} className="card bg-neutral rounded-box grow grid place-items-center">
+          <Notifications className="grow" messageHistory={messageHistory}>
+            {" "}
+          </Notifications>
         </div>
       </div>
     </div>
