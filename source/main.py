@@ -48,8 +48,12 @@ async def main_async(
     preempt_active_scan = config.get("preempt-active-scan")
     plex = PlexScan(server=plex_server, token=plex_token, preempt_active_scan=preempt_active_scan)
     plex_websocket = PlexWebsocket(handle_rx=None)
-    arr_webhook = ArrWebhook(plex=plex, path_converter=path_converter, plex_websocket=plex_websocket)
-    frontend = FrontEnd()
+
+    arr_lookup = config.get("arr-paths")
+    arr_webhook = ArrWebhook(
+        plex=plex, path_converter=path_converter, plex_websocket=plex_websocket, link_lookup=arr_lookup
+    )
+    # //frontend = FrontEnd()
 
     app = FastAPI(favicon_url="/static/favicon.ico")
     app.include_router(arr_webhook.router, tags=["Webhook"])

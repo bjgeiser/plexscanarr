@@ -85,6 +85,7 @@ class PlexWebsocket(cfa.Routable):
         if len(self.notifications) == 0:
             notification = ArrNotificationModel(
                 file_path="No notifications available",
+                arr_type="Welcome",
                 type=ArrSource.PLEXSCANARR,
                 server_name="Plexscannar",
                 timestamp=datetime.datetime.now(datetime.UTC),

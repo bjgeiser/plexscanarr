@@ -14,11 +14,12 @@ logger = logging.getLogger(__name__)
 
 
 class ArrWebhook(cfa.Routable):
-    def __init__(self, plex: PlexScan, path_converter: PathConverter, plex_websocket: PlexWebsocket):
+    def __init__(self, plex: PlexScan, path_converter: PathConverter, plex_websocket: PlexWebsocket, link_lookup: dict):
         super().__init__()
         self.plex = plex
         self.path_converter = path_converter
         self.plex_websocket = plex_websocket
+        self.link_lookup = link_lookup
 
     @staticmethod
     def human_readable_size(size_in_bytes: int, decimal_places: int = 2) -> str:
@@ -28,11 +29,20 @@ class ArrWebhook(cfa.Routable):
             size_in_bytes /= 1024.0
         return f"{size_in_bytes:.{decimal_places}f} {unit}"
 
-    def build_notification(self, notification: dict, agent: str, arr_path: str):
+    def get_arr_service_path(self, instance_name: str) -> str | None:
+        for entry in self.link_lookup:
+            if entry["instance_name"] == instance_name:
+                return entry["server-root"].rstrip("/")
+        return None
+
+    def build_notification(self, arr_type: str, notification: dict, agent: str, arr_path: str):
         cover_art_url = None
         release_title = None
         file_size = None
         arr_notification = None
+
+        server_root = self.get_arr_service_path(notification["instanceName"])
+        content_link = server_root
 
         try:
             release_title = notification["release"]["releaseTitle"]
@@ -46,11 +56,14 @@ class ArrWebhook(cfa.Routable):
                 type=ArrSource.BAZARR,
                 cover_art_url=cover_art_url,
                 server_name="Bazarr",
+                arr_type=arr_type,
                 timestamp=datetime.datetime.now(datetime.UTC),
                 pretty_name=f"{notification['title']}",
                 original_json=notification,
                 release_title=release_title,
                 file_size=file_size,
+                service_link=server_root,
+                content_link=content_link,
             )
 
         elif agent.startswith("Sonarr") and notification.get("series"):
@@ -62,8 +75,15 @@ class ArrWebhook(cfa.Routable):
             except KeyError:
                 pass
 
+            try:
+                content_link = f"{server_root}/series/{notification['series']['titleSlug']}"
+            except Exception as e:
+                logger.exception(e)
+                pass
+
             arr_notification = ArrNotificationModel(
                 file_path=arr_path,
+                arr_type=arr_type,
                 type=ArrSource.SONARR,
                 cover_art_url=cover_art_url,
                 server_name=notification["instanceName"],
@@ -72,6 +92,8 @@ class ArrWebhook(cfa.Routable):
                 original_json=notification,
                 release_title=release_title,
                 file_size=file_size,
+                service_link=server_root,
+                content_link=content_link,
             )
         elif agent.startswith("Radarr") and notification.get("movie"):
             try:
@@ -82,8 +104,15 @@ class ArrWebhook(cfa.Routable):
             except KeyError:
                 pass
 
+            try:
+                content_link = f"{server_root}/movie/{notification['movie']['tmdbId']}"
+            except Exception as e:
+                logger.exception(e)
+                pass
+
             arr_notification = ArrNotificationModel(
                 file_path=arr_path,
+                arr_type=arr_type,
                 type=ArrSource.RADARR,
                 cover_art_url=cover_art_url,
                 server_name=notification["instanceName"],
@@ -92,6 +121,8 @@ class ArrWebhook(cfa.Routable):
                 original_json=notification,
                 release_title=release_title,
                 file_size=file_size,
+                service_link=server_root,
+                content_link=content_link,
             )
 
         elif agent.startswith("Lidarr") and notification.get("artist"):
@@ -103,6 +134,7 @@ class ArrWebhook(cfa.Routable):
 
             arr_notification = ArrNotificationModel(
                 file_path=arr_path,
+                arr_type=arr_type,
                 type=ArrSource.LIDARR,
                 cover_art_url=cover_art_url,
                 server_name=notification["instanceName"],
@@ -111,6 +143,8 @@ class ArrWebhook(cfa.Routable):
                 original_json=notification,
                 release_title=release_title,
                 file_size=file_size,
+                service_link=server_root,
+                content_link=content_link,
             )
 
         elif agent.startswith("Readarr") and notification.get("author"):
@@ -126,6 +160,7 @@ class ArrWebhook(cfa.Routable):
 
             arr_notification = ArrNotificationModel(
                 file_path=arr_path,
+                arr_type=arr_type,
                 type=ArrSource.READARR,
                 cover_art_url=cover_art_url,
                 server_name=notification["instanceName"],
@@ -134,6 +169,8 @@ class ArrWebhook(cfa.Routable):
                 original_json=notification,
                 release_title=release_title,
                 file_size=file_size,
+                service_link=server_root,
+                content_link=content_link,
             )
 
         return arr_notification
@@ -169,9 +206,12 @@ class ArrWebhook(cfa.Routable):
             await self.plex.scan_path(plex_path)
 
         try:
-            arr_notification = self.build_notification(notification, agent, arr_path)
-            if arr_notification:
-                await self.plex_websocket.send_arr_notification(arr_notification)
+            if event_type not in ignored_event_types:
+                arr_notification = self.build_notification(
+                    notification=notification, agent=agent, arr_path=arr_path, arr_type=event_type
+                )
+                if arr_notification:
+                    await self.plex_websocket.send_arr_notification(arr_notification)
         except Exception as e:
             logger.exception(e)
 

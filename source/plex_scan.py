@@ -16,6 +16,7 @@ class PlexScan(cfa.Routable):
         self.version = self.plex.version
         self.friendly_name = self.plex.friendlyName
         self.platform = self.plex.platform
+        self.machine_id = self.plex.machineIdentifier
         logger.info(f"Connected to {self.friendly_name} running: {self.platform} version: {self.version}")
         self.work_queue = asyncio.Queue()
         self.listener = self.plex.startAlertListener(
@@ -48,6 +49,7 @@ class PlexScan(cfa.Routable):
             "version": self.version,
             "platform": self.platform,
             "scan_active": self.scan_active(),
+            "server_link": f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?key=%2Fhubs&pageType=hub",
         }
 
     @cfa.get("/libraries")
@@ -63,6 +65,7 @@ class PlexScan(cfa.Routable):
                         "locations": section.locations,
                         "type": section.type,
                         "scan_active": section.refreshing,
+                        "server_link": f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?source={section.key}",
                     }
                 )
         else:
@@ -87,6 +90,7 @@ class PlexScan(cfa.Routable):
                     "locations": [],
                     "type": _type,
                     "scan_active": section.refreshing,
+                    "server_link": f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?source={section.key}",
                 }
                 for location in section.locations:
                     section_json["locations"].append(location)

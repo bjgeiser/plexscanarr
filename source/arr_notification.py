@@ -15,6 +15,7 @@ class ArrSource(StrEnum):
 
 class ArrNotificationModel(BaseModel):
     type: ArrSource
+    arr_type: str
     timestamp: datetime
     cover_art_url: str | None = None
     pretty_name: str
@@ -23,3 +24,5 @@ class ArrNotificationModel(BaseModel):
     original_json: dict
     release_title: str | None = None
     file_size: str | None = None
+    service_link: str | None = None
+    content_link: str | None = None

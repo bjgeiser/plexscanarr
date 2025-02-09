@@ -12,8 +12,8 @@ module.exports = {
     publicPath: "/",
   },
   performance: {
-    maxEntrypointSize: 512000,
-    maxAssetSize: 512000,
+    maxEntrypointSize: 10000000,
+    maxAssetSize: 10000000,
   },
   plugins: [
     new HtmlWebpackPlugin({
