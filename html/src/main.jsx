@@ -3,6 +3,8 @@ import Button from "./Button";
 import Logging, { log } from "./Logging";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import Libraries from "./Libraries";
+import JobLog from "./Notifications";
+import Notifications from "./Notifications";
 
 //const WS_URL = "ws://" + window.location.host + "/ws";
 const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
@@ -30,6 +32,10 @@ const Main = (props) => {
   const [scanActive, setScanActive] = useState(false);
 
   const logIndexRef = useRef(0);
+
+  const div1Ref = useRef(null);
+  const div2Ref = useRef(null);
+  const [height, setHeight] = useState(0);
 
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
     share: true,
@@ -64,14 +70,23 @@ const Main = (props) => {
         console.error(e);
       }
     };
+    const updateHeight = () => {
+      if (div1Ref.current && div2Ref.current) {
+        setHeight(div1Ref.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
     getServerInfo();
+    window.addEventListener('resize', updateHeight);
 
     if (lastMessage != null) {
-      console.log("Main Rx: " + lastMessage);
       try {
-        const msgJson = JSON.parse(lastMessage.data);
+        const msgJson = JSON.parse(lastMessage.data)
+        console.log(msgJson)
+        console.log("Main Rx Json: " + msgJson);
         if (msgJson.hasOwnProperty("type")) {
-          if (msgJson["type"] === "log") {
+
             logIndexRef.current += 1;
             msgJson.index = logIndexRef.current;
             setMessageHistory((history) => {
@@ -81,7 +96,8 @@ const Main = (props) => {
               }
               return [...history, msgJson];
             });
-          } else if (msgJson["type"] === "progress") {
+
+          /*else if (msgJson["type"] === "progress") {
             if (msgJson["params"]["id"] === "flash_progress") {
               setProgress(msgJson["params"]["value"]);
             }
@@ -125,12 +141,14 @@ const Main = (props) => {
             } else if (msgJson["params"]["id"] === "reprint_btn") {
               setReprintBtnDisabled(msgJson["params"]["value"]);
             }
-          }
+          }*/
         }
       } catch (e) {
         //do nothing
       }
     }
+
+    return () => window.removeEventListener('resize', updateHeight);
   }, [lastMessage]);
 
   //const handleClickSendMessage = useCallback(() => sendMessage('{"type": "command", "params": {"action": "start_flash"}'), []);
@@ -180,12 +198,14 @@ const Main = (props) => {
         </div>
       </div>
 
-      <div className="flex w-full pt-3 px-3">
-        <div className="card bg-base-300 rounded-box grid shrink place-items-center">
+      <div className="w-full flex pt-3 px-3">
+        <div ref={div1Ref} className="card bg-base-300 rounded-box grid w-fit place-items-center">
           <Libraries rest_url={REST_URL}></Libraries>
         </div>
         <div className="divider divider-horizontal"></div>
-        <div className="card bg-neutral rounded-box grid flex-grow place-items-center">content</div>
+        <div ref={div2Ref} style={{ height: height, overflow: 'auto' }} className="card bg-neutral rounded-box grow grid place-items-center">
+          <Notifications className="grow" messageHistory={messageHistory}> </Notifications>
+        </div>
       </div>
     </div>
   );

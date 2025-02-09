@@ -10,6 +10,8 @@ import logging
 import json
 from asyncio import Queue
 
+from source.arr_notification import ArrNotificationModel
+
 logger = logging.getLogger(__name__)
 
 
@@ -67,12 +69,13 @@ class PlexWebsocket(cfa.Routable):
         super().__init__()
         self.handle_rx = handle_rx
         self.connection_manager = ConnectionManager()
+        self.notifications = []
 
     @cfa.websocket("/ws")
     async def websocket_endpoint(self, websocket: WebSocket):
         connection = await self.connection_manager.connect(websocket)
         try:
-            # await send_current_state(websocket)
+            await self.send_current_state(websocket)
 
             while True:
                 data = await websocket.receive_text()
@@ -81,6 +84,15 @@ class PlexWebsocket(cfa.Routable):
 
         except WebSocketDisconnect:
             self.connection_manager.disconnect(connection)
+
+    async def send_current_state(self, websocket):
+        for notification in self.notifications:
+            json_str = notification.model_dump_json()
+            await websocket.send_text(json_str)
+
+    async def send_arr_notification(self, notification: ArrNotificationModel):
+        self.notifications.append(notification)
+        await self.connection_manager.broadcast(notification.model_dump_json())
 
 
 # last_values = {"label": {}, "disabled": {}, "progress": {}}

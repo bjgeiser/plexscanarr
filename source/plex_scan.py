@@ -124,10 +124,12 @@ class PlexScan(cfa.Routable):
 
     async def _scan_path(self, path: str) -> bool:
         scanned = False
+        found_match = False
         sections = self.plex.library.sections()
         for section in sections:
             for location in section.locations:
                 if path.startswith(location):
+                    found_match = True
                     if self.preempt_active_scan:
                         cancel = False
                         for s in sections:
@@ -141,6 +143,10 @@ class PlexScan(cfa.Routable):
                     logger.info(f"Requesting Scan {path} in {section.title}")
                     section.update(path)
                     scanned = True
+        if not found_match:
+            logger.error(f"Path {path} not found")
+            scanned = True
+
         return scanned
 
     async def run(self) -> None:
