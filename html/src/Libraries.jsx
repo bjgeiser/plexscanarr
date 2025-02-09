@@ -65,7 +65,7 @@ function Libraries({ libraries, rest_url }) {
   const handleScanClick = (library) => {
     console.log("Scan clicked for", library);
 
-    fetch(`${rest_url}plex/libraries?key=${library.key}`, { method: "POST" })
+    fetch(`${rest_url}plex/libraries/scan?key=${library.key}`, { method: "POST" })
       .then((response) => response.json())
       .then((data) => {
         console.log("Scan started:", data);

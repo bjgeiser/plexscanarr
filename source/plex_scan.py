@@ -50,15 +50,6 @@ class PlexScan(cfa.Routable):
             "scan_active": self.scan_active(),
         }
 
-    @cfa.post("/libraries")
-    async def start_scan_handler(self, key: int | None = None):
-        if key:
-            section = self.plex.library.sectionByID(key)
-            if section:
-                section.update()
-        else:
-            self.plex.library.update()
-
     @cfa.get("/libraries")
     async def get_libraries(self, key: int | None = None) -> list[str]:
         return_list = []
@@ -102,7 +93,16 @@ class PlexScan(cfa.Routable):
                 return_list.append(section_json)
         return return_list
 
-    @cfa.delete("/libraries")
+    @cfa.post("/libraries/scan")
+    async def start_scan_handler(self, key: int | None = None):
+        if key:
+            section = self.plex.library.sectionByID(key)
+            if section:
+                section.update()
+        else:
+            self.plex.library.update()
+
+    @cfa.delete("/libraries/scan")
     async def stop_scan_handler(self, key: int | None = None):
         if key:
             section = self.plex.library.sectionByID(key)
