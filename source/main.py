@@ -12,6 +12,7 @@ from plex_scan import PlexScan
 from plex_websocket import PlexWebsocket
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from source.frontend import FrontEnd
 
@@ -47,11 +48,13 @@ async def main_async(
     arr_webhook = ArrWebhook(plex=plex, path_converter=path_converter, plex_websocket=plex_websocket)
     frontend = FrontEnd()
 
-    app = FastAPI()
+    app = FastAPI(favicon_url="/static/favicon.ico")
     app.include_router(arr_webhook.router, tags=["Webhook"])
     app.include_router(frontend.router, tags=["Frontend"])
     app.include_router(plex.router, tags=["Plex"], prefix="/plex")
     app.include_router(plex_websocket.router, tags=["Websocket"])
+
+    app.mount("/static", StaticFiles(directory="web/files"), name="static")
 
     app.add_middleware(
         CORSMiddleware,

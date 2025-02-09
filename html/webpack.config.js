@@ -10,6 +10,10 @@ module.exports = {
     filename: "main.js",
     path: path.resolve(__dirname, "public"),
   },
+  performance: {
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "index.html"),
@@ -34,6 +38,40 @@ module.exports = {
       {
         test: /\.css$/,
         use: ["style-loader", { loader: "css-loader", options: { importLoaders: 1 } }, "postcss-loader"],
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192, // Inline files smaller than 8kb as base64 data URI
+              name: 'images/[name].[hash:8].[ext]', // Output file naming
+              fallback: 'file-loader', // Fallback to file-loader if above limit
+            },
+          },
+          {
+            loader: 'image-webpack-loader', // Optional: Image optimization
+            options: {
+              mozjpeg: {
+                progressive: true,
+              },
+              optipng: {
+                enabled: false,
+              },
+              pngquant: {
+                quality: [0.65, 0.90],
+                speed: 4
+              },
+              gifsicle: {
+                interlaced: false,
+              },
+              webp: {
+                quality: 75
+              }
+            },
+          },
+        ],
       },
     ],
   },

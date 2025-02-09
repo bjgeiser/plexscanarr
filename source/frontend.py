@@ -12,4 +12,4 @@ class FrontEnd(cfa.Routable):
 
     @cfa.get("/")
     async def get_home(self):
-        return FileResponse("html/index.html")
+        return FileResponse("html/public/index.html")

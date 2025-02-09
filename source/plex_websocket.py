@@ -1,3 +1,4 @@
+import datetime
 import logging
 import classy_fastapi as cfa
 
@@ -10,7 +11,7 @@ import logging
 import json
 from asyncio import Queue
 
-from source.arr_notification import ArrNotificationModel
+from arr_notification import ArrNotificationModel, ArrSource
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +87,18 @@ class PlexWebsocket(cfa.Routable):
             self.connection_manager.disconnect(connection)
 
     async def send_current_state(self, websocket):
+        if len(self.notifications) == 0:
+            notification = ArrNotificationModel(
+                file_path="No notifications available",
+                type=ArrSource.PLEXSCANARR,
+                server_name="Plexscannar",
+                timestamp=datetime.datetime.now(datetime.UTC),
+                pretty_name="Welcome to Plexscanarr",
+                original_json={},
+            )
+            json_str = notification.model_dump_json()
+            await websocket.send_text(json_str)
+
         for notification in self.notifications:
             json_str = notification.model_dump_json()
             await websocket.send_text(json_str)

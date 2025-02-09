@@ -6,6 +6,7 @@ import Libraries from "./Libraries";
 import JobLog from "./Notifications";
 import Notifications from "./Notifications";
 import { useQuery, useQueryClient } from "react-query";
+import PlexscanarrIcon from "./img/favicon.png"
 
 //const WS_URL = "ws://" + window.location.host + "/ws";
 const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
@@ -31,7 +32,6 @@ const Main = (props) => {
   const [os, setOs] = useState("Unknown");
   const [server, setServer] = useState("Unknown");
   const [scanActive, setScanActive] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const logIndexRef = useRef(0);
 
@@ -132,19 +132,26 @@ const Main = (props) => {
 
     if (lastMessage != null) {
       try {
-        const msgJson = JSON.parse(lastMessage.data);
-        console.log(msgJson);
+        const msgJson = JSON.parse(lastMessage.data)
+        console.log(msgJson)
         console.log("Main Rx Json: " + msgJson);
         if (msgJson.hasOwnProperty("type")) {
-          logIndexRef.current += 1;
-          msgJson.index = logIndexRef.current;
-          setMessageHistory((history) => {
-            while (history.length > 500) {
-              // Drop first message to reduce size by 1
-              history.shift();
-            }
-            return [...history, msgJson];
-          });
+
+            logIndexRef.current += 1;
+            msgJson.index = logIndexRef.current;
+            setMessageHistory((history) => {
+              if ((history.length === 1 && history[0]["pretty_name"]  === "Welcome to Plexscanarr") ||
+                  (msgJson["pretty_name"] === "Welcome to Plexscanarr"))
+              {
+                history.length = 0;
+              }
+              while (history.length > 500) {
+
+                // Drop last message to reduce size by 1
+                history.pop();
+              }
+              return [msgJson, ...history];
+            });
 
           /*else if (msgJson["type"] === "progress") {
             if (msgJson["params"]["id"] === "flash_progress") {
@@ -209,6 +216,11 @@ const Main = (props) => {
   return (
     <div>
       <div className="navbar bg-base-200">
+        <div className="avatar">
+          <div className="m-2 w-10">
+            <img src={PlexscanarrIcon}/>
+          </div>
+        </div>
         <div className="flex-1">
           <a className="btn btn-ghost text-xl">Plexscanarr</a>
         </div>
@@ -254,10 +266,8 @@ const Main = (props) => {
           <Libraries rest_url={REST_URL}></Libraries>
         </div>
         <div className="divider divider-horizontal"></div>
-        <div ref={div2Ref} style={{ height: height, overflow: "auto" }} className="card bg-neutral rounded-box grow grid place-items-center">
-          <Notifications className="grow" messageHistory={messageHistory}>
-            {" "}
-          </Notifications>
+        <div ref={div2Ref} style={{ height: height, overflow: 'auto' }} className="card bg-neutral rounded-box grow grid">
+          <Notifications messageHistory={messageHistory}> </Notifications>
         </div>
       </div>
     </div>

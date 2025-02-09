@@ -1,68 +1,106 @@
 import React, { useState, useEffect, useRef  } from 'react';
 
+import BazarrIcon from "./img/bazarr.png"
+import SonarrIcon from "./img/sonarr.png"
+import PlexscanarrIcon from "./img/favicon.png";
+import RadarrIcon from "./img/radarr.png"
+import ReadarrIcon from "./img/readarr.png"
+import LidarIcon from "./img/lidarr.png"
+import NoCoverIcon from "./img/no_cover.png"
 
 function Notifications(props) {
 
     //This in combination of useEffect is how new messages make it into thie component
     const {messageHistory} = props;
-
-
-
-    const [checked, setChecked] = React.useState(true);
-
     const LoggingEndRef = useRef(null)
-    const LoggingMaxIndexRef = useRef(0)
-
-    const scrollToBottom = () => {
-        LoggingEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
 
     useEffect(() => {
 
-        if (checked && messageHistory.length > 0) {
-            const lastIndex = messageHistory[messageHistory.length - 1].index;
-            if (lastIndex > LoggingMaxIndexRef.current) {
-                LoggingMaxIndexRef.current = lastIndex;
-                // Scroll if the autoscroll check box is checked and
-                // new log entries have been added since the last update.
-                scrollToBottom();
-            }
-        }
-
     });
-
-
-    const handleChange = () => {
-        setChecked(!checked);
-    };
 
     function getLocalTime(_message) {
         const dt = new Date(_message["timestamp"]);
         return dt.toLocaleString("en-US")
     }
 
+    function getServiceIcon(_message) {
+        if (_message["type"].toLowerCase() === "sonarr")
+        {
+            return SonarrIcon;
+        }
+        else if (_message["type"].toLowerCase() === "radarr")
+        {
+            return RadarrIcon;
+        }
+        else if (_message["type"].toLowerCase() === "lidarr")
+        {
+            return LidarIcon;
+        }
+        else if (_message["type"].toLowerCase() === "readarr")
+        {
+            return ReadarrIcon;
+        }
+        else if (_message["type"].toLowerCase() === "plexscanarr")
+        {
+            return PlexscanarrIcon;
+        }
+        else if (_message["type"].toLowerCase() === "bazarr")
+        {
+            return BazarrIcon;
+        }
+
+        return NoCoverIcon
+    }
+
+    function getPoster(_message)
+    {
+       if ( _message["cover_art_url"].toLowerCase() !== null)
+       {
+           return _message["cover_art_url"];
+       }
+       return null
+    }
+
+    function getJsonString(_message) {
+        return JSON.stringify(_message, null, 2);
+    }
 
     return (
-        <div className="h-dvh">
-            <div className="overflow-hidden hover:resize-y hover:overflow-auto">
+        <div>
+            <div className="overflow-hidden hover:resize-y hover:overflow-auto h-full">
                 {messageHistory.map((_message) => (
-                    <div className="card rounded-box bg-base-300 w-dvw m-2 p-3 flex flex-row">
-                        <div className="flex flex-col">
-                            <div>{_message["type"]}</div>
-                            <div>{_message["server_name"]}</div>
+                    <div className="card rounded-box bg-base-300 w-dvw m-2 p-3 flex-row items-center ">
+
+
+                        <div className="m-1 flex flex-col items-center">
+                            <div>
+                                <img className="h-8" src={getServiceIcon(_message)}/>
+                            </div>
+                            <div className="m-1 font-bold text-sm">{_message["server_name"]}</div>
                         </div>
-                        <div className="p-3">Time: { getLocalTime(_message)}</div>
-                        <div className="p-3">Title: {_message["pretty_name"]}</div>
+
+
+                        <div className="divider divider-horizontal"></div>
+
+                        <div className="m-1">
+                            { _message["cover_art_url"] !== null ? (<img className="rounded-box h-24" src={_message["cover_art_url"]}/>) : (<div/>) }
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="text-2xl pl-3">{_message["pretty_name"]}</div>
+                            <div className="font-mono pl-3">{_message["file_path"]}</div>
+                            { _message["release_title"] !== null ? (<div className="font-mono text-xs pl-3">{_message["release_title"]} {_message["file_size"]} </div>) : (<div/>) }
+                            <div className="text-xs w-full pl-3">{getLocalTime(_message)}</div>
+                        </div>
+                        <div className="flex-end flex-1"></div> {/* This fills the empty space in the row */}
+
+                        <div className="tooltip tooltip-left pl-3" data-tip="Click to copy event json">
+                            <button className="btn text-xs" onClick={() => {navigator.clipboard.writeText(getJsonString(_message))}}>Copy</button>
+                        </div>
+
                     </div>
                 ))}
-                <div ref={LoggingEndRef} />
-            </div >
-            <div className="form-control">
-                <label className="label cursor-pointer">
-                    <span className="label-text">Autoscroll</span>
-                    <input name="autoscroll" type="checkbox" className="checkbox" checked={checked} onChange={handleChange} />
-                </label>
             </div>
+
         </div>
     );
 }
