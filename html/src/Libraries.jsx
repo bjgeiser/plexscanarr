@@ -101,13 +101,13 @@ function Libraries({ libraries, rest_url }) {
   // });
 
   return (
-    <div className="overflow-x-auto">
+    <div>
       {libraries.length === 0 ? (
         <div>No libraries available.</div>
       ) : (
         <table className="table-sm">
           <thead>
-            <tr>
+            <tr className="text-left text-orange-300 text-sm">
               <th>Library Name</th>
               <th>Type</th>
               <th>Locations</th>
@@ -116,7 +116,7 @@ function Libraries({ libraries, rest_url }) {
           </thead>
           <tbody>
             {libraries.map((library) => {
-              console.log("Library:", library);
+              //console.log("Library:", library);
               return (
                 <tr key={library.key}>
                   <td>
