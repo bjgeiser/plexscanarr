@@ -180,5 +180,5 @@ class WebsocketLogHandler(logging.Handler):
         self.loop = my_loop
         super().__init__()
 
-    def emit(self, record):
-        log_to_websocket(self.format(record), record.levelname.lower())
+    # def emit(self, record):
+    #     log_to_websocket(self.format(record), record.levelname.lower())

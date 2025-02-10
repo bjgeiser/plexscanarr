@@ -17,7 +17,6 @@ from starlette.requests import Request
 from starlette.templating import _TemplateResponse
 from fastapi.templating import Jinja2Templates
 
-from source.frontend import FrontEnd
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -53,7 +52,6 @@ async def main_async(
     arr_webhook = ArrWebhook(
         plex=plex, path_converter=path_converter, plex_websocket=plex_websocket, link_lookup=arr_lookup
     )
-    # //frontend = FrontEnd()
 
     app = FastAPI(favicon_url="/static/favicon.ico")
     app.include_router(arr_webhook.router, tags=["Webhook"])

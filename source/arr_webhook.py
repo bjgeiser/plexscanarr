@@ -179,7 +179,7 @@ class ArrWebhook(cfa.Routable):
     async def webhook_handler(self, request: Request, notification: dict = Body(...)):
         logger.debug(f"Received webhook request: {notification}")
         agent = request.headers.get("user-agent")
-        address = request.client
+        # address = request.client
         event_type = notification.get("eventType", "Unknown")
         logger.info(f"Rx Event {event_type} from {agent} at {request.scope['client']} ")
         arr_path = None

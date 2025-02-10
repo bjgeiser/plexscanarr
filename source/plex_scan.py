@@ -2,6 +2,7 @@ import logging
 import asyncio
 from plexapi.server import PlexServer
 import classy_fastapi as cfa
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,16 @@ class PlexScan(cfa.Routable):
 
     def plex_error_callback(self, error):
         logger.info(f"Received error: {error}")
+
+    @staticmethod
+    def get_dir_path(path: str) -> str:
+        path_obj = Path(path)
+        ext = path_obj.suffix
+        if ext:
+            dir_path = str(path_obj.parent)
+        else:
+            dir_path = str(path_obj)
+        return dir_path
 
     @cfa.get("/info")
     async def info(self):
@@ -96,24 +107,78 @@ class PlexScan(cfa.Routable):
                     section_json["locations"].append(location)
                 return_list.append(section_json)
         return return_list
-
+    
     @cfa.post("/libraries/scan")
-    async def start_scan_handler(self, key: int | None = None):
+    async def start_full_scan_handler(self):
+        self.plex.library.update()
+
+    @cfa.delete("/libraries/scan")
+    async def stop_full_scan_handler(self):
+        self.plex.library.cancelUpdate()
+
+    @cfa.get("/libraries/{key}/details")
+    async def get_libraries_details(self, key: int) -> list[dict[str, str]]:
+        return_list = []
         if key:
             section = self.plex.library.sectionByID(key)
             if section:
-                section.update()
-        else:
-            self.plex.library.update()
+                # alphabet_list = list("0123456789" + string.ascii_lowercase)
+                # for letter in alphabet_list:
+                items = section.search()
+                for item in items:
+                    return_list.append(    {
+                        "name": item.title,
+                        "locations": item.locations,
+                        "year": item.year,
+                        "key": item.ratingKey, # Use this instead of key so we can scan directly
+                        "type": item.type,
+                    }
+                    )
+                    # item_fields = vars(item)
+                    # for field, value in item_fields.items():
+                    #     if field.startswith("_"):
+                    #         continue
+                    #     print(f"{field}: {value}")
+        return return_list
 
-    @cfa.delete("/libraries/scan")
-    async def stop_scan_handler(self, key: int | None = None):
-        if key:
+    @cfa.post("/libraries/{key}/scan")
+    async def start_scan_handler(self, key: int):
+        section = self.plex.library.sectionByID(key)
+        if section:
+            section.update()
+        else:
+            logger.error(f"Failed to find section with key {key}")
+            raise cfa.HTTPException(status_code=404, detail=f"Library {key} not found")
+        
+
+    @cfa.delete("/libraries/{key}/scan")
+    async def stop_scan_handler(self, key: int):
             section = self.plex.library.sectionByID(key)
             if section:
                 section.cancelUpdate()
-        else:
-            self.plex.library.cancelUpdate()
+            else:
+                logger.error(f"Failed to find section with key {key}")
+                raise cfa.HTTPException(status_code=404, detail=f"Library {key} not found")
+
+    @cfa.post('/item/{key}/scan')
+    async def item_scan_handler(self, key: int):
+        item = self.plex.fetchItem(key)
+        section = self.plex.library.sectionByID(item.librarySectionID)
+
+        if self.preempt_active_scan:
+            cancel = False
+            for section in self.plex.library.sections():
+                if section.refreshing:
+                    cancel = True
+                    logger.info(f"Preempt scan in {section.title}, canceling")
+            if cancel:
+                logger.info(f"Canceling all active scans in order to handle requested scan")
+                self.plex.library.cancelUpdate()
+
+        for location in item.locations:
+            location = self.get_dir_path(location)
+            logger.info(f"Requesting Manual Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}")
+            section.update(location)
 
     def scan_active(self) -> bool:
         sections = self.plex.library.sections()
@@ -155,6 +220,7 @@ class PlexScan(cfa.Routable):
 
     async def run(self) -> None:
         while True:
+            await asyncio.sleep(0)
             path = await self.work_queue.get()
             if path is not None:
                 if not await self._scan_path(path):
