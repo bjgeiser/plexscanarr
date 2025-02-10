@@ -5,7 +5,7 @@ import classy_fastapi as cfa
 
 from path_converter import PathConverter
 from plex_scan import PlexScan
-from fastapi import Request, Body
+from fastapi import Request, Body, HTTPException
 
 from source.arr_notification import ArrNotificationModel, ArrSource
 from source.plex_websocket import PlexWebsocket
@@ -30,9 +30,10 @@ class ArrWebhook(cfa.Routable):
         return f"{size_in_bytes:.{decimal_places}f} {unit}"
 
     def get_arr_service_path(self, instance_name: str) -> str | None:
-        for entry in self.link_lookup:
-            if entry["instance_name"] == instance_name:
-                return entry["server-root"].rstrip("/")
+        if self.link_lookup:
+            for entry in self.link_lookup:
+                if entry["instance-name"] == instance_name:
+                    return entry["server-root"].rstrip("/")
         return None
 
     def build_notification(self, arr_type: str, notification: dict, agent: str, arr_path: str):
@@ -220,3 +221,9 @@ class ArrWebhook(cfa.Routable):
     @cfa.put("/")
     async def put_webhook_handler(self, request: Request, notification: dict = Body(...)):
         return await self.webhook_handler(request, notification)
+
+    @cfa.get("/services")
+    async def get_arr_services(self):
+        if self.link_lookup:
+            return self.link_lookup
+        raise HTTPException(status_code=404, detail="Item not found")

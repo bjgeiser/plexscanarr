@@ -24,17 +24,17 @@ path-converters:
 
 # optional
 # note: instance names are settable the general settings for arr apps if you allow for advanced options
-arr-paths:
-  - instance_name: Sonarr
-    server-root: http://sonarr.domain.com
-  - instance_name: Sonarr 4K
-    server-root: http://192.162.1.26:8000/
-  - instance_name: Radarr
-    server-root: http://radarr.domain.net:1000
-  - instance_name: Lidarr
-    server-root: http://lidarr.domain.com
-  - instance_name: Readarr
-    server-root: http://readarr.domain.com
+#arr-paths:
+#  - instance_name: Sonarr
+#    server-root: http://sonarr.domain.com
+#  - instance_name: Sonarr 4K
+#    server-root: http://192.162.1.26:8000/
+#  - instance_name: Radarr
+#    server-root: http://radarr.domain.net:1000
+#  - instance_name: Lidarr
+#    server-root: http://lidarr.domain.com
+#  - instance_name: Readarr
+#    server-root: http://readarr.domain.com
 
 # optional
 # server port, will default to 5000

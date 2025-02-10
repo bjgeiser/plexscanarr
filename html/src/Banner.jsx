@@ -3,10 +3,9 @@ import PlexscanarrIcon from "./img/favicon.png";
 import { useNavigate } from "react-router-dom";
 
 const Banner = ({ REST_URL }) => {
-  const [version, setVersion] = useState("Unknown");
-  const [os, setOs] = useState("Unknown");
-  const [server, setServer] = useState("Unknown");
-  const [scanActive, setScanActive] = useState(false);
+
+  const [serverInfo, setServerInfo] = useState({});
+  const [serviceInfo, setServiceInfo] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -41,11 +40,17 @@ const Banner = ({ REST_URL }) => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const json = await response.json();
-        setOs(json["platform"]);
-        setServer(json["server"]);
-        setVersion(json["version"]);
-        setScanActive(json["scan_active"]);
+        setServerInfo(json)
         console.log(json);
+
+        const response2 = await fetch(REST_URL + "services");
+        if (!response2.ok) {
+          throw new Error(`HTTP error! status: ${response2.status}`);
+        }
+        const json2 = await response2.json();
+        console.log(json2);
+        setServiceInfo(json2)
+
       } catch (e) {
         console.error(e);
       }
@@ -57,7 +62,7 @@ const Banner = ({ REST_URL }) => {
   return (
     <div className="navbar bg-base-200">
       <div className="avatar">
-        <div className="m-2 w-10">
+        <div className="m-2 w-8">
           <button onClick={() => handleHomeClick()}>
             <img src={PlexscanarrIcon} alt="Plexscanarr Icon" />
           </button>
@@ -74,17 +79,36 @@ const Banner = ({ REST_URL }) => {
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <h1>Server: {server}</h1>
+            <h1 onClick={()=> window.open(serverInfo.server_link, "_blank")}><p className="text-sm font-bold">SERVER:</p> {serverInfo.server}</h1>
           </li>
           <li>
-            <h1>Server Platform: {os}</h1>
+            <h1><p className="text-sm font-bold">SERVER PLATFORM:</p> {serverInfo.platform}</h1>
           </li>
           <li>
-            <h1>Version: {version}</h1>
+            <h1><p className="text-sm font-bold">VERSION:</p> {serverInfo.version}</h1>
           </li>
+          { serviceInfo.length > 0 ? (
+          <li>
+            <div className="dropdown dropdown-bottom font-bold">
+              <div tabIndex={0} role="button" className=""><h1><p className="text-sm font-bold">SERVICES</p></h1></div>
+              <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                {serviceInfo.map((service) => {
+                  return (
+                  <li>
+                    <button className="text-sm font-bold"  onClick={()=> window.open(service["server-root"], "_blank")}>
+                      {service["instance-name"]}
+                    </button>
+                  </li>
+                  )
+                })}
+              </ul>
+            </div>
+
+          </li>
+          ) : null}
           <li className="flex flex-row">
             <h1>Scan Active: </h1>
-            {scanActive ? (
+            {serverInfo.scan_active ? (
               <div>
                 <div id="active_scan_scanning" className="text-sm font-bold text-orange-600">
                   Scanning

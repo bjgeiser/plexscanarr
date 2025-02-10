@@ -18,7 +18,7 @@ from starlette.templating import _TemplateResponse
 from fastapi.templating import Jinja2Templates
 
 
-logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.DEBUG)
+logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 leveldict = {
     "debug": logging.DEBUG,
@@ -40,6 +40,11 @@ async def main_async(
     else:
         f = open("config.yaml", "r")
     config = yaml.safe_load(f)
+
+    verbose = config.get("verbose", False)
+    if verbose:
+        logger.info("Turning on verbose logging")
+        logger.setLevel(logging.DEBUG)
 
     path_converter = PathConverter(config)
     plex_server = config.get("plex-server")
@@ -74,7 +79,8 @@ async def main_async(
     )
 
     webserver_port = config.get("port", 5000)
-    config = uvicorn.Config(app=app, host="0.0.0.0", port=webserver_port, log_level=log_level.lower())
+    host = config.get("listen-address", "0.0.0.0")
+    config = uvicorn.Config(app=app, host=host, port=webserver_port, log_level=log_level.lower())
     server = uvicorn.Server(config=config)
 
     async with asyncio.TaskGroup() as task_group:
