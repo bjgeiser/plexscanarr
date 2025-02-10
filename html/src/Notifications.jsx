@@ -70,7 +70,7 @@ function Notifications(props) {
                             { _message["cover_art_url"] !== null ? (<img onClick={()=> window.open(_message["content_link"], "_blank")}  className="rounded-box h-24" src={_message["cover_art_url"]}/>) : (<div/>) }
                         </div>
                         <div className="flex flex-col">
-                            <div>
+                            <div className="mb-4">
                               <div className="tooltip tooltip-right" data-tip={"Click to open " + _message["pretty_name"] + " on  " + _message["server_name"]}>
                                 <div className="font-bold text-orange-400 pl-3"
                                      onClick={()=> window.open(_message["content_link"], "_blank")}
@@ -79,13 +79,17 @@ function Notifications(props) {
                                 </div>
                               </div>
                             </div>
-                            <div className="font-mono pl-3">{_message["file_path"]}</div>
+                            
+                            <div className="font-mono text-xs pl-3">{_message["file_path"]}</div>
                             { _message["release_title"] !== null ? (<div className="font-mono text-xs pl-3">{_message["release_title"]} {_message["file_size"]} </div>) : (<div/>) }
-                            <div className="flex flex-row">
-                              <div className="text-xs pl-3">{_message["arr_type"]}</div>
-                              <div className="text-xs w-full pl-3">{getLocalTime(_message)}</div>
+                            <div>
+                                <div className="flex flex-row">
+                                  <div className="text-xs pl-3">{_message["arr_type"]}</div>
+                                  <div className="text-xs w-full pl-3">{getLocalTime(_message)}</div>
+                                </div>
                             </div>
                         </div>
+
                         <div className="flex-end flex-1"></div> {/* This fills the empty space in the row */}
 
                         <div className="tooltip tooltip-left pl-3" data-tip="Click to copy event json">
