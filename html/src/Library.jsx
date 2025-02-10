@@ -38,16 +38,40 @@ const Library = ({ library }) => {
 
   console.log("Rows:", rows);
   return (
-    <div style={{width: "100%" }}>
-      <DataGrid rows={rows} columns={columns} components={{ Toolbar: GridToolbar }} 
-        sx={{
-          boxShadow: 2,
-          border: 2,
-          borderColor: 'primary.light',
-          '& .MuiDataGrid-cell:hover': {
-            color: 'primary.main',
-          },
-        }}
+    <div className="mt-5 ml-8 mr-8 right-8 min-w-fit">
+      <DataGrid rows={rows} columns={columns} components={{ Toolbar: GridToolbar }}
+                pageSizeOptions={[25, 50, 75, 100, { value: -1, label: 'All' }]}
+                initialState={{
+                    density: 'compact',
+                    pagination: { paginationModel: { pageSize: 100 } },
+                }}
+                sx={{
+                    color: 'GhostWhite',
+                    fontWeight: "bold",
+                    boxShadow: 2,
+                    border: 2,
+                    background: "linear-gradient( 90deg,#333b3a,#374141 25%,#40362b 75%,#211a17)",
+                    borderColor: '#f68f3b',
+
+                    '& .MuiDataGrid-cell:hover': {
+                        color: '#f68f3b',
+                    },
+                    '& .MuiDataGrid-columnHeaders, & .MuiDataGrid-columnHeader': {
+                        color: 'Black',
+                        background: 'linear-gradient(90deg, #c17f34, #db961f, #eebd41, #db961f,#c17f34)',
+                    },
+                    '& .MuiDataGrid-columnHeaderTitle': {
+                        fontWeight: 'bold !important',
+                        overflow: 'visible !important'
+                    },
+                    '& .MuiDataGrid-footerContainer svg': {
+                        color: 'GhostWhite',
+                    },
+                    '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows, .MuiTablePagination-select': {
+                        color: 'GhostWhite'
+
+                    }
+                }}
       />
     </div>
   );
