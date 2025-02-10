@@ -107,7 +107,7 @@ class PlexScan(cfa.Routable):
                     section_json["locations"].append(location)
                 return_list.append(section_json)
         return return_list
-    
+
     @cfa.post("/libraries/scan")
     async def start_full_scan_handler(self):
         self.plex.library.update()
@@ -126,13 +126,14 @@ class PlexScan(cfa.Routable):
                 # for letter in alphabet_list:
                 items = section.search()
                 for item in items:
-                    return_list.append(    {
-                        "name": item.title,
-                        "locations": item.locations,
-                        "year": item.year,
-                        "key": item.ratingKey, # Use this instead of key so we can scan directly
-                        "type": item.type,
-                    }
+                    return_list.append(
+                        {
+                            "name": item.title,
+                            "locations": item.locations,
+                            "year": item.year,
+                            "key": item.ratingKey,  # Use this instead of key so we can scan directly
+                            "type": item.type,
+                        }
                     )
                     # item_fields = vars(item)
                     # for field, value in item_fields.items():
@@ -149,18 +150,17 @@ class PlexScan(cfa.Routable):
         else:
             logger.error(f"Failed to find section with key {key}")
             raise cfa.HTTPException(status_code=404, detail=f"Library {key} not found")
-        
 
     @cfa.delete("/libraries/{key}/scan")
     async def stop_scan_handler(self, key: int):
-            section = self.plex.library.sectionByID(key)
-            if section:
-                section.cancelUpdate()
-            else:
-                logger.error(f"Failed to find section with key {key}")
-                raise cfa.HTTPException(status_code=404, detail=f"Library {key} not found")
+        section = self.plex.library.sectionByID(key)
+        if section:
+            section.cancelUpdate()
+        else:
+            logger.error(f"Failed to find section with key {key}")
+            raise cfa.HTTPException(status_code=404, detail=f"Library {key} not found")
 
-    @cfa.post('/item/{key}/scan')
+    @cfa.post("/item/{key}/scan")
     async def item_scan_handler(self, key: int):
         item = self.plex.fetchItem(key)
         section = self.plex.library.sectionByID(item.librarySectionID)
@@ -172,12 +172,14 @@ class PlexScan(cfa.Routable):
                     cancel = True
                     logger.info(f"Preempt scan in {section.title}, canceling")
             if cancel:
-                logger.info(f"Canceling all active scans in order to handle requested scan")
+                logger.info("Canceling all active scans in order to handle requested scan")
                 self.plex.library.cancelUpdate()
 
         for location in item.locations:
             location = self.get_dir_path(location)
-            logger.info(f"Requesting Manual Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}")
+            logger.info(
+                f"Requesting Manual Scan of Title: {item.title} at {location} in Section: {item.librarySectionTitle}"
+            )
             section.update(location)
 
     def scan_active(self) -> bool:
