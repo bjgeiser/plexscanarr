@@ -120,11 +120,15 @@ function Libraries({ libraries, rest_url }) {
               return (
                 <tr key={library.key}>
                   <td>
-                    <div className="font-bold">
-                      <button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
-                        {library.name}
-                      </button>
-                    </div>
+                      <div className="dropdown font-bold">
+                        <div tabIndex={0} role="button" className="">{library.name}</div>
+                        <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                          <li><button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
+                            Open Details
+                          </button></li>
+                          <li><a onClick={()=> window.open(library.server_link, "_blank")}>Open on Plex Server</a></li>
+                        </ul>
+                      </div>
                   </td>
                   <td>
                     <div className="font-medium">{library.type}</div>
