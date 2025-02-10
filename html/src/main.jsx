@@ -188,7 +188,7 @@ const Main = ({ libraries }) => {
           <Libraries rest_url={REST_URL} libraries={libraries} />
         </div>
 
-        <div ref={notificationRef} style={{ height: height, overflow: "auto" }} className="card bg-neutral ml-5 rounded-box grow ">
+        <div ref={notificationRef} style={{ height: height }} className="card bg-neutral ml-5 overflow-x-auto rounded-box grow ">
           <Notifications messageHistory={messageHistory}> </Notifications>
         </div>
       </div>

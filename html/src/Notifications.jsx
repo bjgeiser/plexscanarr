@@ -53,7 +53,7 @@ function Notifications(props) {
         <div>
             <div className="overflow-hidden hover:resize-y hover:overflow-auto h-full">
                 {messageHistory.map((_message) => (
-                    <div className="card rounded-box bg-base-300 w-dvw m-2 p-3 flex-row items-center ">
+                    <div className="card rounded-box bg-base-300 m-2 p-3 flex-row items-center ">
 
 
                         <div className="m-1 flex flex-col items-center">
