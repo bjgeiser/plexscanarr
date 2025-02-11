@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { HashRouter, Route, Routes, Link } from "react-router-dom";
 import Main, { fetchLibraries, toRoutePath, REST_URL } from "./main";
@@ -38,29 +38,11 @@ export const LibraryRoutes = () => {
   );
 };
 
-function Libraries({ libraries, rest_url }) {
-  console.log("Libraries - Libraries:", libraries);
-  // const [libraries, setLibraries] = useState([]);
+function Libraries({ rest_url }) {
+  console.log("Libraries - REST URL:", rest_url);
+  const [libraries, setLibraries] = useState([]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
-  // const fetchLibraries = async () => {
-  //   const response = await fetch(rest_url + "plex/libraries");
-  //   return response.json();
-  // };
-
-  // const { data, isLoading } = useQuery("libraries", fetchLibraries, {
-  //   refetchInterval: 5000, // Poll every 5 seconds
-  //   onSuccess: (data) => {
-  //     console.log("Libraries fetched:", data);
-  //     setLibraries(data);
-  //     setLoading(false);
-  //   },
-  //   onError: (error) => {
-  //     console.error("Error fetching libraries:", error);
-  //     setLoading(false);
-  //   },
-  // });
 
   const handleScanClick = (library) => {
     console.log("Scan clicked for", library);
@@ -84,6 +66,21 @@ function Libraries({ libraries, rest_url }) {
     const response = await fetch(`${rest_url}plex/libraries`);
     return response.json();
   };
+
+  useEffect(() => {
+    if (rest_url) {
+      console.log("Libraries component mounted or updated");
+      fetchScanStatus().then((data) => {
+        console.log("Scan status fetched:", data);
+        setLibraries((prevLibraries) =>
+          prevLibraries.map((lib) => {
+            const status = data.find((status) => status.key === lib.key);
+            return status ? { ...lib, scan_active: status.scan_active } : lib;
+          }),
+        );
+      });
+    }
+  }, [rest_url]);
 
   // useQuery("scanActive", fetchScanStatus, {
   //   refetchInterval: 5000, // Poll every 5 seconds
@@ -120,15 +117,21 @@ function Libraries({ libraries, rest_url }) {
               return (
                 <tr key={library.key}>
                   <td>
-                      <div className="dropdown font-bold">
-                        <div tabIndex={0} role="button" className="">{library.name}</div>
-                        <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                          <li><button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
-                            Open Details
-                          </button></li>
-                          <li><a onClick={()=> window.open(library.server_link, "_blank")}>Open on Plex Server</a></li>
-                        </ul>
+                    <div className="drop</div>down font-bold">
+                      <div tabIndex={0} role="button" className="">
+                        {library.name}
                       </div>
+                      <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                        <li>
+                          <button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
+                            Open Details
+                          </button>
+                        </li>
+                        <li>
+                          <a onClick={() => window.open(library.server_link, "_blank")}>Open on Plex Server</a>
+                        </li>
+                      </ul>
+                    </div>
                   </td>
                   <td>
                     <div className="font-medium">{library.type}</div>

@@ -44,7 +44,7 @@ class PlexScan(cfa.Routable):
                 notification = ArrNotificationModel(
                     file_path="",
                     arr_type="",
-                    type=ArrSource.PLEXSCANARR,
+                    type=ArrSource.PLEX,
                     server_name="Plex",
                     timestamp=datetime.datetime.now(datetime.UTC),
                     pretty_name="",
@@ -58,12 +58,12 @@ class PlexScan(cfa.Routable):
                     title = notify.get("title")
                     name = notify.get("notificationName")
                     logger.info(f"Plex status notification: {title} {name}")
-                    notification.file_path = name
+                    notification.arr_type = name
                     notification.pretty_name = title
                     if title.startswith("Scanning"):
-                        title = title[14:][:-9]
-                        logger.info(f"Scanning {title}")
-                        notification.arr_type = f"Scanning {title}"
+                        libary = title.split('"')[1]
+                        logger.info(f"Scanning {libary}")
+                        notification.file_path = libary
                         notification.scan_started = True
                         asyncio.run(self.plex_websocket.send_arr_notification(notification))
 

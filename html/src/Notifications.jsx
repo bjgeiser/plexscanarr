@@ -33,6 +33,8 @@ function Notifications(props) {
       return PlexscanarrIcon;
     } else if (_message["type"].toLowerCase() === "bazarr") {
       return BazarrIcon;
+    } else if (_message["type"].toLowerCase() === "plex") {
+      return PlexscanarrIcon; // TODO can add the plex icon if we want
     }
 
     return NoCoverIcon;

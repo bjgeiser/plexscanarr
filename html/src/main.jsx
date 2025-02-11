@@ -106,8 +106,16 @@ const Main = ({ libraries }) => {
       try {
         const msgJson = JSON.parse(lastMessage.data);
         console.log(msgJson);
-        console.log("Main Rx Json: " + msgJson);
+        console.log("Main Rx Json: ", msgJson);
         if (msgJson.hasOwnProperty("type")) {
+          if (msgJson["type"] === "plex") {
+            console.log("Scan started for " + msgJson["file_path"]);
+            const matchingLibrary = libraries.find((library) => library.name === msgJson["file_path"]);
+            if (matchingLibrary) {
+              console.log("Matching library found:", matchingLibrary);
+              matchingLibrary.scan_active = msgJson["scan_started"];
+            }
+          }
           logIndexRef.current += 1;
           msgJson.index = logIndexRef.current;
           setMessageHistory((history) => {
