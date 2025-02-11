@@ -87,8 +87,9 @@ const Banner = ({ REST_URL }) => {
             </h1>
           </li>
           <li>
-            <h1>
+            <h1 onClick={() => window.open("https://forums.plex.tv/t/plex-media-server/30447/10000", "_blank")}>
               <p className="text-sm font-bold">VERSION:</p> {serverInfo.version}
+
             </h1>
           </li>
           {serviceInfo.length > 0 ? (
