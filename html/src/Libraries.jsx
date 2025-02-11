@@ -116,7 +116,7 @@ function Libraries({ library_in, scanActive }) {
               return (
                 <tr key={library.key}>
                   <td>
-                    <div className="drop</div>down font-bold">
+                    <div className="dropdown font-bold">
                       <div tabIndex={0} role="button" className="">
                         {library.name}
                       </div>

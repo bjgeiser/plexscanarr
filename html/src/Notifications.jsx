@@ -90,7 +90,7 @@ function Notifications(props) {
                   {_message.scan_started === true ? (
                     <div className=" flex flex-row">
                       <div className="text-xs pl-3">Scanned</div>
-                      <img className="h-8" src={PlexscanarrIcon} alt="Plexscanarr Icon" />
+                      <img className="h-3 pl-1" src={PlexscanarrIcon} alt="Plexscanarr Icon" />
                     </div>
                   ) : null}
                 </div>
