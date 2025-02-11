@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import PlexscanarrIcon from "./img/favicon.png";
 import { useNavigate } from "react-router-dom";
+import { useLibrary } from "./LibraryContext";
 
 const Banner = ({ REST_URL }) => {
   const [serverInfo, setServerInfo] = useState({});
   const [serviceInfo, setServiceInfo] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { libraryState } = useLibrary();
 
   const handleHomeClick = () => {
     navigate("/");
@@ -57,6 +59,10 @@ const Banner = ({ REST_URL }) => {
     getServerInfo();
   }, []);
 
+  useEffect(() => {
+    console.log("Upating library list" + libraryState);
+  }, [libraryState]);
+
   return (
     <div className="navbar bg-base-200">
       <div className="avatar">
@@ -89,7 +95,6 @@ const Banner = ({ REST_URL }) => {
           <li>
             <h1 onClick={() => window.open("https://forums.plex.tv/t/plex-media-server/30447/10000", "_blank")}>
               <p className="text-sm font-bold">VERSION:</p> {serverInfo.version}
-
             </h1>
           </li>
           {serviceInfo.length > 0 ? (

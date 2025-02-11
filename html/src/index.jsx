@@ -5,16 +5,20 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import Main from "./main";
 import "./main.css";
 import { LibraryRoutes } from "./Libraries";
+import { LibraryProvider } from "./LibraryContext";
+
 const queryClient = new QueryClient();
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 
 root.render(
-  <QueryClientProvider client={queryClient}>
-    <HashRouter>
-      {/* <Main /> */}
-      <LibraryRoutes />
-    </HashRouter>
-  </QueryClientProvider>,
+  <LibraryProvider>
+    <QueryClientProvider client={queryClient}>
+      <HashRouter>
+        {/* <Main /> */}
+        <LibraryRoutes />
+      </HashRouter>
+    </QueryClientProvider>
+  </LibraryProvider>,
 );

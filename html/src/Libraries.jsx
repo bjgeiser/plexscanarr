@@ -6,6 +6,7 @@ import Library from "./Library";
 import { useNavigate } from "react-router-dom";
 import Details from "./Details";
 import Layout from "./Layout";
+import { useLibrary } from "./LibraryContext";
 
 export const LibraryRoutes = () => {
   const [libraries, setLibraries] = useState([]);
@@ -40,6 +41,8 @@ export const LibraryRoutes = () => {
 
 function Libraries({ library_in, scanStatus }) {
   const [libraries, setLibraries] = useState([library_in]);
+  const { libraryState, setLibraryState } = useLibrary();
+
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -50,6 +53,7 @@ function Libraries({ library_in, scanStatus }) {
       .then((response) => response.json())
       .then((data) => {
         console.log("Scan started:", data);
+        setLibraryState(true);
       })
       .catch((error) => {
         console.error("Error starting scan:", error);
@@ -60,13 +64,13 @@ function Libraries({ library_in, scanStatus }) {
     console.log("Cancel clicked for", library);
 
     fetch(`${REST_URL}plex/libraries/${library.key}/scan`, { method: "DELETE" })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Scan canceled:", library.name);
-        })
-        .catch((error) => {
-          console.error("Error starting scan:", error);
-        });
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Scan canceled:", library.name);
+      })
+      .catch((error) => {
+        console.error("Error starting scan:", error);
+      });
   };
 
   const handleLibraryDetailClick = (library) => {
@@ -157,20 +161,19 @@ function Libraries({ library_in, scanStatus }) {
                   </td>
                   <td>
                     {library.scan_active ? (
-
-                        <div className="dropdown dropdown-hover">
-                          <div tabIndex={0} role="button" id={"active_" + library.key + "_scanning"} className="text-sm font-bold text-orange-600">
-                            Scanning
-                          </div>
-                          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                            <li>
-                              <button id={"active_" + library.key + "_stop_scanning"} onClick={() => handleCanelScanClick(library)} className="text-sm font-bold">
-                                Stop
-                              </button>
-                            </li>
-                          </ul>
+                      <div className="dropdown dropdown-hover">
+                        <div tabIndex={0} role="button" id={"active_" + library.key + "_scanning"} className="text-sm font-bold text-orange-600">
+                          Scanning
                         </div>
-                     ) : (
+                        <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                          <li>
+                            <button id={"active_" + library.key + "_stop_scanning"} onClick={() => handleCanelScanClick(library)} className="text-sm font-bold">
+                              Stop
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    ) : (
                       <button id={"active_" + library.key + "_not_scanning"} className="text-sm font-bold" onClick={() => handleScanClick(library)}>
                         Scan
                       </button>
