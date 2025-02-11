@@ -35,7 +35,7 @@ const Main = ({ libraries }) => {
   const [deviceInfo, setDeviceInfo] = useState("Not found");
   const [testTitle, setTestTile] = useState("");
   const [testResult, setTestResult] = useState("None");
-  const [scanActive, setScanActive] = useState(false);
+  const [scanStatus, setScanStatus] = useState("Unknown");
 
   const [availableRecords, setAvailableRecords] = useState();
   const [progress, setProgress] = useState(0);
@@ -97,13 +97,17 @@ const Main = ({ libraries }) => {
   }[readyState];
 
   useEffect(() => {
+
     const updateHeight = () => {
       setHeight(window.innerHeight - notificationRef.current.offsetTop - 10);
     };
 
     updateHeight();
     window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
+  useEffect(() => {
     if (lastMessage != null) {
       try {
         const msgJson = JSON.parse(lastMessage.data);
@@ -111,14 +115,15 @@ const Main = ({ libraries }) => {
         console.log("Main Rx Json: ", msgJson);
         if (msgJson.hasOwnProperty("type")) {
           if (msgJson["type"] === "plex") {
-            console.log("Scan started for " + msgJson["file_path"]);
-            const matchingLibrary = libraries.find((library) => library.name === msgJson["file_path"]);
-            if (matchingLibrary) {
-              console.log("Matching library found:", matchingLibrary);
-              matchingLibrary.scan_active = msgJson["scan_started"];
-            }
+            //console.log("Scan started for " + msgJson["file_path"]);
+            //const matchingLibrary = libraries.find((library) => library.name === msgJson["file_path"]);
+            //if (matchingLibrary) {
+            //  console.log("Matching library found:", matchingLibrary);
+            //  matchingLibrary.scan_active = msgJson["scan_started"];
+            //}
+            setScanStatus(msgJson.pretty_name);
           }
-          setScanActive(msgJson["scan_started"]);
+
           logIndexRef.current += 1;
           msgJson.index = logIndexRef.current;
           setMessageHistory((history) => {
@@ -182,8 +187,6 @@ const Main = ({ libraries }) => {
         //do nothing
       }
     }
-
-    return () => window.removeEventListener("resize", updateHeight);
   }, [lastMessage]);
 
   //const handleClickSendMessage = useCallback(() => sendMessage('{"type": "command", "params": {"action": "start_flash"}'), []);
@@ -196,7 +199,7 @@ const Main = ({ libraries }) => {
     <div>
       <div className="w-full flex pt-3 px-3">
         <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
-          <Libraries library_in={libraries} scanActive={scanActive} />
+          <Libraries library_in={libraries} scanStatus={scanStatus} />
         </div>
 
         <div ref={notificationRef} style={{ height: height }} className="card bg-neutral ml-5 overflow-x-auto rounded-box grow ">

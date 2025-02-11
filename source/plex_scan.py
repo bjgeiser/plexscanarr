@@ -67,7 +67,11 @@ class PlexScan(cfa.Routable):
                         notification.scan_started = True
                         asyncio.run(self.plex_websocket.send_arr_notification(notification))
 
-                    elif title.startswith("Library scan complete") or title.startswith("Library scan canceled"):
+                    elif (
+                        title.startswith("Library scan complete")
+                        or title.startswith("Library scan canceled")
+                        or title.startswith("Library scan interrupted")
+                    ):
                         logger.info(f"Scanning Complete {title}")
                         notification.arr_type = "Scanning Complete {title}"
                         notification.scan_started = False

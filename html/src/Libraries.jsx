@@ -38,7 +38,7 @@ export const LibraryRoutes = () => {
   );
 };
 
-function Libraries({ library_in, scanActive }) {
+function Libraries({ library_in, scanStatus }) {
   const [libraries, setLibraries] = useState([library_in]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ function Libraries({ library_in, scanActive }) {
     fetch(`${REST_URL}plex/libraries/${library.key}/scan`, { method: "DELETE" })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Scan canceled:", data);
+          console.log("Scan canceled:", library.name);
         })
         .catch((error) => {
           console.error("Error starting scan:", error);
@@ -85,12 +85,12 @@ function Libraries({ library_in, scanActive }) {
   }, [library_in]);
 
   useEffect(() => {
-    console.log("Libraries scanActive:", scanActive);
+    console.log("Libraries scanStatus:", scanStatus);
     fetchScanStatus().then((data) => {
       console.log("Scan status fetched:", data);
       setLibraries(data);
     });
-  }, [scanActive]);
+  }, [scanStatus]);
 
   // useQuery("scanActive", fetchScanStatus, {
   //   refetchInterval: 5000, // Poll every 5 seconds

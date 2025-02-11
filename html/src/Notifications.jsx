@@ -65,7 +65,7 @@ function Notifications(props) {
             </div>
             <div className="divider divider-horizontal"></div>
             <div className="m-1 tooltip tooltip-right" data-tip={"Click to open " + _message["pretty_name"] + " on  " + _message["server_name"]}>
-              {_message["cover_art_url"] !== null ? <img onClick={() => window.open(_message["content_link"], "_blank")} className="rounded-box h-24" src={_message["cover_art_url"]} /> : <div />}
+              {_message["cover_art_url"] !== null ? <img onClick={() => window.open(_message["content_link"], "_blank")} className="rounded-box h-24" src={_message["cover_art_url"]} /> : null}
             </div>
             <div className="flex flex-col">
               <div className="mb-4">
