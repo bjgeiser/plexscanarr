@@ -60,7 +60,12 @@ const Banner = ({ REST_URL }) => {
   }, []);
 
   useEffect(() => {
-    console.log("Upating library list" + libraryState);
+    console.log("Updating library list: " + libraryState);
+    const isAnyLibraryScanning = libraryState.some((library) => library.scan_active);
+    setServerInfo((prevState) => ({
+      ...prevState,
+      scan_active: isAnyLibraryScanning,
+    }));
   }, [libraryState]);
 
   return (

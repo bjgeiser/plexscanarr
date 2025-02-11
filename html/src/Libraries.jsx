@@ -53,7 +53,6 @@ function Libraries({ library_in, scanStatus }) {
       .then((response) => response.json())
       .then((data) => {
         console.log("Scan started:", data);
-        setLibraryState(true);
       })
       .catch((error) => {
         console.error("Error starting scan:", error);
@@ -86,6 +85,7 @@ function Libraries({ library_in, scanStatus }) {
   useEffect(() => {
     console.log("Libraries component mounted or updated");
     setLibraries(library_in);
+    setLibraryState(library_in);
   }, [library_in]);
 
   useEffect(() => {
@@ -93,6 +93,7 @@ function Libraries({ library_in, scanStatus }) {
     fetchScanStatus().then((data) => {
       console.log("Scan status fetched:", data);
       setLibraries(data);
+      setLibraryState(data);
     });
   }, [scanStatus]);
 
