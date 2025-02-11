@@ -7,6 +7,7 @@ import RadarrIcon from "./img/radarr.png";
 import ReadarrIcon from "./img/readarr.png";
 import LidarIcon from "./img/lidarr.png";
 import NoCoverIcon from "./img/no_cover.png";
+import PlexIcon from "./img/plex-logo.svg";
 
 function Notifications(props) {
   //This in combination of useEffect is how new messages make it into thie component
@@ -34,7 +35,7 @@ function Notifications(props) {
     } else if (_message["type"].toLowerCase() === "bazarr") {
       return BazarrIcon;
     } else if (_message["type"].toLowerCase() === "plex") {
-      return PlexscanarrIcon; // TODO can add the plex icon if we want
+      return PlexIcon;
     }
 
     return NoCoverIcon;
