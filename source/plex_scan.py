@@ -1,8 +1,12 @@
 import logging
 import asyncio
+import plexapi
+import plexapi.exceptions
 from plexapi.server import PlexServer
 import classy_fastapi as cfa
 from pathlib import Path
+from fastapi import HTTPException
+
 
 logger = logging.getLogger(__name__)
 
@@ -118,28 +122,28 @@ class PlexScan(cfa.Routable):
 
     @cfa.get("/libraries/{key}/details")
     async def get_libraries_details(self, key: int) -> list[dict[str, str]]:
+        # async with aiohttp.ClientSession() as session:
+        #     async with session.get(f"{self.plex.url}/library/sections/{key}/all") as response:
+        #         data = await response.json()
         return_list = []
-        if key:
+        try:
             section = self.plex.library.sectionByID(key)
-            if section:
-                # alphabet_list = list("0123456789" + string.ascii_lowercase)
-                # for letter in alphabet_list:
-                items = section.search()
-                for item in items:
-                    return_list.append(
-                        {
-                            "name": item.title,
-                            "locations": item.locations,
-                            "year": item.year,
-                            "key": item.ratingKey,  # Use this instead of key so we can scan directly
-                            "type": item.type,
-                        }
-                    )
-                    # item_fields = vars(item)
-                    # for field, value in item_fields.items():
-                    #     if field.startswith("_"):
-                    #         continue
-                    #     print(f"{field}: {value}")
+            # if section:
+            #     # alphabet_list = list("0123456789" + string.ascii_lowercase)
+            #     # for letter in alphabet_list:
+            items = section.search()
+            for item in items:
+                return_list.append(
+                    {
+                        "title": item.title,
+                        "year": item.year,
+                        "key": item.ratingKey,  # Use this instead of key so we can scan directly
+                        "type": item.type,
+                    }
+                )
+        except plexapi.exceptions.NotFound:
+            logger.error(f"Failed to find section with key {key}")
+            raise HTTPException(status_code=404, detail=f"Library {key} not found")
         return return_list
 
     @cfa.post("/libraries/{key}/scan")

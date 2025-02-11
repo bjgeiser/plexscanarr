@@ -13,51 +13,24 @@ const Library = ({ library }) => {
   const [rows, setRows] = React.useState([]);
   const columns = [
     { field: "title", headerName: "Title", flex: 1, minWidth: 100 },
-    { field: "locations", headerName: "Locations", flex: 1, minWidth: 100 },
     { field: "key", headerName: "Key", flex: 0.2, minWidth: 10 },
+    { field: "type", headerName: "Type", flex: 0.2, minWidth: 10 },
+    { field: "year", headerName: "Year", flex: 0.2, minWidth: 10 },
     // Add more columns as needed
   ];
-  function getRowId(row) {
-    return row.key;
-  }
 
   useEffect(() => {
     console.log("Library component mounted or updated");
-    const ip_address = process.env.PLEX_IP;
-    const plex_token = process.env.PLEX_TOKEN;
-    console.log(`Fetching data from: http://${ip_address}:32400/library/sections/${library.key}/all?X-Plex-Token=${plex_token}`);
-    // fetch(`${REST_URL}plex/libraries/${library.key}/details`);
-
-    // TODO Add button click to get library details
-    // const response = await fetch(`http://${ip_address}:32400/library/metadata/${item.key}?X-Plex-Token=${plex_token}`);
-    // this will return location xml to parse
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`http://${ip_address}:32400/library/sections/${library.key}/all?X-Plex-Token=${plex_token}`);
-        const data = await response.text();
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(data, "application/xml");
-        const videos = Array.from(xmlDoc.getElementsByTagName("Video")).map((item) => ({
-          title: item.getAttribute("title"),
-          locations: item.getElementsByTagName("Part")[0]?.getAttribute("file") || "",
-          key: item.getAttribute("ratingKey"),
-        }));
-
-        const directories = Array.from(xmlDoc.getElementsByTagName("Directory")).map((item) => ({
-          title: item.getAttribute("title"),
-          locations: "",
-          key: item.getAttribute("ratingKey"),
-        }));
-        const items = [...videos, ...directories];
-        console.log(library.name, items);
-        setRows(items.map((item) => ({ ...item, id: item.key })));
-      } catch (error) {
+    fetch(`${REST_URL}plex/libraries/${library.key}/details`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(library.name, data);
+        setRows(data.map((item) => ({ ...item, id: item.key })));
+        // setLibraryList(data);
+      })
+      .catch((error) => {
         console.error("Error fetching library details:", error);
-      }
-    };
-
-    fetchData();
+      });
   }, []);
 
   console.log("Rows:", rows);
