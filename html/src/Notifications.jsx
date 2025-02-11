@@ -79,13 +79,19 @@ function Notifications(props) {
                                 </div>
                               </div>
                             </div>
-                            
+
                             <div className="font-mono text-xs pl-3">{_message["file_path"]}</div>
                             { _message["release_title"] !== null ? (<div className="font-mono text-xs pl-3">{_message["release_title"]} {_message["file_size"]} </div>) : (<div/>) }
                             <div>
                                 <div className="flex flex-row">
                                   <div className="text-xs pl-3">{_message["arr_type"]}</div>
-                                  <div className="text-xs w-full pl-3">{getLocalTime(_message)}</div>
+                                  <div className="text-xs pl-3">{getLocalTime(_message)}</div>
+                                  {_message.scan_started === true ? (
+                                      <div className=" flex flex-row">
+                                        <div className="text-xs pl-3">Scanned</div>
+                                        <img className="size-3 ml-1" src={PlexscanarrIcon} alt="Plexscanarr Icon" />
+                                      </div> )
+                                      : null }
                                 </div>
                             </div>
                         </div>

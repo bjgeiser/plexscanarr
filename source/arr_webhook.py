@@ -36,7 +36,7 @@ class ArrWebhook(cfa.Routable):
                     return entry["server-root"].rstrip("/")
         return None
 
-    def build_notification(self, arr_type: str, notification: dict, agent: str, arr_path: str):
+    def build_notification(self, arr_type: str, notification: dict, agent: str, arr_path: str, scan_started: bool):
         cover_art_url = None
         release_title = None
         file_size = None
@@ -65,6 +65,7 @@ class ArrWebhook(cfa.Routable):
                 file_size=file_size,
                 service_link=server_root,
                 content_link=content_link,
+                scan_started=scan_started,
             )
 
         elif agent.startswith("Sonarr") and notification.get("series"):
@@ -95,6 +96,7 @@ class ArrWebhook(cfa.Routable):
                 file_size=file_size,
                 service_link=server_root,
                 content_link=content_link,
+                scan_started=scan_started,
             )
         elif agent.startswith("Radarr") and notification.get("movie"):
             try:
@@ -124,6 +126,7 @@ class ArrWebhook(cfa.Routable):
                 file_size=file_size,
                 service_link=server_root,
                 content_link=content_link,
+                scan_started=scan_started,
             )
 
         elif agent.startswith("Lidarr") and notification.get("artist"):
@@ -146,6 +149,7 @@ class ArrWebhook(cfa.Routable):
                 file_size=file_size,
                 service_link=server_root,
                 content_link=content_link,
+                scan_started=scan_started,
             )
 
         elif agent.startswith("Readarr") and notification.get("author"):
@@ -172,6 +176,7 @@ class ArrWebhook(cfa.Routable):
                 file_size=file_size,
                 service_link=server_root,
                 content_link=content_link,
+                scan_started=scan_started,
             )
 
         return arr_notification
@@ -185,6 +190,7 @@ class ArrWebhook(cfa.Routable):
         logger.info(f"Rx Event {event_type} from {agent} at {request.scope['client']} ")
         arr_path = None
         ignored_event_types = ["Grab"]
+        scan_started = False
 
         if event_type == "Unknown" and notification.get("path"):
             arr_path = await self.plex.scan_path(notification["path"])
@@ -205,14 +211,18 @@ class ArrWebhook(cfa.Routable):
             plex_path = self.path_converter.convert(arr_path)
             logger.info(f"Converted {arr_path} to {plex_path} and requesting scan")
             await self.plex.scan_path(plex_path)
+            scan_started = True
 
         try:
-            if event_type not in ignored_event_types:
-                arr_notification = self.build_notification(
-                    notification=notification, agent=agent, arr_path=arr_path, arr_type=event_type
-                )
-                if arr_notification:
-                    await self.plex_websocket.send_arr_notification(arr_notification)
+            arr_notification = self.build_notification(
+                notification=notification,
+                agent=agent,
+                arr_path=arr_path,
+                arr_type=event_type,
+                scan_started=scan_started,
+            )
+            await self.plex_websocket.send_arr_notification(arr_notification)
+
         except Exception as e:
             logger.exception(e)
 

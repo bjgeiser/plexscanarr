@@ -20,8 +20,9 @@ class ArrNotificationModel(BaseModel):
     cover_art_url: str | None = None
     pretty_name: str
     server_name: str
-    file_path: str
+    file_path: str | None = None
     original_json: dict
+    scan_started: bool = False
     release_title: str | None = None
     file_size: str | None = None
     service_link: str | None = None
