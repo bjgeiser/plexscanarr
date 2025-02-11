@@ -38,16 +38,15 @@ export const LibraryRoutes = () => {
   );
 };
 
-function Libraries({ rest_url }) {
-  console.log("Libraries - REST URL:", rest_url);
-  const [libraries, setLibraries] = useState([]);
+function Libraries({ library_in, scanActive }) {
+  const [libraries, setLibraries] = useState([library_in]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const handleScanClick = (library) => {
     console.log("Scan clicked for", library);
 
-    fetch(`${rest_url}plex/libraries/${library.key}/scan`, { method: "POST" })
+    fetch(`${REST_URL}plex/libraries/${library.key}/scan`, { method: "POST" })
       .then((response) => response.json())
       .then((data) => {
         console.log("Scan started:", data);
@@ -63,24 +62,22 @@ function Libraries({ rest_url }) {
   };
 
   const fetchScanStatus = async () => {
-    const response = await fetch(`${rest_url}plex/libraries`);
+    const response = await fetch(`${REST_URL}plex/libraries`);
     return response.json();
   };
 
   useEffect(() => {
-    if (rest_url) {
-      console.log("Libraries component mounted or updated");
-      fetchScanStatus().then((data) => {
-        console.log("Scan status fetched:", data);
-        setLibraries((prevLibraries) =>
-          prevLibraries.map((lib) => {
-            const status = data.find((status) => status.key === lib.key);
-            return status ? { ...lib, scan_active: status.scan_active } : lib;
-          }),
-        );
-      });
-    }
-  }, [rest_url]);
+    console.log("Libraries component mounted or updated");
+    setLibraries(library_in);
+  }, [library_in]);
+
+  useEffect(() => {
+    console.log("Libraries scanActive:", scanActive);
+    fetchScanStatus().then((data) => {
+      console.log("Scan status fetched:", data);
+      setLibraries(data);
+    });
+  }, [scanActive]);
 
   // useQuery("scanActive", fetchScanStatus, {
   //   refetchInterval: 5000, // Poll every 5 seconds
@@ -97,9 +94,11 @@ function Libraries({ rest_url }) {
   //   },
   // });
 
+  console.log("Libraries:", libraries);
+
   return (
     <div>
-      {libraries.length === 0 ? (
+      {libraries.length <= 1 ? (
         <div>No libraries available.</div>
       ) : (
         <table className="table-sm">

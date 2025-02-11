@@ -34,6 +34,7 @@ const Main = ({ libraries }) => {
   const [deviceInfo, setDeviceInfo] = useState("Not found");
   const [testTitle, setTestTile] = useState("");
   const [testResult, setTestResult] = useState("None");
+  const [scanActive, setScanActive] = useState(false);
 
   const [availableRecords, setAvailableRecords] = useState();
   const [progress, setProgress] = useState(0);
@@ -116,6 +117,7 @@ const Main = ({ libraries }) => {
               matchingLibrary.scan_active = msgJson["scan_started"];
             }
           }
+          setScanActive(msgJson["scan_started"]);
           logIndexRef.current += 1;
           msgJson.index = logIndexRef.current;
           setMessageHistory((history) => {
@@ -193,7 +195,7 @@ const Main = ({ libraries }) => {
     <div>
       <div className="w-full flex pt-3 px-3">
         <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
-          <Libraries rest_url={REST_URL} libraries={libraries} />
+          <Libraries library_in={libraries} scanActive={scanActive} />
         </div>
 
         <div ref={notificationRef} style={{ height: height }} className="card bg-neutral ml-5 overflow-x-auto rounded-box grow ">
