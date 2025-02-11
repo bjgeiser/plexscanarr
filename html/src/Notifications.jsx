@@ -49,65 +49,67 @@ function Notifications(props) {
     return JSON.stringify(_message, null, 2);
   }
 
-    return (
-        <div>
-            <div className="overflow-hidden hover:resize-y hover:overflow-auto h-full">
-                {messageHistory.map((_message) => (
-                    <div className="card rounded-box bg-base-300 m-2 p-3 flex-row items-center ">
-
-
-                        <div className="m-1 flex flex-col items-center">
-                          <div className="tooltip tooltip-right" data-tip={"Click to open " + _message["server_name"]}>
-                                <img onClick={()=> window.open(_message["service_link"], "_blank")} className="h-8" src={getServiceIcon(_message)}/>
-                            </div>
-                            <div className="m-1 font-bold text-sm">{_message["server_name"]}</div>
-                        </div>
-
-
-                        <div className="divider divider-horizontal"></div>
-
-                        <div className="m-1 tooltip tooltip-right"  data-tip={"Click to open " + _message["pretty_name"] + " on  " + _message["server_name"]}>
-                            { _message["cover_art_url"] !== null ? (<img onClick={()=> window.open(_message["content_link"], "_blank")}  className="rounded-box h-24" src={_message["cover_art_url"]}/>) : (<div/>) }
-                        </div>
-                        <div className="flex flex-col">
-                            <div className="mb-4">
-                              <div className="tooltip tooltip-right" data-tip={"Click to open " + _message["pretty_name"] + " on  " + _message["server_name"]}>
-                                <div className="font-bold text-orange-400 pl-3"
-                                     onClick={()=> window.open(_message["content_link"], "_blank")}
-                                     >
-                                  {_message["pretty_name"]}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="font-mono text-xs pl-3">{_message["file_path"]}</div>
-                            { _message["release_title"] !== null ? (<div className="font-mono text-xs pl-3">{_message["release_title"]} {_message["file_size"]} </div>) : (<div/>) }
-                            <div>
-                                <div className="flex flex-row">
-                                  <div className="text-xs pl-3">{_message["arr_type"]}</div>
-                                  <div className="text-xs pl-3">{getLocalTime(_message)}</div>
-                                  {_message.scan_started === true ? (
-                                      <div className=" flex flex-row">
-                                        <div className="text-xs pl-3">Scanned</div>
-                                        <img className="size-3 ml-1" src={PlexscanarrIcon} alt="Plexscanarr Icon" />
-                                      </div> )
-                                      : null }
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex-end flex-1"></div> {/* This fills the empty space in the row */}
-
-                        <div className="tooltip tooltip-left pl-3" data-tip="Click to copy event json">
-                            <button className="btn text-xs" onClick={() => {navigator.clipboard.writeText(getJsonString(_message))}}>Copy</button>
-                        </div>
-
-                    </div>
-                ))}
+  return (
+    <div>
+      <div className="overflow-hidden hover:resize-y hover:overflow-auto h-full">
+        {messageHistory.map((_message) => (
+          <div className="card rounded-box bg-base-300 m-2 p-3 flex-row items-center ">
+            <div className="m-1 flex flex-col items-center">
+              <div className="tooltip tooltip-right" data-tip={"Click to open " + _message["server_name"]}>
+                <img onClick={() => window.open(_message["service_link"], "_blank")} className="h-8" src={getServiceIcon(_message)} />
+              </div>
+              <div className="m-1 font-bold text-sm">{_message["server_name"]}</div>
             </div>
+            <div className="divider divider-horizontal"></div>
+            <div className="m-1 tooltip tooltip-right" data-tip={"Click to open " + _message["pretty_name"] + " on  " + _message["server_name"]}>
+              {_message["cover_art_url"] !== null ? <img onClick={() => window.open(_message["content_link"], "_blank")} className="rounded-box h-24" src={_message["cover_art_url"]} /> : <div />}
+            </div>
+            <div className="flex flex-col">
+              <div className="mb-4">
+                <div className="tooltip tooltip-right" data-tip={"Click to open " + _message["pretty_name"] + " on  " + _message["server_name"]}>
+                  <div className="font-bold text-orange-400 pl-3" onClick={() => window.open(_message["content_link"], "_blank")}>
+                    {_message["pretty_name"]}
+                  </div>
+                </div>
+              </div>
 
-        </div>
-    );
+              <div className="font-mono text-xs pl-3">{_message["file_path"]}</div>
+              {_message["release_title"] !== null ? (
+                <div className="font-mono text-xs pl-3">
+                  {_message["release_title"]} {_message["file_size"]}{" "}
+                </div>
+              ) : (
+                <div />
+              )}
+              <div>
+                <div className="flex flex-row">
+                  <div className="text-xs pl-3">{_message["arr_type"]}</div>
+                  <div className="text-xs pl-3">{getLocalTime(_message)}</div>
+                  {_message.scan_started === true ? (
+                    <div className=" flex flex-row">
+                      <div className="text-xs pl-3">Scanned</div>
+                      <img className="h-8" src={PlexscanarrIcon} alt="Plexscanarr Icon" />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+            <div className="flex-end flex-1"></div> {/* This fills the empty space in the row */}
+            <div className="tooltip tooltip-left pl-3" data-tip="Click to copy event json">
+              <button
+                className="btn text-xs"
+                onClick={() => {
+                  navigator.clipboard.writeText(getJsonString(_message));
+                }}
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default Notifications;

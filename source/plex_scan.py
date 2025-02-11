@@ -1,3 +1,4 @@
+import datetime
 import logging
 import asyncio
 import plexapi
@@ -7,6 +8,9 @@ import classy_fastapi as cfa
 from pathlib import Path
 from fastapi import HTTPException
 
+from source.arr_notification import ArrNotificationModel, ArrSource
+from source.plex_websocket import PlexWebsocket
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,10 +18,13 @@ type_lut = {"artist": "Music", "show": "TV Shows", "series": "TV Shows", "movie"
 
 
 class PlexScan(cfa.Routable):
-    def __init__(self, server: str, token: str, preempt_active_scan: bool = False) -> None:
+    def __init__(
+        self, server: str, token: str, plex_websocket: PlexWebsocket, preempt_active_scan: bool = False
+    ) -> None:
         super().__init__()
         self.preempt_active_scan = preempt_active_scan
         self.plex = PlexServer(baseurl=server, token=token)
+        self.plex_websocket = plex_websocket
         self.version = self.plex.version
         self.friendly_name = self.plex.friendlyName
         self.platform = self.plex.platform
@@ -30,19 +37,41 @@ class PlexScan(cfa.Routable):
 
     def plex_event_callback(self, event):
         # logger.debug(f"Received {event}")
+
         if event["type"] == "status":
             logger.debug(f"Received Status {event}")
             if event.get("StatusNotification"):
+                notification = ArrNotificationModel(
+                    file_path="",
+                    arr_type="",
+                    type=ArrSource.PLEXSCANARR,
+                    server_name="Plex",
+                    timestamp=datetime.datetime.now(datetime.UTC),
+                    pretty_name="",
+                    scan_started=False,
+                    service_link=f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?key=%2Fhubs&pageType=hub",
+                    content_link=f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?key=%2Fhubs&pageType=hub",
+                    original_json=event,
+                )
                 status_notification = event.get("StatusNotification")
                 for notify in status_notification:
                     title = notify.get("title")
                     name = notify.get("notificationName")
                     logger.info(f"Plex status notification: {title} {name}")
+                    notification.file_path = name
+                    notification.pretty_name = title
                     if title.startswith("Scanning"):
                         title = title[14:][:-9]
                         logger.info(f"Scanning {title}")
+                        notification.arr_type = f"Scanning {title}"
+                        notification.scan_started = True
+                        asyncio.run(self.plex_websocket.send_arr_notification(notification))
+
                     elif title.startswith("Library scan complete") or title.startswith("Library scan canceled"):
                         logger.info(f"Scanning Complete {title}")
+                        notification.arr_type = "Scanning Complete {title}"
+                        notification.scan_started = False
+                        asyncio.run(self.plex_websocket.send_arr_notification(notification))
 
     def plex_error_callback(self, error):
         logger.info(f"Received error: {error}")

@@ -11,6 +11,7 @@ class ArrSource(StrEnum):
     LIDARR = auto()
     READARR = auto()
     BAZARR = auto()
+    PLEX = auto()
 
 
 class ArrNotificationModel(BaseModel):

@@ -103,6 +103,10 @@ class PlexWebsocket(cfa.Routable):
         self.notifications.append(notification)
         await self.connection_manager.broadcast(notification.model_dump_json())
 
+    async def send_plex_notification(self, notification: ArrNotificationModel):
+        self.notifications.append(notification)
+        await self.connection_manager.broadcast(notification.model_dump_json())
+
 
 # last_values = {"label": {}, "disabled": {}, "progress": {}}
 # stored_logs = []

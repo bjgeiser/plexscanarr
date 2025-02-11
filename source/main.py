@@ -46,12 +46,14 @@ async def main_async(
         logger.info("Turning on verbose logging")
         logger.setLevel(logging.DEBUG)
 
+    plex_websocket = PlexWebsocket(handle_rx=None)
     path_converter = PathConverter(config)
     plex_server = config.get("plex-server")
     plex_token = config.get("plex-token")
-    preempt_active_scan = config.get("preempt-active-scan")
-    plex = PlexScan(server=plex_server, token=plex_token, preempt_active_scan=preempt_active_scan)
-    plex_websocket = PlexWebsocket(handle_rx=None)
+    preempt_active_scan = config.get("preempt-active-scan", False)
+    plex = PlexScan(
+        server=plex_server, token=plex_token, plex_websocket=plex_websocket, preempt_active_scan=preempt_active_scan
+    )
 
     arr_lookup = config.get("arr-paths")
     arr_webhook = ArrWebhook(
