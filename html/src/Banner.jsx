@@ -125,7 +125,7 @@ const Banner = () => {
                     <p className="text-sm font-bold">SERVICES</p>
                   </h1>
                 </div>
-                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
                   {serviceInfo.map((service) => {
                     return (
                       <li>
@@ -146,7 +146,7 @@ const Banner = () => {
                   <div tabIndex={0} role="button" className="text-sm font-bold text-orange-600">
                     SCANNING
                   </div>
-                  <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                  <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
                     <li>
                       <button onClick={() => handleCancelScanClick()} className="text-sm font-bold">
                         Stop
