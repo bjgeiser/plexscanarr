@@ -17,7 +17,7 @@ const App = () => {
   useEffect(() => {
     const fetchAndSetLibraries = async () => {
       const libraries = await fetchLibraries();
-      console.log("Main - Libraries fetched:", libraries);
+      console.log("index - Libraries fetched:", libraries);
       setLibraryState(libraries);
     };
 
