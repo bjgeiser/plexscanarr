@@ -161,11 +161,6 @@ const Banner = () => {
             )}
 
           </li>
-          <li>
-            <button id="details_button" className="text-sm font-bold" onClick={() => handleDetailsClick()}>
-              Details
-            </button>
-          </li>
         </ul>
       </div>
     </div>
