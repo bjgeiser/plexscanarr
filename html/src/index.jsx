@@ -1,34 +1,45 @@
-import { React, useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
+import React, { useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import { Routes, Route, HashRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { HashRouter, Route, Routes } from "react-router-dom";
 
-import Main from "./main";
 import "./main.css";
 import { LibraryProvider, useLibrary } from "./LibraryContext";
+import Main, { fetchLibraries, toRoutePath } from "./main";
 import Layout from "./Layout";
 import Details from "./Details";
 import Library from "./Library";
 
-const queryClient = new QueryClient();
-
-const container = document.getElementById("root");
-const root = createRoot(container);
-
+// Your App component uses the custom useLibrary hook to set the routes.
 const App = () => {
-  const { libraryState } = useLibrary();
+  const { libraryState, setLibraryState } = useLibrary();
+
+  useEffect(() => {
+    const fetchAndSetLibraries = async () => {
+      const libraries = await fetchLibraries();
+      console.log("Main - Libraries fetched:", libraries);
+      setLibraryState(libraries);
+    };
+
+    fetchAndSetLibraries();
+  }, [setLibraryState]);
 
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Main />} />
         <Route path="details" element={<Details />} />
-        {Array.isArray(libraryState) && libraryState.map((library) => <Route key={library.name} path={toRoutePath(library.name)} element={<Library library={library} />} />)}
+        {Array.isArray(libraryState) && libraryState.length > 0 ? libraryState.map((library) => <Route key={library.name} path={toRoutePath(library.name)} element={<Library library={library} />} />) : <Route path="*" element={<div>No libraries available</div>} />}
       </Route>
     </Routes>
   );
 };
 
+// Initialize react-query client
+const queryClient = new QueryClient();
+
+// Render the app. LibraryProvider makes the library state available to all components inside your app.
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <LibraryProvider>
     <QueryClientProvider client={queryClient}>

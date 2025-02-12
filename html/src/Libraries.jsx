@@ -4,12 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useLibrary } from "./LibraryContext";
 
 function Libraries({ scanStatus }) {
-  const [libraryState, setLibraryState] = useLibrary();
-
-  if (!Array.isArray(libraryState)) {
-    console.error("libraryState is not an array:", libraryState);
-    return null;
-  }
+  const { libraryState, setLibraryState } = useLibrary();
 
   const navigate = useNavigate();
 
@@ -76,7 +71,7 @@ function Libraries({ scanStatus }) {
 
   return (
     <div>
-      {libraryState.length <= 1 ? (
+      {Array.isArray(libraryState) && libraryState.length > 0 ? (
         <div>No libraries available.</div>
       ) : (
         <table className="table-sm">
@@ -89,60 +84,64 @@ function Libraries({ scanStatus }) {
             </tr>
           </thead>
           <tbody>
-            {libraryState.map((library) => {
-              //console.log("Library:", library);
-              return (
-                <tr key={library.key}>
-                  <td>
-                    <div className="dropdown dropdown-hover font-bold">
-                      <div tabIndex={0} role="button" className="">
-                        {library.name}
-                      </div>
-                      <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                        <li>
-                          <button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
-                            Open Details
-                          </button>
-                        </li>
-                        <li>
-                          <a onClick={() => window.open(library.server_link, "_blank")}>Open on Plex Server</a>
-                        </li>
-                      </ul>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="font-medium">{library.type}</div>
-                  </td>
-                  <td>
-                    {library.locations.map((loc, index) => (
-                      <div key={index} className="text-sm opacity-50">
-                        {loc}
-                      </div>
-                    ))}
-                  </td>
-                  <td>
-                    {library.scan_active ? (
-                      <div className="dropdown dropdown-hover">
-                        <div tabIndex={0} role="button" id={"active_" + library.key + "_scanning"} className="text-sm font-bold text-orange-600">
-                          Scanning
+            {Array.isArray(libraryState) && libraryState.length > 0 ? (
+              libraryState.map((library) => {
+                //console.log("Library:", library);
+                return (
+                  <tr key={library.key}>
+                    <td>
+                      <div className="dropdown dropdown-hover font-bold">
+                        <div tabIndex={0} role="button" className="">
+                          {library.name}
                         </div>
                         <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                           <li>
-                            <button id={"active_" + library.key + "_stop_scanning"} onClick={() => handleCanelScanClick(library)} className="text-sm font-bold">
-                              Stop
+                            <button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
+                              Open Details
                             </button>
+                          </li>
+                          <li>
+                            <a onClick={() => window.open(library.server_link, "_blank")}>Open on Plex Server</a>
                           </li>
                         </ul>
                       </div>
-                    ) : (
-                      <button id={"active_" + library.key + "_not_scanning"} className="text-sm font-bold" onClick={() => handleScanClick(library)}>
-                        Scan
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
+                    </td>
+                    <td>
+                      <div className="font-medium">{library.type}</div>
+                    </td>
+                    <td>
+                      {library.locations.map((loc, index) => (
+                        <div key={index} className="text-sm opacity-50">
+                          {loc}
+                        </div>
+                      ))}
+                    </td>
+                    <td>
+                      {library.scan_active ? (
+                        <div className="dropdown dropdown-hover">
+                          <div tabIndex={0} role="button" id={"active_" + library.key + "_scanning"} className="text-sm font-bold text-orange-600">
+                            Scanning
+                          </div>
+                          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                            <li>
+                              <button id={"active_" + library.key + "_stop_scanning"} onClick={() => handleCanelScanClick(library)} className="text-sm font-bold">
+                                Stop
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      ) : (
+                        <button id={"active_" + library.key + "_not_scanning"} className="text-sm font-bold" onClick={() => handleScanClick(library)}>
+                          Scan
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <div>No libraries available.</div>
+            )}
           </tbody>
         </table>
       )}

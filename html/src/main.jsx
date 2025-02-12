@@ -21,11 +21,12 @@ export const fetchLibraries = async () => {
 export const toRoutePath = (name) => "/" + name.replace(/\s+/g, "");
 
 const Main = () => {
-  const [libraryState, setLibraryState] = useLibrary();
+  const { libraryState, setLibraryState } = useLibrary();
 
   useEffect(() => {
     const fetchAndSetLibraries = async () => {
       const libraries = await fetchLibraries();
+      console.log("Main - Libraries fetched:", libraries);
       setLibraryState(libraries);
     };
 
@@ -206,7 +207,7 @@ const Main = () => {
         </div>
 
         <div ref={notificationRef} style={{ height: height }} className="card bg-neutral ml-5 overflow-x-auto rounded-box grow ">
-          <Notifications messageHistory={messageHistory}> </Notifications>
+          <Notifications messageHistory={messageHistory} />
         </div>
       </div>
     </div>

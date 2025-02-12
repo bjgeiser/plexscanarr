@@ -1,13 +1,16 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useState, useContext } from "react";
 
+// Create the context
 const LibraryContext = createContext();
 
+// LibraryProvider component that wraps children and provides state and updater
 export const LibraryProvider = ({ children }) => {
   const [libraryState, setLibraryState] = useState([]);
 
-  return <LibraryContext.Provider value={[libraryState, setLibraryState]}>{children}</LibraryContext.Provider>;
+  return <LibraryContext.Provider value={{ libraryState, setLibraryState }}>{children}</LibraryContext.Provider>;
 };
 
+// Custom hook to consume the library context
 export const useLibrary = () => {
   const context = useContext(LibraryContext);
   if (!context) {
@@ -15,3 +18,5 @@ export const useLibrary = () => {
   }
   return context;
 };
+
+export default LibraryContext;
