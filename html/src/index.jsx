@@ -28,7 +28,7 @@ const App = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Main />} />
-        {Array.isArray(libraryState) && libraryState.length > 0 ? libraryState.map((library) => <Route key={library.name} path={toRoutePath(library.name)} element={<Library library={library} />} />) : <Route path="*" element={<div>No libraries available</div>} />}
+        <Route element={<Library />} path=":libraryName" />
       </Route>
     </Routes>
   );

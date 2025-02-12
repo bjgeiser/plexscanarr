@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useParams } from "react-router-dom";
 import { REST_URL } from "./main";
 import { Box, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
 const Library = ({ library }) => {
+  const params = useParams();
+  console.log("Library - Params:", params);
   // Optional: useLocation() can be used if you need more info about the URL.
-  const location = useLocation();
   const [libraryList, setLibraryList] = useState([]);
   console.log("Library - Location:", location);
 

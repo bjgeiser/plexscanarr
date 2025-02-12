@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fetchLibraries, toRoutePath, REST_URL } from "./main";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useLibrary } from "./LibraryContext";
 
 function Libraries({ scanStatus }) {
@@ -93,9 +93,7 @@ function Libraries({ scanStatus }) {
                       </div>
                       <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow">
                         <li>
-                          <button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
-                            Open Details
-                          </button>
+                          <Link to={toRoutePath(library.name)}>Open Details</Link>
                         </li>
                         <li>
                           <a onClick={() => window.open(library.server_link, "_blank")}>Open on Plex Server</a>
