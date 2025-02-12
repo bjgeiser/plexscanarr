@@ -22,7 +22,7 @@ const Banner = () => {
   const handleScanClick = () => {
     console.log("Scan clicked for GLOBAL");
 
-    fetch(`${REST_URL}plex/libraries`, { method: "POST" });
+    fetch(`${REST_URL}plex/libraries/scan`, { method: "POST" });
     //   .then((response) => response.json())
     //   .then((data) => {
     //     console.log("Scan started:", data);
@@ -32,6 +32,20 @@ const Banner = () => {
     //     console.error("Error starting scan:", error);
     //   });
   };
+
+  const handleCancelScanClick = () => {
+    console.log("Cancel clicked for");
+
+    fetch(`${REST_URL}plex/libraries/scan`, { method: "DELETE" })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Scan canceled:");
+        })
+        .catch((error) => {
+          console.error("Error starting scan:", error);
+        });
+  };
+
 
   useEffect(() => {
     console.log("Child component mounted or updated");
@@ -126,23 +140,26 @@ const Banner = () => {
             </li>
           ) : null}
           <li className="flex flex-row">
-            <h1>Scan Active: </h1>
+
             {serverInfo.scan_active ? (
-              <div>
-                <div id="active_scan_scanning" className="text-sm font-bold text-orange-600">
-                  Scanning
+                <div className="dropdown dropdown-bottom dropdown-hover">
+                  <div tabIndex={0} role="button" className="text-sm font-bold text-orange-600">
+                    SCANNING
+                  </div>
+                  <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                    <li>
+                      <button onClick={() => handleCancelScanClick()} className="text-sm font-bold">
+                        Stop
+                      </button>
+                    </li>
+                  </ul>
                 </div>
-                <button id="active_stop_scanning" className="text-sm font-bold">
-                  Stop
-                </button>
-              </div>
             ) : (
-              <div>
-                <button id="active_scan_not_scanning" className="text-sm font-bold" onClick={() => handleScanClick()}>
-                  Scan
+                <button  className="text-sm font-bold" onClick={() => handleScanClick()}>
+                  SCAN ALL
                 </button>
-              </div>
             )}
+
           </li>
           <li>
             <button id="details_button" className="text-sm font-bold" onClick={() => handleDetailsClick()}>
