@@ -2,10 +2,10 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Banner from "./Banner";
 
-const Layout = ({ REST_URL }) => {
+const Layout = () => {
   return (
     <div>
-      <Banner REST_URL={REST_URL} />
+      <Banner />
       <main>
         <Outlet />
       </main>

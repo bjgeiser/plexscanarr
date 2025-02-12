@@ -2,8 +2,9 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import PlexscanarrIcon from "./img/favicon.png";
 import { useNavigate } from "react-router-dom";
 import { useLibrary } from "./LibraryContext";
+import { REST_URL } from "./main";
 
-const Banner = ({ REST_URL }) => {
+const Banner = () => {
   const [serverInfo, setServerInfo] = useState({});
   const [serviceInfo, setServiceInfo] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,11 +62,13 @@ const Banner = ({ REST_URL }) => {
 
   useEffect(() => {
     console.log("Updating library list: " + libraryState);
-    const isAnyLibraryScanning = libraryState.some((library) => library.scan_active);
-    setServerInfo((prevState) => ({
-      ...prevState,
-      scan_active: isAnyLibraryScanning,
-    }));
+    if (Array.isArray(libraryState)) {
+      const isAnyLibraryScanning = libraryState.some((library) => library.scan_active);
+      setServerInfo((prevState) => ({
+        ...prevState,
+        scan_active: isAnyLibraryScanning,
+      }));
+    }
   }, [libraryState]);
 
   return (

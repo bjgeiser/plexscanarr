@@ -1,49 +1,16 @@
-import React, { useState, useEffect, use } from "react";
-import { useQuery, useQueryClient } from "react-query";
-import { HashRouter, Route, Routes, Link } from "react-router-dom";
-import Main, { fetchLibraries, toRoutePath, REST_URL } from "./main";
-import Library from "./Library";
+import React, { useState, useEffect } from "react";
+import { fetchLibraries, toRoutePath, REST_URL } from "./main";
 import { useNavigate } from "react-router-dom";
-import Details from "./Details";
-import Layout from "./Layout";
 import { useLibrary } from "./LibraryContext";
 
-export const LibraryRoutes = () => {
-  const [libraries, setLibraries] = useState([]);
+function Libraries({ scanStatus }) {
+  const [libraryState, setLibraryState] = useLibrary();
 
-  // Simulate retrieving your list of names from an API when the component mounts.
-  useEffect(() => {
-    // For example, the API could return: ["Home Movies", "TV Shows", "News"]
-    fetchLibraries().then((data) => {
-      console.log(data);
-      setLibraries(data);
-    });
-  }, []);
+  if (!Array.isArray(libraryState)) {
+    console.error("libraryState is not an array:", libraryState);
+    return null;
+  }
 
-  // Helper function that converts a name to a URL-friendly route path.
-  // const toRoutePath = (name) => name.replace(/\s+/g, "");
-
-  return (
-    // We define all our routes here.
-    <Routes>
-      <Route path="/" element={<Layout REST_URL={REST_URL} />}>
-        <Route index element={<Main libraries={libraries} />} />
-        <Route path="details" element={<Details />} />
-        {/* For each category, create a dynamic child page route. */}
-        {libraries.map((library) => (
-          <Route key={library.name} path={toRoutePath(library.name)} element={<Library library={library} />} />
-          // <Route key={name} path={`/${toRoutePath(name)}`} element={<ChildPage name={name} />} />
-        ))}
-      </Route>
-    </Routes>
-  );
-};
-
-function Libraries({ library_in, scanStatus }) {
-  const [libraries, setLibraries] = useState([library_in]);
-  const { libraryState, setLibraryState } = useLibrary();
-
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const handleScanClick = (library) => {
@@ -83,16 +50,9 @@ function Libraries({ library_in, scanStatus }) {
   };
 
   useEffect(() => {
-    console.log("Libraries component mounted or updated");
-    setLibraries(library_in);
-    setLibraryState(library_in);
-  }, [library_in]);
-
-  useEffect(() => {
     console.log("Libraries scanStatus:", scanStatus);
     fetchScanStatus().then((data) => {
       console.log("Scan status fetched:", data);
-      setLibraries(data);
       setLibraryState(data);
     });
   }, [scanStatus]);
@@ -112,11 +72,11 @@ function Libraries({ library_in, scanStatus }) {
   //   },
   // });
 
-  console.log("Libraries:", libraries);
+  console.log("Libraries:", libraryState);
 
   return (
     <div>
-      {libraries.length <= 1 ? (
+      {libraryState.length <= 1 ? (
         <div>No libraries available.</div>
       ) : (
         <table className="table-sm">
@@ -129,7 +89,7 @@ function Libraries({ library_in, scanStatus }) {
             </tr>
           </thead>
           <tbody>
-            {libraries.map((library) => {
+            {libraryState.map((library) => {
               //console.log("Library:", library);
               return (
                 <tr key={library.key}>

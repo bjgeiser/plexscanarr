@@ -1,14 +1,10 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import Button from "./Button";
-import Logging, { log } from "./Logging";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import Libraries from "./Libraries";
 import JobLog from "./Notifications";
 import Notifications from "./Notifications";
-import { useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { HashRouter, Routes, Route } from "react-router-dom";
-import Banner from "./Banner";
+import { useLibrary } from "./LibraryContext";
 
 //const WS_URL = "ws://" + window.location.host + "/ws";
 const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
@@ -17,7 +13,6 @@ const SERVER_ADDR_PORT = SERVER_ADDR + ":" + SERVER_PORT;
 export const WS_URL = "ws://" + (window.location.href.startsWith("file") || process.env.FORCE_ENV === "true" ? SERVER_ADDR_PORT : window.location.host) + "/ws";
 export const REST_URL = window.location.href.startsWith("file") || process.env.FORCE_ENV === "true" ? "http://" + SERVER_ADDR_PORT + "/" : window.location.protocol + "//" + window.location.host + "/";
 
-
 export const fetchLibraries = async () => {
   const response = await fetch(`${REST_URL}plex/libraries`);
   return response.json();
@@ -25,8 +20,19 @@ export const fetchLibraries = async () => {
 
 export const toRoutePath = (name) => "/" + name.replace(/\s+/g, "");
 
-const Main = ({ libraries }) => {
-  console.log("Main - Libraries:", libraries);
+const Main = () => {
+  const [libraryState, setLibraryState] = useLibrary();
+
+  useEffect(() => {
+    const fetchAndSetLibraries = async () => {
+      const libraries = await fetchLibraries();
+      setLibraryState(libraries);
+    };
+
+    fetchAndSetLibraries();
+  }, [setLibraryState]);
+
+  console.log("Main - Libraries:", libraryState);
 
   const [startBtnDisabled, setStartBtnDisabled] = useState(false);
   const [reprintBtnDisabled, setReprintBtnDisabled] = useState(true);
@@ -49,8 +55,6 @@ const Main = ({ libraries }) => {
   const notificationRef = useRef(null);
   const [height, setHeight] = useState(0);
 
-  const queryClient = useQueryClient();
-
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
     share: true,
     onOpen: () => {
@@ -67,7 +71,7 @@ const Main = ({ libraries }) => {
   //       setLoading(false);
   //     },
   //     onError: (error) => {
-  //       console.error("Error fetching libraries:", error);
+  //       console.error("Error fetching libraryState:", error);
   //       setLoading(false);
   //     },
   //   });
@@ -97,7 +101,6 @@ const Main = ({ libraries }) => {
   }[readyState];
 
   useEffect(() => {
-
     const updateHeight = () => {
       setHeight(window.innerHeight - notificationRef.current.offsetTop - 10);
     };
@@ -199,7 +202,7 @@ const Main = ({ libraries }) => {
     <div>
       <div className="w-full flex pt-3 px-3">
         <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
-          <Libraries library_in={libraries} scanStatus={scanStatus} />
+          <Libraries scanStatus={scanStatus} />
         </div>
 
         <div ref={notificationRef} style={{ height: height }} className="card bg-neutral ml-5 overflow-x-auto rounded-box grow ">

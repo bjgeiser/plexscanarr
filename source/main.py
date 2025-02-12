@@ -55,7 +55,8 @@ async def main_async(
         server=plex_server, token=plex_token, plex_websocket=plex_websocket, preempt_active_scan=preempt_active_scan
     )
 
-    arr_lookup = config.get("arr-paths")
+    arr_lookup = 
+    
     arr_webhook = ArrWebhook(
         plex=plex, path_converter=path_converter, plex_websocket=plex_websocket, link_lookup=arr_lookup
     )
