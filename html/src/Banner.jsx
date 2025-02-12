@@ -125,7 +125,7 @@ const Banner = () => {
                     <p className="text-sm font-bold">SERVICES</p>
                   </h1>
                 </div>
-                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
+                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
                   {serviceInfo.map((service) => {
                     return (
                       <li>

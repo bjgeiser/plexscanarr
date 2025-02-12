@@ -91,7 +91,7 @@ function Libraries({ scanStatus }) {
                       <div tabIndex={0} role="button" className="">
                         {library.name}
                       </div>
-                      <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
+                      <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow">
                         <li>
                           <button id={"detail_" + library.key} className="text-sm font-bold" onClick={() => handleLibraryDetailClick(library)}>
                             Open Details
