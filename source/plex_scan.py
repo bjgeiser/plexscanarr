@@ -8,8 +8,8 @@ import classy_fastapi as cfa
 from pathlib import Path
 from fastapi import HTTPException
 
-from source.arr_notification import ArrNotificationModel, ArrSource
-from source.plex_websocket import PlexWebsocket
+from arr_notification import ArrNotificationModel, ArrSource
+from plex_websocket import PlexWebsocket
 
 
 logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ class PlexScan(cfa.Routable):
                         logger.info(f"Scanning {libary}")
                         notification.file_path = libary
                         notification.scan_started = True
-                        asyncio.run(self.plex_websocket.send_arr_notification(notification))
+                        asyncio.run(self.plex_websocket.send_plex_notification(notification))
 
                     elif (
                         title.startswith("Library scan complete")
@@ -75,7 +75,7 @@ class PlexScan(cfa.Routable):
                         logger.info(f"Scanning Complete {title}")
                         notification.arr_type = "Scanning Complete {title}"
                         notification.scan_started = False
-                        asyncio.run(self.plex_websocket.send_arr_notification(notification))
+                        asyncio.run(self.plex_websocket.send_plex_notification(notification))
 
     def plex_error_callback(self, error):
         logger.info(f"Received error: {error}")

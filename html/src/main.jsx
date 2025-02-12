@@ -114,33 +114,34 @@ const Main = () => {
   useEffect(() => {
     if (lastMessage != null) {
       try {
-        const msgJson = JSON.parse(lastMessage.data);
-        console.log(msgJson);
-        console.log("Main Rx Json: ", msgJson);
-        if (msgJson.hasOwnProperty("type")) {
-          if (msgJson["type"] === "plex") {
-            //console.log("Scan started for " + msgJson["file_path"]);
-            //const matchingLibrary = libraries.find((library) => library.name === msgJson["file_path"]);
-            //if (matchingLibrary) {
-            //  console.log("Matching library found:", matchingLibrary);
-            //  matchingLibrary.scan_active = msgJson["scan_started"];
-            //}
-            setScanStatus(msgJson.pretty_name);
+        const event = JSON.parse(lastMessage.data);
+        console.log(event);
+        console.log("Main Rx Json: ", event);
+        if (event.hasOwnProperty("type")) {
+          const type = event.type;
+          const notification = event.notification;
+
+          if (event["type"] === "plex_event") {
+            setScanStatus(notification.pretty_name);
           }
 
-          logIndexRef.current += 1;
-          msgJson.index = logIndexRef.current;
-          setMessageHistory((history) => {
-            if ((history.length === 1 && history[0]["pretty_name"] === "Welcome to Plexscanarr") || msgJson["pretty_name"] === "Welcome to Plexscanarr") {
+          if (type === "arr_event" || type === "plex_event")
+          {
+            logIndexRef.current += 1;
+            event.index = logIndexRef.current;
+            setMessageHistory((history) => {
+
+            if ((history.length === 1 && history[0].notification.pretty_name === "Welcome to Plexscanarr") || notification["pretty_name"] === "Welcome to Plexscanarr") {
               history.length = 0;
             }
             while (history.length > 500) {
               // Drop last message to reduce size by 1
               history.pop();
             }
-            return [msgJson, ...history];
-          });
+            return [event, ...history];
 
+          });
+          }
           /*else if (msgJson["type"] === "progress") {
             if (msgJson["params"]["id"] === "flash_progress") {
               setProgress(msgJson["params"]["value"]);

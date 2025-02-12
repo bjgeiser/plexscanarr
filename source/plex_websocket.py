@@ -1,12 +1,14 @@
 import datetime
 import logging
+import uuid
+
 import classy_fastapi as cfa
 
 import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 from typing import List
 
-from arr_notification import ArrNotificationModel, ArrSource
+from arr_notification import ArrNotificationModel, ArrSource, NotificationModel, NotificationType
 
 logger = logging.getLogger(__name__)
 
@@ -83,14 +85,17 @@ class PlexWebsocket(cfa.Routable):
 
     async def send_current_state(self, websocket):
         if len(self.notifications) == 0:
-            notification = ArrNotificationModel(
+            arr_notification = ArrNotificationModel(
                 file_path="No notifications available",
                 arr_type="Welcome",
                 type=ArrSource.PLEXSCANARR,
-                server_name="Plexscannar",
+                server_name="Plexscanarr",
                 timestamp=datetime.datetime.now(datetime.UTC),
                 pretty_name="Welcome to Plexscanarr",
                 original_json={},
+            )
+            notification = NotificationModel(
+                type=NotificationType.ARR_EVENT, notification=arr_notification, uuid=uuid.uuid4()
             )
             json_str = notification.model_dump_json()
             await websocket.send_text(json_str)
@@ -100,12 +105,18 @@ class PlexWebsocket(cfa.Routable):
             await websocket.send_text(json_str)
 
     async def send_arr_notification(self, notification: ArrNotificationModel):
-        self.notifications.append(notification)
-        await self.connection_manager.broadcast(notification.model_dump_json())
+        arr_notification = NotificationModel(
+            type=NotificationType.ARR_EVENT, notification=notification, uuid=uuid.uuid4()
+        )
+        self.notifications.append(arr_notification)
+        await self.connection_manager.broadcast(arr_notification.model_dump_json())
 
     async def send_plex_notification(self, notification: ArrNotificationModel):
-        self.notifications.append(notification)
-        await self.connection_manager.broadcast(notification.model_dump_json())
+        plex_notification = NotificationModel(
+            type=NotificationType.PLEX_EVENT, notification=notification, uuid=uuid.uuid4()
+        )
+
+        await self.connection_manager.broadcast(plex_notification.model_dump_json())
 
 
 # last_values = {"label": {}, "disabled": {}, "progress": {}}

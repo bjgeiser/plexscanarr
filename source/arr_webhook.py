@@ -7,8 +7,8 @@ from path_converter import PathConverter
 from plex_scan import PlexScan
 from fastapi import Request, Body, HTTPException
 
-from source.arr_notification import ArrNotificationModel, ArrSource
-from source.plex_websocket import PlexWebsocket
+from arr_notification import ArrNotificationModel, ArrSource
+from plex_websocket import PlexWebsocket
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,9 @@ class ArrWebhook(cfa.Routable):
                     return entry["server-root"].rstrip("/")
         return None
 
-    def build_notification(self, arr_type: str, notification: dict, agent: str, arr_path: str, scan_started: bool):
+    def build_notification(
+        self, arr_type: str, notification: dict, agent: str, arr_path: str, scan_started: bool
+    ) -> ArrNotificationModel:
         cover_art_url = None
         release_title = None
         file_size = None

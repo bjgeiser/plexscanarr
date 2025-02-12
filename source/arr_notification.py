@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import StrEnum, auto
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -28,3 +29,14 @@ class ArrNotificationModel(BaseModel):
     file_size: str | None = None
     service_link: str | None = None
     content_link: str | None = None
+
+
+class NotificationType(StrEnum):
+    PLEX_EVENT = auto()
+    ARR_EVENT = auto()
+
+
+class NotificationModel(BaseModel):
+    type: NotificationType
+    notification: ArrNotificationModel = None
+    uuid: UUID
