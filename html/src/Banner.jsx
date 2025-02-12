@@ -61,7 +61,7 @@ const Banner = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Updating library list: " + libraryState);
+    console.log("Updating library list: ", libraryState);
     const isAnyLibraryScanning = Array.isArray(libraryState) && libraryState.length > 0 ? libraryState.some((library) => library.scan_active) : false;
     setServerInfo((prevState) => ({
       ...prevState,

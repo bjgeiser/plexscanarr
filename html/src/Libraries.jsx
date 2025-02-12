@@ -8,10 +8,6 @@ function Libraries({ scanStatus }) {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("Updating library list: " + libraryState);
-  }, [libraryState]);
-
   const handleScanClick = (library) => {
     console.log("Scan clicked for", library);
 
@@ -54,7 +50,7 @@ function Libraries({ scanStatus }) {
       console.log("Scan status fetched:", data);
       setLibraryState(data);
     });
-  }, [scanStatus]);
+  }, [scanStatus, setLibraryState]);
 
   // useQuery("scanActive", fetchScanStatus, {
   //   refetchInterval: 5000, // Poll every 5 seconds
