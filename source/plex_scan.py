@@ -169,7 +169,7 @@ class PlexScan(cfa.Routable):
                 return_list.append(
                     {
                         "title": item.title,
-                        "year": item.year,
+                        "year": item.year if hasattr(item, "year") else "None",
                         "key": item.ratingKey,  # Use this instead of key so we can scan directly
                         "type": item.type,
                     }
