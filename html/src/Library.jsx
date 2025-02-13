@@ -49,7 +49,7 @@ const Library = ( props ) => {
   console.log("Rows:", rows);
   return (
     <div className="mt-5 ml-8 mr-8 right-8 min-w-fit">
-      <DataGrid
+      <DataGrid loading
         rows={rows}
         columns={columns}
         components={{ Toolbar: GridToolbar }}
@@ -83,6 +83,10 @@ const Library = ( props ) => {
           ".MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows, .MuiTablePagination-select": {
             color: "GhostWhite",
           },
+          ".MuiDataGrid-overlay": {
+            background: "transparent",
+          }
+
         }}
       />
     </div>
