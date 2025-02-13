@@ -4,11 +4,10 @@ import { REST_URL } from "./main";
 import { Box, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
-const Library = ({ library }) => {
-  const params = useParams();
-  console.log("Library - Params:", params);
-  // Optional: useLocation() can be used if you need more info about the URL.
-  const [libraryList, setLibraryList] = useState([]);
+
+const Library = ( props ) => {
+  const location = useLocation();
+  const library = location.state.library;
   console.log("Library - Location:", location);
 
   const [rows, setRows] = React.useState([]);

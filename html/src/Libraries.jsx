@@ -93,7 +93,7 @@ function Libraries({ scanStatus }) {
                       </div>
                       <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow">
                         <li>
-                          <Link to={toRoutePath(library.name)}>Open Details</Link>
+                          <Link to={toRoutePath(library.name)} state={{library: library}}>Open Details</Link>
                         </li>
                         <li>
                           <a onClick={() => window.open(library.server_link, "_blank")}>Open on Plex Server</a>
