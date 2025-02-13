@@ -9,9 +9,13 @@ import { useLibrary } from "./LibraryContext";
 //const WS_URL = "ws://" + window.location.host + "/ws";
 const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
 const SERVER_PORT = process.env.WEB_SERVER_PORT || "5000";
-const SERVER_ADDR_PORT = SERVER_ADDR + ":" + SERVER_PORT;
-export const WS_URL = "ws://" + (window.location.href.startsWith("file") || process.env.FORCE_ENV === "true" ? SERVER_ADDR_PORT : window.location.host) + "/ws";
-export const REST_URL = window.location.href.startsWith("file") || process.env.FORCE_ENV === "true" ? "http://" + SERVER_ADDR_PORT + "/" : window.location.protocol + "//" + window.location.host + "/";
+const _SERVER_ADDR_PORT =  SERVER_ADDR + ":" + SERVER_PORT;
+const SERVER_ADDR_PORT = (window.location.href.startsWith("file") || process.env.FORCE_ENV === "true") ? _SERVER_ADDR_PORT :  window.location.host
+const WEBSOCKET_PROTOCOL=window.location.protocol.startsWith("https") ? "wss:" : "ws:";
+const HTTP_PROTOCOL = window.location.protocol.startsWith("file") ? "http:" : window.location.protocol;
+export const WS_URL = WEBSOCKET_PROTOCOL + "//" + SERVER_ADDR_PORT + "/ws";
+export const REST_URL= HTTP_PROTOCOL + "//" + SERVER_ADDR_PORT + "/";
+
 
 export const fetchLibraries = async () => {
   const response = await fetch(`${REST_URL}plex/libraries`);
@@ -199,6 +203,7 @@ const Main = () => {
   const handleReprintClick = useCallback(() => sendMessage('{"type": "command", "params": {"action": "reprint"}}'), []);
 
   console.log("REST URL: ", REST_URL);
+  console.log("WS URL: ", WS_URL);
 
   return (
     <div>
