@@ -6,7 +6,7 @@ import Notifications from "./Notifications";
 import { useNavigate } from "react-router-dom";
 import { useLibrary } from "./LibraryContext";
 
-//const WS_URL = "ws://" + window.location.host + "/ws";
+
 const SERVER_ADDR = process.env.WEB_SERVER_ADDR || "localhost";
 const SERVER_PORT = process.env.WEB_SERVER_PORT || "5000";
 const _SERVER_ADDR_PORT =  SERVER_ADDR + ":" + SERVER_PORT;
@@ -21,8 +21,6 @@ export const fetchLibraries = async () => {
   const response = await fetch(`${REST_URL}plex/libraries`);
   return response.json();
 };
-
-export const toRoutePath = (name) => "/" + name.replace(/\s+/g, "");
 
 const Main = () => {
   const { libraryState, setLibraryState } = useLibrary();
@@ -67,8 +65,6 @@ const Main = () => {
     },
     shouldReconnect: (closeEvent) => true,
   });
-
-  const toRoutePath = (name) => "/" + name.replace(/\s+/g, "");
 
   //   const { data, isLoading } = useQuery("scanActive", fetchLibraries, {
   //     onSuccess: (data) => {

@@ -3,12 +3,15 @@ import { useLocation, Link, useParams } from "react-router-dom";
 import { REST_URL } from "./main";
 import { Box, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import {useLibrary} from "./LibraryContext";
+import libraries from "./Libraries";
+import Main, { fetchLibraries } from "./main";
+
 
 
 const Library = ( props ) => {
-  const location = useLocation();
-  const library = location.state.library;
-  console.log("Library - Location:", location);
+  const { libraryState, setLibraryState} = useLibrary();
+  const params = useParams();
 
   const [rows, setRows] = React.useState([]);
   const columns = [
@@ -20,18 +23,28 @@ const Library = ( props ) => {
   ];
 
   useEffect(() => {
-    console.log("Library component mounted or updated");
-    fetch(`${REST_URL}plex/libraries/${library.key}/details`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(library.name, data);
-        setRows(data.map((item) => ({ ...item, id: item.key })));
-        // setLibraryList(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching library details:", error);
-      });
-  }, []);
+    if(libraryState) {
+      var library = {}
+      for (var i = 0; i < libraryState.length; i++) {
+        if (libraryState[i].path === params.libraryName) {
+          library = libraryState[i];
+          break;
+        }
+      }
+
+      console.log("Library component mounted or updated");
+      fetch(`${REST_URL}plex/libraries/${library.key}/details`)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(library.name, data);
+            setRows(data.map((item) => ({...item, id: item.key})));
+            // setLibraryList(data);
+          })
+          .catch((error) => {
+            console.error("Error fetching library details:", error);
+          });
+    }
+  }, [libraryState]);
 
   console.log("Rows:", rows);
   return (

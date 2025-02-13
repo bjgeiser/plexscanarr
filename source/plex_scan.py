@@ -109,6 +109,7 @@ class PlexScan(cfa.Routable):
                 return_list.append(
                     {
                         "name": section.title,
+                        "path": section.title.replace(" ", ""),
                         "key": section.key,
                         "locations": section.locations,
                         "type": section.type,
@@ -134,6 +135,7 @@ class PlexScan(cfa.Routable):
 
                 section_json = {
                     "name": section.title,
+                    "path": section.title.replace(" ", ""),
                     "key": section.key,
                     "locations": [],
                     "type": _type,

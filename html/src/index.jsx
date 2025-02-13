@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 
 import "./main.css";
 import { LibraryProvider, useLibrary } from "./LibraryContext";
-import Main, { fetchLibraries, toRoutePath } from "./main";
+import Main, { fetchLibraries } from "./main";
 import Layout from "./Layout";
 import Details from "./Details";
 import Library from "./Library";
