@@ -5,18 +5,11 @@
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome against localhost",
-      "url": "http://localhost:8080",
-      "webRoot": "${workspaceFolder}/html/",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/address-book/",
       "sourceMaps": true,
       "trace": true,
-      "sourceMapPathOverrides": {
-        "webpack:///./~/*": "${webRoot}/node_modules/*",
-        "webpack:////*": "/*",
-        "webpack://@?:*/*": "${workspaceFolder}/html/*",
-
-  // and some more patterns...
+      // and some more patterns...
 }
-
-    }
   ]
 }

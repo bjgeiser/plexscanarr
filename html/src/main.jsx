@@ -125,22 +125,19 @@ const Main = () => {
             setScanStatus(notification.pretty_name);
           }
 
-          if (type === "arr_event" || type === "plex_event")
-          {
+          if (type === "arr_event" || type === "plex_event") {
             logIndexRef.current += 1;
             event.index = logIndexRef.current;
             setMessageHistory((history) => {
-
-            if ((history.length === 1 && history[0].notification.pretty_name === "Welcome to Plexscanarr") || notification["pretty_name"] === "Welcome to Plexscanarr") {
-              history.length = 0;
-            }
-            while (history.length > 500) {
-              // Drop last message to reduce size by 1
-              history.pop();
-            }
-            return [event, ...history];
-
-          });
+              if ((history.length === 1 && history[0].notification.pretty_name === "Welcome to Plexscanarr") || notification["pretty_name"] === "Welcome to Plexscanarr") {
+                history.length = 0;
+              }
+              while (history.length > 500) {
+                // Drop last message to reduce size by 1
+                history.pop();
+              }
+              return [event, ...history];
+            });
           }
           /*else if (msgJson["type"] === "progress") {
             if (msgJson["params"]["id"] === "flash_progress") {
