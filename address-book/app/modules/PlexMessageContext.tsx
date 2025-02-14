@@ -14,16 +14,30 @@ export type PlexMessageContextType = {
 
 // Create the context
 const PlexMessageContext = createContext<{
-  plexMessage: PlexMessageContextType[];
-  setPlexMessage: React.Dispatch<React.SetStateAction<PlexMessageContextType[]>>;
+  plexMessage: PlexMessageContextType;
+  setPlexMessage: React.Dispatch<React.SetStateAction<PlexMessageContextType>>;
 }>({
-  plexMessage: [],
-  setPlexMessage: () => [],
+  plexMessage: {
+    notification: {
+      arr_type: 'initial',
+    },
+    type: 'initial',
+    uuid: 'initial-uuid',
+  },
+  setPlexMessage: () => {
+    console.warn('No PlexMessageProvider available');
+  },
 });
 
 // LibraryProvider component that wraps children and provides state and updater
 export const PlexMessageProvider = ({ children }: { children: ReactNode }) => {
-  const [plexMessage, setPlexMessage] = useState<PlexMessageContextType[]>([]);
+  const [plexMessage, setPlexMessage] = useState<PlexMessageContextType>({
+    notification: {
+      arr_type: 'initial',
+    },
+    type: 'initial',
+    uuid: 'initial-uuid',
+  });
   const { sendMessage, lastMessage, readyState } = useWebSocket(getBaseUrl().plexWS.toString(), {
     share: true,
     onOpen: () => {
@@ -42,24 +56,20 @@ export const PlexMessageProvider = ({ children }: { children: ReactNode }) => {
         type: messageData.type,
         uuid: messageData.uuid,
       };
-      setPlexMessage((prev) => [...prev, newMessage]);
+      if (newMessage) setPlexMessage(newMessage);
     }
   }, [lastMessage]);
 
-  return (
-    <PlexMessageContext.Provider value={{ plexMessage: plexMessage, setPlexMessage: setPlexMessage }}>
-      {children}
-    </PlexMessageContext.Provider>
-  );
+  return <PlexMessageContext.Provider value={{ plexMessage, setPlexMessage }}>{children}</PlexMessageContext.Provider>;
 };
 
 // Custom hook to consume the library context
-export const usePlexMessage = (): Promise<PlexMessageContextType> => {
+export const usePlexMessage = () => {
   const context = useContext(PlexMessageContext);
   if (!context) {
     throw new Error('usePlexMessage must be used within a PlexMessageProvider');
   }
-  return Promise.resolve(context);
+  return context;
 };
 
 export default PlexMessageContext;
