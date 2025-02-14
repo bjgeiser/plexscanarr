@@ -20,13 +20,6 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   const [messageHistory, setMessageHistory] = useState([]); // TODO move this to a context
   const logIndexRef = useRef(0);
   const plexWS = getBaseUrl().plexWS.toString();
-  const { sendMessage, lastMessage, readyState } = useWebSocket(plexWS, {
-    share: true,
-    onOpen: () => {
-      console.log('WebSocket connection established.');
-    },
-    shouldReconnect: (closeEvent) => true,
-  });
 
   // TODO how to move this out of useEffect
   useEffect(() => {
@@ -39,51 +32,6 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
         console.error(error);
       });
   }, []);
-
-  useEffect(() => {
-    if (lastMessage != null) {
-      try {
-        const event = JSON.parse(lastMessage.data);
-        console.log(event);
-        console.log('Main Rx Json: ', event);
-        if (event.hasOwnProperty('type')) {
-          const type = event.type;
-          const notification = event.notification;
-
-          if (event['type'] === 'plex_event') {
-            datalayer.libraryApi
-              .getPlexLibrary()
-              .then((data) => {
-                setLibraryState(data);
-              })
-              .catch((error) => {
-                console.error(error);
-              });
-          }
-
-          if (type === 'arr_event' || type === 'plex_event') {
-            logIndexRef.current += 1;
-            event.index = logIndexRef.current;
-            // setMessageHistory((history) => {
-            //   if (
-            //     (history.length === 1 && history[0].notification.pretty_name === 'Welcome to Plexscanarr') ||
-            //     notification['pretty_name'] === 'Welcome to Plexscanarr'
-            //   ) {
-            //     history.length = 0;
-            //   }
-            //   while (history.length > 500) {
-            //     // Drop last message to reduce size by 1
-            //     history.pop();
-            //   }
-            //   return [event, ...history];
-            // });
-          }
-        }
-      } catch (e) {
-        //do nothing
-      }
-    }
-  }, [lastMessage]);
 
   return (
     <>
