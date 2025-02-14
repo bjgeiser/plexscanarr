@@ -1,6 +1,7 @@
 import { Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-router';
 import type { Route } from './+types/root';
 import { LibraryProvider } from './modules/LibraryContext';
+import { PlexMessageProvider } from './modules/PlexMessageContext';
 import appStylesHref from './app.css?url';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
@@ -18,9 +19,11 @@ const queryClient = new QueryClient();
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <LibraryProvider>
-        <Outlet />
-      </LibraryProvider>
+      <PlexMessageProvider>
+        <LibraryProvider>
+          <Outlet />
+        </LibraryProvider>
+      </PlexMessageProvider>
     </QueryClientProvider>
   );
 }
