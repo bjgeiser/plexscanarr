@@ -32,8 +32,8 @@ class ArrWebhook(cfa.Routable):
     def get_arr_service_path(self, instance_name: str) -> str | None:
         if self.link_lookup:
             for entry in self.link_lookup:
-                if entry["instance-name"] == instance_name:
-                    return entry["server-root"].rstrip("/")
+                if entry["instanceName"] == instance_name:
+                    return entry["serverRoot"].rstrip("/")
         return None
 
     def build_notification(

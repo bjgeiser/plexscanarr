@@ -5,6 +5,7 @@ import { datalayer } from '../datalayer';
 import { useEffect, useState, useRef } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { getBaseUrl } from '../datalayer';
+import { type ServerInfo, type ServiceInfo } from '../services/LibraryApi';
 
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   // const { availableLibraries: listOfLibraries } = loaderData;
@@ -13,6 +14,14 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   const [messageHistory, setMessageHistory] = useState([]); // TODO move this to a context
   const logIndexRef = useRef(0);
   const plexWS = getBaseUrl().plexWS.toString();
+  const [serverInfo, setServerInfo] = useState<ServerInfo>({
+    server: '',
+    platform: '',
+    version: '',
+    scan_active: false,
+    server_link: '',
+  });
+  const [serviceInfo, setServiceInfo] = useState<ServiceInfo[]>([]);
 
   // TODO how to move this out of useEffect
   useEffect(() => {
@@ -24,6 +33,22 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
       .catch((error) => {
         console.error(error);
       });
+    datalayer.libraryApi
+      .getServerInfo()
+      .then((data) => {
+        setServerInfo(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    datalayer.libraryApi
+      .getServiceInfo()
+      .then((data) => {
+        setServiceInfo(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }, []);
 
   return (
@@ -31,7 +56,36 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
       <div id="sidebar">
         <h1>
           {/* The icon is in the css h1::before */}
-          <Link to="about">Plex Scanarr</Link>
+          <div>
+            Server: {serverInfo.server} - Platform: {serverInfo.platform}
+            Verion: {serverInfo.version}
+          </div>
+          {serviceInfo.length > 0 ? (
+            <li>
+              <div className="dropdown dropdown-bottom font-bold">
+                <div tabIndex={0} role="button" className="">
+                  <h1>
+                    <p className="text-sm font-bold">SERVICES</p>
+                  </h1>
+                </div>
+                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
+                  {serviceInfo.map((service) => {
+                    return (
+                      <li>
+                        <button
+                          className="text-sm font-bold"
+                          onClick={() => window.open(service['serverRoot'], '_blank')}
+                        >
+                          {service['instanceName']}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </li>
+          ) : null}
+          {/* <Link to="about">Plex Scanarr</Link> */}
         </h1>
         <div>
           <Form id="search-form" role="search">

@@ -4,6 +4,7 @@ import { LibraryProvider } from './modules/LibraryContext';
 import { PlexMessageProvider } from './modules/PlexMessageContext';
 import appStylesHref from './app.css?url';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import Banner from './layouts/Banner';
 
 export function HydrateFallback() {
   return (
