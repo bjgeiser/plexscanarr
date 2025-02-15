@@ -120,7 +120,7 @@ export class LibraryApi {
     }
   }
 
-  async getServiceInfo(): Promise<ServiceInfo> {
+  async getServiceInfo(): Promise<ServiceInfo[]> {
     try {
       let url = `${getBaseUrl().plexUrl.toString()}services`;
       const response = await fetch(url);

@@ -54,67 +54,92 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
-        <h1>
-          {/* The icon is in the css h1::before */}
-          <div>
-            Server: {serverInfo.server} - Platform: {serverInfo.platform}
-            Verion: {serverInfo.version}
-          </div>
-          {serviceInfo.length > 0 ? (
-            <li>
-              <div className="dropdown dropdown-bottom font-bold">
-                <div tabIndex={0} role="button" className="">
-                  <h1>
-                    <p className="text-sm font-bold">SERVICES</p>
-                  </h1>
-                </div>
-                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
-                  {serviceInfo.map((service)  => {
-                    return (
-                      <li key={service.instanceName}>
-                        <button
-                          className="text-sm font-bold"
-                          onClick={() => window.open(service['serverRoot'], '_blank')}
-                        >
-                          {service.instanceName}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </li>
-          ) : null}
-          {/* <Link to="about">Plex Scanarr</Link> */}
-        </h1>
         <div>
-          <Form id="search-form" role="search">
-            <input aria-label="Search libraries" id="q" name="q" placeholder="Search" type="search" />
-            <div aria-hidden hidden={true} id="search-spinner" />
-          </Form>
-          {/* TODO delete this */}
-          <Form method="post">
-            <button type="submit">New</button>
-          </Form>
-        </div>
-        <nav>
-          {libraryState.length ? (
-            <ul>
-              {libraryState.map((library) => (
-                <li key={library.name}>
-                  <Link to={`library/${library.id}`}>
-                    {library.name || library.type ? <>{library.name}</> : <i>No Name</i>}
-                    {library.server_link ? <span>★</span> : null}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {Array.isArray(libraryState) && libraryState.length > 0 ? (
+            <table className="table-sm">
+              <thead>
+                <tr className="text-left text-orange-300 text-sm">
+                  <th>Library Name</th>
+                  <th>Type</th>
+                  <th>Locations</th>
+                  <th>Scan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {libraryState.map((library) => {
+                  //console.log("Library:", library);
+                  return (
+                    <tr key={library.key}>
+                      <td>
+                        <div className="dropdown dropdown-hover font-bold">
+                          <div tabIndex={0} role="button" className="">
+                            {library.name}
+                          </div>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow"
+                          >
+                            <li>
+                              <Link to={library.path}>Open Details</Link>
+                            </li>
+                            <li>
+                              <a onClick={() => window.open(library.server_link, '_blank')}>Open on Plex Server</a>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="font-medium">{library.type}</div>
+                      </td>
+                      <td>
+                        {library.locations.map((loc, index) => (
+                          <div key={index} className="text-sm opacity-50">
+                            {loc}
+                          </div>
+                        ))}
+                      </td>
+                      <td>
+                        {library.scan_active ? (
+                          <div className="dropdown dropdown-hover">
+                            <div
+                              tabIndex={0}
+                              role="button"
+                              id={'active_' + library.key + '_scanning'}
+                              className="text-sm font-bold text-orange-600"
+                            >
+                              Scanning
+                            </div>
+                            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
+                              <li>
+                                <button
+                                  id={'active_' + library.key + '_stop_scanning'}
+                                  onClick={() => handleCanelScanClick(library)}
+                                  className="text-sm font-bold"
+                                >
+                                  Stop
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        ) : (
+                          <button
+                            id={'active_' + library.key + '_not_scanning'}
+                            className="text-sm font-bold"
+                            onClick={() => handleScanClick(library)}
+                          >
+                            Scan
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           ) : (
-            <p>
-              <i>No libraries</i>
-            </p>
+            <div>No libraries available.</div>
           )}
-        </nav>
+        </div>
       </div>
       <div className={navigation.state === 'loading' ? 'loading' : ''} id="detail">
         <Outlet />

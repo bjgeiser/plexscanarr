@@ -9,8 +9,8 @@ import type { Route } from './+types/Banner';
 export function Banner({ loaderData }: Route.ComponentProps) {
   const { libraryState } = useLibrary();
 
-  const [serverInfo, setServerInfo] = useState({});
-  const [serviceInfo, setServiceInfo] = useState([]);
+  const [serverInfo, setServerInfo] = useState<{ server?: string; version?: string; scan_active?: boolean }>({});
+  const [serviceInfo, setServiceInfo] = useState<{ instanceName: string; serverRoot: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   const handleScanClick = () => {
@@ -75,7 +75,7 @@ export function Banner({ loaderData }: Route.ComponentProps) {
   return (
     <div>
       <div className="flex flex-col">
-        <div className="navbar bg-base-200 flex-row justify-between items-center px-4">
+        <div className="navbar bg-base-200">
           <div className="avatar">
             <div className="m-2 w-8">
               <img src={PlexscanarrIcon} alt="Plexscanarr Icon" />
@@ -84,7 +84,7 @@ export function Banner({ loaderData }: Route.ComponentProps) {
           <div className="flex-1">
             <a className="btn btn-ghost text-xl">Plexscanarr</a>
           </div>
-          <div className="flex-1 flex justify-end">
+          <div className="flex-none">
             <ul className="menu menu-horizontal px-4 flex items-center space-x-4">
               <li>
                 <div>
@@ -113,7 +113,7 @@ export function Banner({ loaderData }: Route.ComponentProps) {
                           <li key={service.instanceName}>
                             <button
                               className="text-sm font-bold"
-                              onClick={() => window.open(service['server-root'], '_blank')}
+                              onClick={() => window.open(service.serverRoot, '_blank')}
                             >
                               {service.instanceName}
                             </button>
