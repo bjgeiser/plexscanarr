@@ -80,7 +80,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                             className="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow"
                           >
                             <li>
-                              <Link to={library.path}>Open Details</Link>
+                              <Link to={`library/${library.id}`}>Open Details</Link>
                             </li>
                             <li>
                               <a onClick={() => window.open(library.server_link, '_blank')}>Open on Plex Server</a>

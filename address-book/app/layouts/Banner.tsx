@@ -1,6 +1,6 @@
 import { Form, Link, Outlet, useNavigation } from 'react-router';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import PlexscanarrIcon from '../img/favicon.png';
+import PlexscanarrIcon from '../../public/img/favicon.png';
 import { useLibrary } from '../modules/LibraryContext';
 import { datalayer } from '../datalayer';
 import { data } from 'react-router';
@@ -9,7 +9,12 @@ import type { Route } from './+types/Banner';
 export function Banner({ loaderData }: Route.ComponentProps) {
   const { libraryState } = useLibrary();
 
-  const [serverInfo, setServerInfo] = useState<{ server?: string; version?: string; scan_active?: boolean }>({});
+  const [serverInfo, setServerInfo] = useState<{
+    server?: string;
+    version?: string;
+    scan_active?: boolean;
+    server_link?: string;
+  }>({});
   const [serviceInfo, setServiceInfo] = useState<{ instanceName: string; serverRoot: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -78,17 +83,23 @@ export function Banner({ loaderData }: Route.ComponentProps) {
         <div className="navbar bg-base-200">
           <div className="avatar">
             <div className="m-2 w-8">
-              <img src={PlexscanarrIcon} alt="Plexscanarr Icon" />
+              <Link to="/" className="text-sm font-bold">
+                <img src={PlexscanarrIcon} alt="Plexscanarr Icon" />
+              </Link>
             </div>
           </div>
           <div className="flex-1">
-            <a className="btn btn-ghost text-xl">Plexscanarr</a>
+            <Link to="/" className="text-sm font-bold">
+              <a className="btn btn-ghost text-xl">Plexscanarr</a>
+            </Link>
           </div>
           <div className="flex-none">
             <ul className="menu menu-horizontal px-4 flex items-center space-x-4">
               <li>
                 <div>
-                  <p className="text-sm font-bold">SERVER:</p> <span>{serverInfo.server}</span>
+                  <Link to={serverInfo.server_link || '#'} target="_blank" className="text-sm font-bold">
+                    SERVER: {serverInfo.server}
+                  </Link>
                 </div>
               </li>
               <li>

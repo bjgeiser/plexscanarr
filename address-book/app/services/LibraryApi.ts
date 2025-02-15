@@ -111,7 +111,7 @@ export class LibraryApi {
         console.log(response);
         throw new Error('Network response was not ok');
       }
-      const json = await response.json();
+      const json: ServerInfo = await response.json();
       console.log(json);
       return json;
     } catch (e) {
