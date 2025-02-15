@@ -1,81 +1,29 @@
+import type { Route } from './+types/contact';
 import { Form } from 'react-router';
 
-import type { LibraryRecord } from '../plex_data';
-
-import { getLibrary } from '../plex_data';
-import type { Route } from './+types/contact';
+import { datalayer } from '../datalayer';
+import type { LibraryDetails } from '../services/LibraryApi';
+import { useEffect, useState } from 'react';
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const library = await getLibrary(params.libraryId);
+  const library = await datalayer.libraryApi.getLibraryByName(params.libraryId);
   if (!library) {
     throw new Response('Not Found', { status: 404 });
   }
-  return { library };
+  const libraryData = await datalayer.libraryApi.getLibraryDetails(library.key);
+  return { libraryData };
 }
 
 export default function Library({ loaderData }: Route.ComponentProps) {
-  const { library }: { library: LibraryRecord } = loaderData;
+  const details: LibraryDetails = loaderData;
 
   return (
-    <div id="library">
-      <div>
-        <img
-        // TODO load the avatar
-        // alt={`${libraryList.first} ${libraryList.last} avatar`}
-        // key={libraryList.avatar}
-        // src={libraryList.avatar}
-        />
+    <div>
+      {details.libraryData.map((detail) => (
+      <div key={detail.key}>
+        {detail.title} - {detail.key} - {detail.type} - {detail.year}
       </div>
-
-      <div>
-        <h1>
-          {library.name ? <>{library.name}</> : <i>No Name</i>}
-          <Favorite library={library} />
-        </h1>
-
-        {library.server_link ? (
-          <p>
-            <a href={library.server_link}>Link</a>
-          </p>
-        ) : null}
-
-        {library.locations ? <p>{library.locations}</p> : null}
-
-        <div>
-          <Form action="edit">
-            <button type="submit">Edit</button>
-          </Form>
-
-          <Form
-            action="destroy"
-            method="post"
-            onSubmit={(event) => {
-              const response = confirm('Please confirm you want to delete this record.');
-              if (!response) {
-                event.preventDefault();
-              }
-            }}
-          >
-            <button type="submit">Delete</button>
-          </Form>
-        </div>
-      </div>
+      ))}
     </div>
-  );
-}
-
-function Favorite({ library }: { library: Pick<LibraryRecord, 'favorite'> }) {
-  const favorite = library.favorite;
-
-  return (
-    <Form method="post">
-      <button
-        aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
-        name="favorite"
-        value={favorite ? 'false' : 'true'}
-      >
-        {favorite ? '★' : '☆'}
-      </button>
-    </Form>
   );
 }

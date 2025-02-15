@@ -1,17 +1,10 @@
 import { Form, Link, Outlet, useNavigation } from 'react-router';
-import { getLibraries } from '../plex_data';
 import type { Route } from './+types/sidebar';
 import { useLibrary } from '../modules/LibraryContext';
 import { datalayer } from '../datalayer';
 import { useEffect, useState, useRef } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { getBaseUrl } from '../datalayer';
-
-// export async function clientLoader() {
-//   const libraryList = await getLibraries();
-//   console.log('clientLoader', libraryList);
-//   return { availableLibraries: libraryList };
-// }
 
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   // const { availableLibraries: listOfLibraries } = loaderData;
