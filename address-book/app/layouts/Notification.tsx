@@ -1,5 +1,6 @@
+import { Link } from 'react-router';
+
 import PlexscanarrIcon from '../../public/img/favicon.png';
-import React from 'react';
 import SonarrIcon from '../../public/img/sonarr.png';
 import RadarrIcon from '../../public/img/radarr.png';
 import LidarIcon from '../../public/img/lidarr.png';
@@ -10,7 +11,7 @@ import NoCoverIcon from '../../public/img/no_cover.png';
 import type { PlexMessageNotificationType } from '../modules/PlexMessageContext';
 
 function Notification(props: { notification: PlexMessageNotificationType }) {
-  const { notification } = props;
+  const { notification }: { notification: PlexMessageNotificationType } = props;
 
   function getLocalTime(_message: PlexMessageNotificationType) {
     const dt = new Date(_message['timestamp']);
@@ -52,11 +53,9 @@ function Notification(props: { notification: PlexMessageNotificationType }) {
     <div className="card rounded-box bg-base-300 m-2 p-3 flex-row items-center ">
       <div className="m-1 flex flex-col items-center">
         <div className="tooltip tooltip-right" data-tip={'Click to open ' + notification['server_name']}>
-          <img
-            onClick={() => window.open(notification['service_link'], '_blank')}
-            className="h-8"
-            src={getServiceIcon(notification)}
-          />
+          <Link to={notification.service_link || '/'} target="_blank">
+            <img className="h-8" src={getServiceIcon(notification)} />
+          </Link>
         </div>
         <div className="m-1 font-bold text-sm">{notification['server_name']}</div>
       </div>
@@ -66,11 +65,9 @@ function Notification(props: { notification: PlexMessageNotificationType }) {
         data-tip={'Click to open ' + notification['pretty_name'] + ' on  ' + notification['server_name']}
       >
         {notification['cover_art_url'] !== null ? (
-          <img
-            onClick={() => window.open(notification['content_link'], '_blank')}
-            className="rounded-box h-24"
-            src={notification['cover_art_url']}
-          />
+          <Link to={notification.content_link || '#'} target="_blank">
+            <img className="rounded-box h-24" src={notification['cover_art_url']} />
+          </Link>
         ) : null}
       </div>
       <div className="flex flex-col">
@@ -79,12 +76,9 @@ function Notification(props: { notification: PlexMessageNotificationType }) {
             className="tooltip tooltip-right"
             data-tip={'Click to open ' + notification['pretty_name'] + ' on  ' + notification['server_name']}
           >
-            <div
-              className="font-bold text-orange-400 pl-3"
-              onClick={() => window.open(notification['content_link'], '_blank')}
-            >
+            <Link className="font-bold text-orange-400 pl-3" to={notification.content_link || '/'} target="_blank">
               {notification['pretty_name']}
-            </div>
+            </Link>
           </div>
         </div>
 

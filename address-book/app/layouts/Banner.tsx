@@ -5,16 +5,12 @@ import { useLibrary } from '../modules/LibraryContext';
 import { datalayer } from '../datalayer';
 import { data } from 'react-router';
 import type { Route } from './+types/Banner';
+import { type ServerInfo, type ServiceInfo } from '../services/LibraryApi';
 
 export function Banner({ loaderData }: Route.ComponentProps) {
   const { libraryState } = useLibrary();
 
-  const [serverInfo, setServerInfo] = useState<{
-    server?: string;
-    version?: string;
-    scan_active?: boolean;
-    server_link?: string;
-  }>({});
+  const [serverInfo, setServerInfo] = useState<ServerInfo>({});
   const [serviceInfo, setServiceInfo] = useState<{ instanceName: string; serverRoot: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -104,13 +100,19 @@ export function Banner({ loaderData }: Route.ComponentProps) {
               </li>
               <li>
                 <div>
-                  <p className="text-sm font-bold">SERVER PLATFORM:</p> <span>{serverInfo.server}</span>
+                  <Link to={serverInfo.server_link || '#'} target="_blank" className="text-sm font-bold">
+                    SERVER PLATFORM: {serverInfo.platform}
+                  </Link>
                 </div>
               </li>
               <li>
-                <p onClick={() => window.open('https://forums.plex.tv/t/plex-media-server/30447/10000', '_blank')}>
-                  <p className="text-sm font-bold">VERSION:</p> {serverInfo.version}
-                </p>
+                <Link
+                  to="https://forums.plex.tv/t/plex-media-server/30447/10000"
+                  target="_blank"
+                  className="text-sm font-bold"
+                >
+                  VERSION: {serverInfo.version}
+                </Link>
               </li>
               {serviceInfo.length > 0 ? (
                 <li>
@@ -122,12 +124,9 @@ export function Banner({ loaderData }: Route.ComponentProps) {
                       {serviceInfo.map((service) => {
                         return (
                           <li key={service.instanceName}>
-                            <button
-                              className="text-sm font-bold"
-                              onClick={() => window.open(service.serverRoot, '_blank')}
-                            >
+                            <Link to={service.serverRoot} target="_blank" className="text-sm font-bold">
                               {service.instanceName}
-                            </button>
+                            </Link>
                           </li>
                         );
                       })}
