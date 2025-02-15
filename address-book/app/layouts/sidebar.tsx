@@ -69,7 +69,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                   </h1>
                 </div>
                 <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
-                  {serviceInfo.map((service) => {
+                  {serviceInfo.map((service)  => {
                     return (
                       <li key={service.instanceName}>
                         <button

@@ -74,90 +74,83 @@ export function Banner({ loaderData }: Route.ComponentProps) {
 
   return (
     <div>
-      <div className="navbar bg-base-200">
-        <div className="avatar">
-          <div className="m-2 w-8">
-            <button onClick={() => handleHomeClick()}>
+      <div className="flex flex-col">
+        <div className="navbar bg-base-200 flex-row justify-between items-center px-4">
+          <div className="avatar">
+            <div className="m-2 w-8">
               <img src={PlexscanarrIcon} alt="Plexscanarr Icon" />
-            </button>
+            </div>
           </div>
-        </div>
-        <div className="flex-1">
-          <button onClick={() => handleHomeClick()}>
+          <div className="flex-1">
             <a className="btn btn-ghost text-xl">Plexscanarr</a>
-          </button>
-        </div>
-        <div className="flex-none">
-          <div></div>
-        </div>
-        <div className="flex-none">
-          <ul className="menu menu-horizontal px-1">
-            <li>
-              <h1 onClick={() => window.open(serverInfo.server_link, '_blank')}>
-                <p className="text-sm font-bold">SERVER:</p> {serverInfo.server}
-              </h1>
-            </li>
-            <li>
-              <h1>
-                <p className="text-sm font-bold">SERVER PLATFORM:</p> {serverInfo.platform}
-              </h1>
-            </li>
-            <li>
-              <h1 onClick={() => window.open('https://forums.plex.tv/t/plex-media-server/30447/10000', '_blank')}>
-                <p className="text-sm font-bold">VERSION:</p> {serverInfo.version}
-              </h1>
-            </li>
-            {serviceInfo.length > 0 ? (
+          </div>
+          <div className="flex-1 flex justify-end">
+            <ul className="menu menu-horizontal px-4 flex items-center space-x-4">
               <li>
-                <div className="dropdown dropdown-bottom font-bold">
-                  <div tabIndex={0} role="button" className="">
-                    <h1>
-                      <p className="text-sm font-bold">SERVICES</p>
-                    </h1>
-                  </div>
-                  <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
-                    {serviceInfo.map((service) => {
-                      return (
-                        <li key={service.instanceName}>
-                          <button
-                            className="text-sm font-bold"
-                            onClick={() => window.open(service['server-root'], '_blank')}
-                          >
-                            {service.instanceName}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                <div>
+                  <p className="text-sm font-bold">SERVER:</p> <span>{serverInfo.server}</span>
                 </div>
               </li>
-            ) : null}
-            <li className="flex flex-row">
-              {serverInfo.scan_active ? (
-                <div className="dropdown dropdown-bottom dropdown-hover">
-                  <div tabIndex={0} role="button" className="text-sm font-bold text-orange-600">
-                    SCANNING
-                  </div>
-                  <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
-                    <li>
-                      <button onClick={() => handleCancelScanClick()} className="text-sm font-bold">
-                        Stop
-                      </button>
-                    </li>
-                  </ul>
+              <li>
+                <div>
+                  <p className="text-sm font-bold">SERVER PLATFORM:</p> <span>{serverInfo.server}</span>
                 </div>
-              ) : (
-                <button className="text-sm font-bold" onClick={() => handleScanClick()}>
-                  SCAN ALL
-                </button>
-              )}
-            </li>
-          </ul>
+              </li>
+              <li>
+                <p onClick={() => window.open('https://forums.plex.tv/t/plex-media-server/30447/10000', '_blank')}>
+                  <p className="text-sm font-bold">VERSION:</p> {serverInfo.version}
+                </p>
+              </li>
+              {serviceInfo.length > 0 ? (
+                <li>
+                  <div className="dropdown dropdown-bottom font-bold">
+                    <div tabIndex={0} role="button" className="">
+                      <p className="text-sm font-bold">SERVICES</p>
+                    </div>
+                    <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
+                      {serviceInfo.map((service) => {
+                        return (
+                          <li key={service.instanceName}>
+                            <button
+                              className="text-sm font-bold"
+                              onClick={() => window.open(service['server-root'], '_blank')}
+                            >
+                              {service.instanceName}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </li>
+              ) : null}
+              <li className="flex flex-row">
+                {serverInfo.scan_active ? (
+                  <div className="dropdown dropdown-bottom dropdown-hover">
+                    <div tabIndex={0} role="button" className="text-sm font-bold text-orange-600">
+                      SCANNING
+                    </div>
+                    <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
+                      <li>
+                        <button onClick={() => handleCancelScanClick()} className="text-sm font-bold">
+                          Stop
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  <button className="text-sm font-bold" onClick={() => handleScanClick()}>
+                    SCAN ALL
+                  </button>
+                )}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-      <main>
+      <div className="flex flex-1">
         <Outlet />
-      </main>
+      </div>
     </div>
   );
 }
