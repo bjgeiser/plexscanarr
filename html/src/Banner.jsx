@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import PlexscanarrIcon from "./img/favicon.png";
+import PlexscanarrIcon from "../img/favicon.png";
 import { useNavigate } from "react-router-dom";
 import { useLibrary } from "./LibraryContext";
 import { REST_URL } from "./main";

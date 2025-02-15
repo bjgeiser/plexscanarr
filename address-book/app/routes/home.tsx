@@ -6,6 +6,18 @@ export default function Home() {
   const { plexMessage, setPlexMessage } = usePlexMessage();
   const logIndexRef = useRef(0);
   const [messageHistory, setMessageHistory] = useState<PlexMessageContextType[]>([]);
+  const notificationRef = useRef(null);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      setHeight(window.innerHeight - notificationRef.current.offsetTop - 10);
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
 
   useEffect(() => {
     console.log('Home useEffect', plexMessage);
@@ -90,17 +102,17 @@ export default function Home() {
   }, [plexMessage]);
 
   return (
-    <div>
-      <h1>Home Page</h1>
-      <div>
-        <h2>WebSocket Messages</h2>
-        <ul>
-          {messageHistory.map((message, index) => (
-            <li key={index}>
-              <Notification notification={message.notification} />
-            </li>
-          ))}
-        </ul>
+    <div
+      ref={notificationRef}
+      style={{ height: height }}
+      className="card bg-neutral ml-5 overflow-x-auto rounded-box grow "
+    >
+      <div className="overflow-hidden hover:resize-y hover:overflow-auto h-full">
+        {messageHistory.map((message, index) => (
+          <li key={index}>
+            <Notification notification={message.notification} />
+          </li>
+        ))}
       </div>
     </div>
   );

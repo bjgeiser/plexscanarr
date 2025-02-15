@@ -53,7 +53,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div id="sidebar">
+      <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
         <h1>
           {/* The icon is in the css h1::before */}
           <div>
@@ -71,12 +71,12 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                 <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
                   {serviceInfo.map((service) => {
                     return (
-                      <li>
+                      <li key={service.instanceName}>
                         <button
                           className="text-sm font-bold"
                           onClick={() => window.open(service['serverRoot'], '_blank')}
                         >
-                          {service['instanceName']}
+                          {service.instanceName}
                         </button>
                       </li>
                     );
