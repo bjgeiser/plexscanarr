@@ -109,9 +109,7 @@ export default function Home() {
     >
       <div className="overflow-hidden hover:resize-y hover:overflow-auto h-full">
         {messageHistory.map((message, index) => (
-          <li key={index}>
-            <Notification notification={message.notification} />
-          </li>
+          <Notification notification={message.notification} />
         ))}
       </div>
     </div>

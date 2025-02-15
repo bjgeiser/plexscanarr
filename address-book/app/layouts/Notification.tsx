@@ -1,13 +1,13 @@
 import { Link } from 'react-router';
 
-import PlexscanarrIcon from '../../public/img/favicon.png';
-import SonarrIcon from '../../public/img/sonarr.png';
-import RadarrIcon from '../../public/img/radarr.png';
-import LidarIcon from '../../public/img/lidarr.png';
-import ReadarrIcon from '../../public/img/readarr.png';
-import BazarrIcon from '../../public/img/bazarr.png';
-import PlexIcon from '../../public/img/plex-logo.svg';
-import NoCoverIcon from '../../public/img/no_cover.png';
+import PlexscanarrIcon from '/img/favicon.png';
+import SonarrIcon from '/img/sonarr.png';
+import RadarrIcon from '/img/radarr.png';
+import LidarIcon from '/img/lidarr.png';
+import ReadarrIcon from '/img/readarr.png';
+import BazarrIcon from '/img/bazarr.png';
+import PlexIcon from '/img/plex-logo.svg';
+import NoCoverIcon from '/img/no_cover.png';
 import type { PlexMessageNotificationType } from '../modules/PlexMessageContext';
 
 function Notification(props: { notification: PlexMessageNotificationType }) {

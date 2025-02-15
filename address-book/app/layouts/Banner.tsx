@@ -1,6 +1,6 @@
 import { Form, Link, Outlet, useNavigation } from 'react-router';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import PlexscanarrIcon from '../../public/img/favicon.png';
+import PlexscanarrIcon from '/img/favicon.png';
 import { useLibrary } from '../modules/LibraryContext';
 import { usePlexMessage } from '../modules/PlexMessageContext';
 import { datalayer } from '../datalayer';
@@ -59,7 +59,7 @@ export function Banner({ loaderData }: Route.ComponentProps) {
       .catch((error) => {
         console.error(error);
       });
-  }, [plexMessage   ]);
+  }, [plexMessage]);
 
   //   useEffect(() => {
   //     console.log('Updating library list: ', libraryState);
