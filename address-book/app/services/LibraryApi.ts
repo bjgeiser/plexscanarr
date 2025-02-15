@@ -136,4 +136,38 @@ export class LibraryApi {
       throw e;
     }
   }
+
+  async startScan(library?: LibraryRecord): Promise<void> {
+    try {
+      let url = library
+        ? `${getBaseUrl().plexUrl.toString()}plex/libraries/${library.key}/scan`
+        : `${getBaseUrl().plexUrl.toString()}plex/libraries/scan`;
+      const response = await fetch(url, { method: 'POST' });
+      if (!response.ok) {
+        console.log(response);
+        throw new Error('Network response was not ok');
+      }
+      console.log('Scan started:', library);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+
+  async cancelScan(library?: LibraryRecord): Promise<void> {
+    try {
+      let url = library
+        ? `${getBaseUrl().plexUrl.toString()}plex/libraries/${library.key}/scan`
+        : `${getBaseUrl().plexUrl.toString()}plex/libraries/scan`;
+      const response = await fetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        console.log(response);
+        throw new Error('Network response was not ok');
+      }
+      console.log('Scan cancelled:', library);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
 }

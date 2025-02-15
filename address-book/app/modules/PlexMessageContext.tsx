@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState, useContext, type ReactNode } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { getBaseUrl } from '../datalayer';
-import type { A } from 'node_modules/react-router/dist/development/route-data-Cq_b5feC.mjs';
 
 enum ArrSource {
   PLEXSCANARR = 'PLEXSCANARR',

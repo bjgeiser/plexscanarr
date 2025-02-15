@@ -3,9 +3,9 @@ import type { Route } from './+types/sidebar';
 import { useLibrary } from '../modules/LibraryContext';
 import { datalayer } from '../datalayer';
 import { useEffect, useState, useRef } from 'react';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { getBaseUrl } from '../datalayer';
 import { type ServerInfo, type ServiceInfo } from '../services/LibraryApi';
+import { usePlexMessage } from '../modules/PlexMessageContext';
 
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   // const { availableLibraries: listOfLibraries } = loaderData;
@@ -14,6 +14,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   const [messageHistory, setMessageHistory] = useState([]); // TODO move this to a context
   const logIndexRef = useRef(0);
   const plexWS = getBaseUrl().plexWS.toString();
+  const plexMessage = usePlexMessage();
   const [serverInfo, setServerInfo] = useState<ServerInfo>({
     server: '',
     platform: '',
@@ -49,7 +50,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  }, [plexMessage]);
 
   return (
     <>
@@ -113,7 +114,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                               <li>
                                 <button
                                   id={'active_' + library.key + '_stop_scanning'}
-                                  onClick={() => handleCanelScanClick(library)}
+                                  onClick={() => datalayer.libraryApi.cancelScan(library)}
                                   className="text-sm font-bold"
                                 >
                                   Stop
@@ -125,7 +126,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                           <button
                             id={'active_' + library.key + '_not_scanning'}
                             className="text-sm font-bold"
-                            onClick={() => handleScanClick(library)}
+                            onClick={() => datalayer.libraryApi.startScan(library)}
                           >
                             Scan
                           </button>

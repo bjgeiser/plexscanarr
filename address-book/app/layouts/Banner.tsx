@@ -2,8 +2,8 @@ import { Form, Link, Outlet, useNavigation } from 'react-router';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import PlexscanarrIcon from '../../public/img/favicon.png';
 import { useLibrary } from '../modules/LibraryContext';
+import { usePlexMessage } from '../modules/PlexMessageContext';
 import { datalayer } from '../datalayer';
-import { data } from 'react-router';
 import type { Route } from './+types/Banner';
 import { type ServerInfo, type ServiceInfo } from '../services/LibraryApi';
 
@@ -12,7 +12,7 @@ export function Banner({ loaderData }: Route.ComponentProps) {
 
   const [serverInfo, setServerInfo] = useState<ServerInfo>({});
   const [serviceInfo, setServiceInfo] = useState<{ instanceName: string; serverRoot: string }[]>([]);
-  const [loading, setLoading] = useState(true);
+  const plexMessage = usePlexMessage();
 
   const handleScanClick = () => {
     console.log('Scan clicked for GLOBAL');
@@ -59,7 +59,7 @@ export function Banner({ loaderData }: Route.ComponentProps) {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  }, [plexMessage   ]);
 
   //   useEffect(() => {
   //     console.log('Updating library list: ', libraryState);
@@ -142,14 +142,14 @@ export function Banner({ loaderData }: Route.ComponentProps) {
                     </div>
                     <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
                       <li>
-                        <button onClick={() => handleCancelScanClick()} className="text-sm font-bold">
+                        <button onClick={() => datalayer.libraryApi.cancelScan()} className="text-sm font-bold">
                           Stop
                         </button>
                       </li>
                     </ul>
                   </div>
                 ) : (
-                  <button className="text-sm font-bold" onClick={() => handleScanClick()}>
+                  <button className="text-sm font-bold" onClick={() => datalayer.libraryApi.startScan()}>
                     SCAN ALL
                   </button>
                 )}
