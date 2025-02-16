@@ -66,8 +66,11 @@ async def main_async(
     app.include_router(plex.router, tags=["Plex"], prefix="/plex")
     app.include_router(plex_websocket.router, tags=["Websocket"])
 
-    app.mount("/static", StaticFiles(directory="web/files"), name="static")
-    templates = Jinja2Templates(directory="html/dist")
+    static_path = pathlib.Path("address-book/build/client")
+    app.mount("/assets", StaticFiles(directory=f"{static_path}/assets"), name="assets")
+    app.mount("/static", StaticFiles(directory=static_path), name="static")
+    app.mount("/img", StaticFiles(directory=static_path / "img"), name="static")
+    templates = Jinja2Templates(directory=static_path)
 
     # Load of the static page for the default route
     @app.get("/{full_path:path}")

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 
-
 import Notification from "./Notification";
 
 function Notifications(props) {
@@ -12,9 +11,10 @@ function Notifications(props) {
       <div className="overflow-hidden hover:resize-y hover:overflow-auto h-full">
         {messageHistory.map((message) => {
           const notification = message.notification;
-          return (
-            <Notification notification={notification} />
-          )})}
+            return (
+            <Notification notification={notification} />)
+          </div>;
+        })}
       </div>
     </div>
   );

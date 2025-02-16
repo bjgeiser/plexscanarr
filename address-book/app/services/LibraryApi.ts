@@ -39,7 +39,9 @@ export class LibraryApi {
     const url = options?.key
       ? `${getBaseUrl().plexUrl.toString()}plex/libraries?key=${options.key}`
       : `${getBaseUrl().plexUrl.toString()}plex/libraries`;
+    console.log('url:', url);
     const response = await fetch(url);
+    console.log('response', response);
     if (!response.ok) {
       console.log(response);
       throw new Error('Network response was not ok');
@@ -54,6 +56,7 @@ export class LibraryApi {
 
     // const url = `${getBaseUrl().plexUrl.toString()}plex/libraries`;
     let url = `${getBaseUrl().plexUrl.toString()}plex/libraries/${key}/details`;
+    console.log('url:', url);
     const response = await fetch(url);
     if (!response.ok) {
       console.log(response);
@@ -95,6 +98,7 @@ export class LibraryApi {
   async getServerInfo(): Promise<ServerInfo> {
     try {
       let url = `${getBaseUrl().plexUrl.toString()}plex/info`;
+      console.log('url:', url);
       const response = await fetch(url);
       if (!response.ok) {
         console.log(response);
@@ -112,6 +116,7 @@ export class LibraryApi {
   async getServiceInfo(): Promise<ServiceInfo[]> {
     try {
       let url = `${getBaseUrl().plexUrl.toString()}services`;
+      console.log('url:', url);
       const response = await fetch(url);
       if (!response.ok) {
         console.log(response);
@@ -131,6 +136,7 @@ export class LibraryApi {
       let url = library
         ? `${getBaseUrl().plexUrl.toString()}plex/libraries/${library.key}/scan`
         : `${getBaseUrl().plexUrl.toString()}plex/libraries/scan`;
+      console.log('url:', url);
       const response = await fetch(url, { method: 'POST' });
       if (!response.ok) {
         console.log(response);
@@ -148,6 +154,7 @@ export class LibraryApi {
       let url = library
         ? `${getBaseUrl().plexUrl.toString()}plex/libraries/${library.key}/scan`
         : `${getBaseUrl().plexUrl.toString()}plex/libraries/scan`;
+      console.log('url:', url);
       const response = await fetch(url, { method: 'DELETE' });
       if (!response.ok) {
         console.log(response);

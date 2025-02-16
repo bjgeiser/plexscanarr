@@ -42,19 +42,23 @@ export function Banner({ loaderData }: Route.ComponentProps) {
   };
 
   useEffect(() => {
-    console.log('Child component mounted or updated');
-    datalayer.libraryApi
-      .getServerInfo()
-      .then((data) => {
-        setServerInfo(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    console.log('Banner - load');
     datalayer.libraryApi
       .getServiceInfo()
       .then((data) => {
         setServiceInfo(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    console.log('Banner - new plex msg:', plexMessage);
+    datalayer.libraryApi
+      .getServerInfo()
+      .then((data) => {
+        setServerInfo(data);
       })
       .catch((error) => {
         console.error(error);
@@ -86,7 +90,7 @@ export function Banner({ loaderData }: Route.ComponentProps) {
           </div>
           <div className="flex-1">
             <Link to="/" className="text-sm font-bold">
-              <a className="btn btn-ghost text-xl">Plexscanarr</a>
+              <p className="btn btn-ghost text-xl">Plexscanarr</p>
             </Link>
           </div>
           <div className="flex-none">

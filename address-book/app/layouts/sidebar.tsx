@@ -34,22 +34,6 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
       .catch((error) => {
         console.error(error);
       });
-    datalayer.libraryApi
-      .getServerInfo()
-      .then((data) => {
-        setServerInfo(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    datalayer.libraryApi
-      .getServiceInfo()
-      .then((data) => {
-        setServiceInfo(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
   }, [plexMessage]);
 
   return (
@@ -81,10 +65,19 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                             className="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow"
                           >
                             <li>
-                              <Link to={`library/${library.path}`}>Open Details</Link>
+                              <Link
+                                to={`library/${library.path}`}
+                                onClick={() => (document.activeElement as HTMLElement)?.blur()}
+                              >
+                                Open Details
+                              </Link>
                             </li>
                             <li>
-                              <Link to={library.server_link} target="_blank" rel="noopener noreferrer">
+                              <Link
+                                to={library.server_link}
+                                target="_blank"
+                                onClick={() => (document.activeElement as HTMLElement)?.blur()}
+                              >
                                 Open on Plex Server
                               </Link>
                             </li>
