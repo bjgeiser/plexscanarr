@@ -1,5 +1,4 @@
 import type { Route } from './+types/library';
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
 import { datalayer } from '../datalayer';
 import type { LibraryDetails } from '../services/LibraryApi';
@@ -16,73 +15,48 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 
 export default function Library({ loaderData }: Route.ComponentProps) {
   const libraryDetails: LibraryDetails[] = loaderData.libraryData;
-  const [data, _setData] = useState(() => [...libraryDetails]);
-  const rerender = useReducer(() => ({}), {})[1];
-
-  const columnHelper = createColumnHelper<LibraryDetails>();
-
-  const columns = [
-    columnHelper.accessor('title', {
-      header: () => 'Type',
-      cell: (info) => info.getValue(),
-      footer: (info) => info.column.id,
-    }),
-    columnHelper.accessor('type', {
-      header: () => 'Type',
-      cell: (info) => info.renderValue(),
-      footer: (info) => info.column.id,
-    }),
-    columnHelper.accessor('year', {
-      header: () => <span>Year</span>,
-      footer: (info) => info.column.id,
-    }),
-  ];
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   return (
-    <div className="p-2">
-      <table>
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          {table.getFooterGroups().map((footerGroup) => (
-            <tr key={footerGroup.id}>
-              {footerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.footer, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </tfoot>
-      </table>
-      <div className="h-4" />
-      <button onClick={() => rerender()} className="border p-2">
-        Rerender
-      </button>
-    </div>
+    <>
+      <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
+        <div>
+          {Array.isArray(libraryDetails) && libraryDetails.length > 0 ? (
+            <table className="table-sm">
+              <thead>
+                <tr className="text-left text-orange-300 text-sm">
+                  <th>Title</th>
+                  <th>Year</th>
+                  <th>Scan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {libraryDetails.map((detail) => {
+                  //console.log("Library:", library);
+                  return (
+                    <tr key={detail.key}>
+                      <td>
+                        <div className="dropdown dropdown-hover font-bold">
+                          <div tabIndex={0} role="button" className="">
+                            {detail.title}
+                          </div>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow"
+                          ></ul>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="font-medium">{detail.year}</div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div>No libraries available.</div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }

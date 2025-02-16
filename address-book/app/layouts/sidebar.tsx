@@ -84,7 +84,9 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                               <Link to={`library/${library.id}`}>Open Details</Link>
                             </li>
                             <li>
-                              <a onClick={() => window.open(library.server_link, '_blank')}>Open on Plex Server</a>
+                              <Link to={library.server_link} target="_blank" rel="noopener noreferrer">
+                                Open on Plex Server
+                              </Link>
                             </li>
                           </ul>
                         </div>
