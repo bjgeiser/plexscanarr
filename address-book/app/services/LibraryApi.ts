@@ -5,6 +5,8 @@ export type LibraryDetails = {
   key: string;
   type: string;
   year: number;
+  locations: string[];
+  size: number;
 };
 
 export type LibraryRecord = {
@@ -67,12 +69,7 @@ export class LibraryApi {
     }
 
     const data = await response.json();
-    return data.map((item: LibraryDetails) => ({
-      title: item.title,
-      key: item.key,
-      type: item.type,
-      year: item.year,
-    }));
+    return data;
   }
 
   async getLibrariesAll(): Promise<LibraryRecord[]> {

@@ -25,7 +25,8 @@ export default function Library({ loaderData }: Route.ComponentProps) {
                 <tr className="text-left text-orange-300 text-sm">
                   <th>Title</th>
                   <th>Year</th>
-                  <th>Scan</th>
+                  <th>Locations</th>
+                  <th>Size (GB)</th>
                 </tr>
               </thead>
               <tbody>
@@ -46,6 +47,12 @@ export default function Library({ loaderData }: Route.ComponentProps) {
                       </td>
                       <td>
                         <div className="font-medium">{detail.year}</div>
+                      </td>
+                      <td>
+                        <div className="font-medium">{detail.locations.join(', ')}</div>
+                      </td>
+                      <td>
+                        <div className="font-medium">{(detail.size / 1e9).toFixed(2)}</div>
                       </td>
                     </tr>
                   );
