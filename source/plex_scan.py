@@ -168,18 +168,12 @@ class PlexScan(cfa.Routable):
             #     # for letter in alphabet_list:
             items = section.search()
             for item in items:
-                size = 0
-                for media in item.media:
-                    for part in media.parts:
-                        size += part.size
                 return_list.append(
                     {
                         "title": item.title,
                         "year": item.year if hasattr(item, "year") else "None",
                         "key": item.ratingKey,  # Use this instead of key so we can scan directly
                         "type": item.type,
-                        "locations": item.locations,
-                        "size": size,
                     }
                 )
         except plexapi.exceptions.NotFound:

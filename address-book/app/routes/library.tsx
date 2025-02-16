@@ -5,7 +5,7 @@ import type { LibraryDetails } from '../services/LibraryApi';
 import { useEffect, useState, useReducer } from 'react';
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const library = await datalayer.libraryApi.getLibraryByName(params.libraryId);
+  const library = await datalayer.libraryApi.getLibraryByPath(params.libraryPath);
   if (!library) {
     throw new Response('Not Found', { status: 404 });
   }
@@ -47,12 +47,6 @@ export default function Library({ loaderData }: Route.ComponentProps) {
                       </td>
                       <td>
                         <div className="font-medium">{detail.year}</div>
-                      </td>
-                      <td>
-                        <div className="font-medium">{detail.locations.join(', ')}</div>
-                      </td>
-                      <td>
-                        <div className="font-medium">{(detail.size / 1e9).toFixed(2)}</div>
                       </td>
                     </tr>
                   );

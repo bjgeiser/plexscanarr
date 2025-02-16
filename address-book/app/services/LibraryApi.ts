@@ -5,18 +5,18 @@ export type LibraryDetails = {
   key: string;
   type: string;
   year: number;
-  locations: string[];
-  size: number;
+  locations?: string[];
+  size?: number;
 };
 
 export type LibraryRecord = {
-  id: string;
+  path: string;
   name: string;
   key: string;
   type: string;
   scan_active: boolean;
   server_link: string;
-  locations: string[];
+  locations?: string[];
 };
 
 export type ServerInfo = {
@@ -46,15 +46,7 @@ export class LibraryApi {
     }
 
     const data = await response.json();
-    return data.map((item: LibraryRecord) => ({
-      id: item.name.toLowerCase().split(' ').join('_'),
-      name: item.name,
-      key: item.key,
-      type: item.type,
-      scan_active: item.scan_active,
-      server_link: item.server_link,
-      locations: item.locations,
-    }));
+    return data;
   }
 
   async getPlexLibraryDetails(key: string): Promise<LibraryRecord[]> {
@@ -86,9 +78,9 @@ export class LibraryApi {
     return library[0] || null;
   }
 
-  async getLibraryByName(id: string): Promise<LibraryRecord | null> {
+  async getLibraryByPath(path: string): Promise<LibraryRecord | null> {
     const library = await this.getPlexLibrary();
-    const foundLibrary = library.find((lib) => lib.id === id);
+    const foundLibrary = library.find((lib) => lib.path === path);
     if (foundLibrary) {
       return foundLibrary;
     }

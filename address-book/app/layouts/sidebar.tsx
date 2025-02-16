@@ -81,7 +81,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                             className="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow"
                           >
                             <li>
-                              <Link to={`library/${library.id}`}>Open Details</Link>
+                              <Link to={`library/${library.path}`}>Open Details</Link>
                             </li>
                             <li>
                               <Link to={library.server_link} target="_blank" rel="noopener noreferrer">
@@ -95,7 +95,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                         <div className="font-medium">{library.type}</div>
                       </td>
                       <td>
-                        {library.locations.map((loc, index) => (
+                        {library.locations.map((loc: string, index: number) => (
                           <div key={index} className="text-sm opacity-50">
                             {loc}
                           </div>

@@ -1,13 +1,14 @@
 import React, { createContext, useState, useContext, type ReactNode } from 'react';
 
-export type LibraryContextType = {
+export type LibraryRecord = {
   id: string;
   name: string;
   key: string;
   type: string;
   scan_active: boolean;
   server_link: string;
-  locations: string[];
+  locations?: string[];
+  path?: string;
 };
 
 // Create the context
