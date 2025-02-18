@@ -1,24 +1,22 @@
-FROM --platform=linux/amd64 ubuntu:22.04 as react_builder
+# FROM --platform=linux/amd64 ubuntu:22.04 as react_builder
+FROM node:23-alpine as react_builder
 
-WORKDIR /html_build
-COPY /html/. .
+WORKDIR /web
+COPY /web/. .
 
-RUN apt update && apt install -y dos2unix wget xz-utils
+RUN npm install
+RUN npm run build
 
-RUN ./build-page.sh
-
-FROM python:3.13
-
+FROM ghcr.io/astral-sh/uv:python3.13-alpine
 #set the working directory to /bright/
+RUN apk add --no-cache gcc python3-dev musl-dev linux-headers
 WORKDIR /plexscanarr
 COPY VERSION pyproject.toml /plexscanarr/
 #COPY web /plexscanarr/web
-COPY --from=react_builder /html_build/dist/index.html /plexscanarr/html/dist/index.html
+COPY --from=react_builder /web /plexscanarr/web
 COPY source /plexscanarr/source
-COPY web /plexscanarr/web
 
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:$PATH"
+# RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 RUN uv pip install --system -e .
 
 

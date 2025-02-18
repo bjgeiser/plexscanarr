@@ -14,7 +14,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
-from fastapi.templating import Jinja2Templates
 from fastapi.responses import FileResponse
 
 
@@ -70,7 +69,6 @@ async def main_async(
     app.mount("/assets", StaticFiles(directory=static_path / "assets"), name="assets")
     # app.mount("/static", StaticFiles(directory=static_path), name="static")
     app.mount("/img", StaticFiles(directory=static_path / "img"), name="static")
-    templates = Jinja2Templates(directory=static_path)
 
     @app.get("/favicon.ico")
     def favicon():
