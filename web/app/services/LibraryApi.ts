@@ -28,8 +28,8 @@ export type ServerInfo = {
 };
 
 export type ServiceInfo = {
-  instanceName: string;
-  serverRoot: string;
+  instance_name: string;
+  server_root: string;
 };
 
 export class LibraryApi {

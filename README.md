@@ -16,46 +16,60 @@ Create `config.yaml` as defined below.
 ### Sample `config.yaml`
 ```yaml
 # required
-plex-server: http://{plexserver}:32400
+plex_server: http://{plexserver}:32400
 
 # optional
 # some plex servers require tokens to access, such as those with multiple local users
 # https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
-plex-token: replace with token
+plex_token: replace with token
 
 # optional
 # if your xxarr software uses different file paths for plex and downloads enter conversions here
-path-converters:
+path_converters:
   # UNC windows path to posix path
-  - download-path: \\10.0.1.1\
-    plex-path: /mnt/nas/
+  - download_path: \\10.0.1.1\
+    plex_path: /mnt/nas/
   # windows path to posix path  
-  - download-path: C:\Videos\
-    plex-path: /mnt/media/Videos
+  - download_path: C:\Videos\
+    plex_path: /mnt/media/Videos
   # windows path to windows path  
-  - download-path: C:\Videos\
-    plex-path: T:\
+  - download_path: C:\Videos\
+    plex_path: T:\
   # posix path to posix path  
-  - download-path: /mnt/downloads/TV
-    plex-path: /mnt/media/TV
+  - download_path: /mnt/downloads/TV
+    plex_path: /mnt/media/TV
+
+# optional
+# note: instance names are settable the general settings for arr apps if you allow for advanced options
+arr_paths:
+  - instance_name: Sonarr
+    server_root: http://sonarr.domain.com
+  - instance_name: Sonarr 4K
+    server_root: http://192.162.1.26:8000/
+  - instance_name: Radarr
+    server_root: http://radarr.domain.net:1000
+  - instance_name: Lidarr
+    server_root: http://lidarr.domain.com
+  - instance_name: Readarr
+    server_root: http://readarr.domain.com
 
 # optional
 # server port, will default to 5000
-#port: 5000
+port: 5000
 
 # optional
 # listen address, will default to 0.0.0.0 (any address)
-#listen-address: 127.0.0.1
+listen_address: 127.0.0.1
 
 # optional
 # Allow webhook events to cancel a currently active scan in order to scan new media faster 
 # default: false
-#preempt-active-scan: true
+preempt_active_scan: true
 
 # optional
 # Turn on verbose logging
 # default: false
-#verbose: true
+verbose: true
 ```
 
 ### Sample `docker-compose.yaml`

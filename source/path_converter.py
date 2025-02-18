@@ -3,6 +3,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
+
 class PathConverter:
     def __init__(self, config):
         self.config = config
@@ -23,10 +24,10 @@ class PathConverter:
             return path.replace("\\", "/")
 
     def convert(self, notification_path):
-        if self.config.get('path-converters'):
-            for convertPath in self.config['path-converters']:
-                download_path = self.normalizeFolders(convertPath['download-path'])
-                plex_path = self.normalizeFolders(convertPath['plex-path'])
+        if self.config.get("path_converters"):
+            for convertPath in self.config["path_converters"]:
+                download_path = self.normalizeFolders(convertPath["download_path"])
+                plex_path = self.normalizeFolders(convertPath["plex_path"])
 
                 if notification_path.startswith(download_path):
                     remaining_path = notification_path.replace(download_path, "")

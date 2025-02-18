@@ -47,14 +47,14 @@ async def main_async(
 
     plex_websocket = PlexWebsocket(handle_rx=None)
     path_converter = PathConverter(config)
-    plex_server = config.get("plex-server")
-    plex_token = config.get("plex-token")
-    preempt_active_scan = config.get("preempt-active-scan", False)
+    plex_server = config.get("plex_server")
+    plex_token = config.get("plex_token")
+    preempt_active_scan = config.get("preempt_active_scan", False)
     plex = PlexScan(
         server=plex_server, token=plex_token, plex_websocket=plex_websocket, preempt_active_scan=preempt_active_scan
     )
 
-    arr_lookup = config.get("arr-paths")
+    arr_lookup = config.get("arr_paths")
 
     arr_webhook = ArrWebhook(
         plex=plex, path_converter=path_converter, plex_websocket=plex_websocket, link_lookup=arr_lookup
@@ -88,7 +88,7 @@ async def main_async(
     )
 
     webserver_port = config.get("port", 5000)
-    host = config.get("listen-address", "0.0.0.0")
+    host = config.get("listen_address", "0.0.0.0")
     config = uvicorn.Config(app=app, host=host, port=webserver_port, log_level=log_level.lower())
     server = uvicorn.Server(config=config)
 
