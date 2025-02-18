@@ -137,7 +137,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
           )}
         </div>
       </div>
-      <div className={"flex w-full h-max-content mr-5 ml-5 mt-5 bg-black rounded-box"} id="detail">
+      <div className={"flex w-full h-max-content mr-5 ml-5 mt-5 bg-accent-content  rounded-box"} id="detail">
         <div className={navigation.state === 'loading' ? 'flex w-full items-center justify-center' : 'flex w-full items-start'}>
           <div className={navigation.state === 'loading' ? "" : "hidden "  + ""}>
             <span className="loading loading-bars loading-lg"></span>
