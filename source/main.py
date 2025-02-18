@@ -66,7 +66,7 @@ async def main_async(
     app.include_router(plex.router, tags=["Plex"], prefix="/plex")
     app.include_router(plex_websocket.router, tags=["Websocket"])
 
-    static_path = pathlib.Path("address-book/build/client")
+    static_path = pathlib.Path("web/build/client")
     app.mount("/assets", StaticFiles(directory=static_path / "assets"), name="assets")
     # app.mount("/static", StaticFiles(directory=static_path), name="static")
     app.mount("/img", StaticFiles(directory=static_path / "img"), name="static")
