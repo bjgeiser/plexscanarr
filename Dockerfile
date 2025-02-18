@@ -19,6 +19,5 @@ COPY source /plexscanarr/source
 # RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 RUN uv pip install --system -e .
 
-
 EXPOSE 5000
 ENTRYPOINT ["python", "/plexscanarr/source/main.py"]
