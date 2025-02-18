@@ -2,8 +2,8 @@ import { Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-
 import type { Route } from './+types/root';
 import { LibraryProvider } from './modules/LibraryContext';
 import { PlexMessageProvider } from './modules/PlexMessageContext';
-// import appStylesHref from './app.css?url';
 import './main.css';
+import appStylesHref from './main.css?url';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import Banner from './layouts/Banner';
 
@@ -39,7 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         {/* <meta name="viewport" content="width=device-width, initial-scale=1" /> */}
-        {/* <link rel="stylesheet" href={appStylesHref} /> */}
+        <link rel="stylesheet" href={appStylesHref} />
       </head>
       <body>
         {children}

@@ -14,8 +14,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
-from starlette.templating import _TemplateResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.INFO)
@@ -74,13 +74,13 @@ async def main_async(
 
     @app.get("/favicon.ico")
     def favicon():
-        return {"file": static_path / "favicon.ico"}
+        return FileResponse(static_path / "favicon.ico")
 
     # Load of the static page for the default route
     @app.get("/{full_path:path}")
-    def index(request: Request) -> _TemplateResponse:
-        # return FileResponse(static_path / "index.html")
-        return templates.TemplateResponse("index.html", {"request": request})
+    def index(request: Request) -> FileResponse:
+        return FileResponse(static_path / "index.html")
+        # return templates.TemplateResponse("index.html", {"request": request})
 
     app.add_middleware(
         CORSMiddleware,
