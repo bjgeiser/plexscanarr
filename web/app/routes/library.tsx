@@ -17,7 +17,7 @@ export default function Library({ loaderData }: Route.ComponentProps) {
   const libraryDetails: LibraryDetails[] = loaderData.libraryData;
   return (
     <>
-      <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
+      <div className="card bg-black p-2 h-fit h-max-fit place-items-center">
         <div>
           {Array.isArray(libraryDetails) && libraryDetails.length > 0 ? (
             <table className="table-sm">

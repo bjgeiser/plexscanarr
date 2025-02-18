@@ -105,7 +105,7 @@ export default function Home() {
     <div
       ref={notificationRef}
       style={{ height: height }}
-      className="card bg-neutral ml-5 overflow-x-auto rounded-box grow "
+      className="card bg-neutral overflow-x-auto rounded-box grow "
     >
       <div className="overflow-hidden hover:resize-y hover:overflow-auto h-full">
         {messageHistory.map((message, index) => (

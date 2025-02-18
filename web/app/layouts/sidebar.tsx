@@ -38,7 +38,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit place-items-center">
+      <div className="card bg-base-300 rounded-box h-fit  h-max-fit w-fit mt-5 ml-5 place-items-center">
         <div>
           {Array.isArray(libraryState) && libraryState.length > 0 ? (
             <table className="table-sm">
@@ -137,8 +137,15 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
           )}
         </div>
       </div>
-      <div className={navigation.state === 'loading' ? 'loading' : ''} id="detail">
-        <Outlet />
+      <div className={"flex w-full h-max-content mr-5 ml-5 mt-5 bg-black rounded-box"} id="detail">
+        <div className={navigation.state === 'loading' ? 'flex w-full items-center justify-center' : 'flex w-full items-start'}>
+          <div className={navigation.state === 'loading' ? "" : "hidden "  + ""}>
+            <span className="loading loading-bars loading-lg"></span>
+          </div>
+          <div className={navigation.state === 'loading' ? "hidden" : "flex w-full"}>
+              <Outlet/>
+          </div>
+        </div>
       </div>
     </>
   );
