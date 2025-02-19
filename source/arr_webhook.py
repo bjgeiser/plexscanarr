@@ -32,8 +32,8 @@ class ArrWebhook(cfa.Routable):
     def get_arr_service_path(self, instance_name: str) -> str | None:
         if self.link_lookup:
             for entry in self.link_lookup:
-                if entry["instanceName"] == instance_name:
-                    return entry["serverRoot"].rstrip("/")
+                if entry["instance_name"] == instance_name:
+                    return entry["server_root"].rstrip("/")
         return None
 
     def build_notification(
@@ -44,7 +44,7 @@ class ArrWebhook(cfa.Routable):
         file_size = None
         arr_notification = None
 
-        server_root = self.get_arr_service_path(notification["instanceName"])
+        server_root = self.get_arr_service_path(notification["instance_name"])
         content_link = server_root
 
         try:
@@ -90,7 +90,7 @@ class ArrWebhook(cfa.Routable):
                 arr_type=arr_type,
                 type=ArrSource.SONARR,
                 cover_art_url=cover_art_url,
-                server_name=notification["instanceName"],
+                server_name=notification["instance_name"],
                 timestamp=datetime.datetime.now(datetime.UTC),
                 pretty_name=f"s{notification['episodes'][0]['seasonNumber']:02d}e{notification['episodes'][0]['episodeNumber']:02d} - {notification['series']['title']} - {notification['episodes'][0]['title']}",
                 original_json=notification,
@@ -120,7 +120,7 @@ class ArrWebhook(cfa.Routable):
                 arr_type=arr_type,
                 type=ArrSource.RADARR,
                 cover_art_url=cover_art_url,
-                server_name=notification["instanceName"],
+                server_name=notification["instance_name"],
                 timestamp=datetime.datetime.now(datetime.UTC),
                 pretty_name=f"{notification['movie']['title']}",
                 original_json=notification,
@@ -143,7 +143,7 @@ class ArrWebhook(cfa.Routable):
                 arr_type=arr_type,
                 type=ArrSource.LIDARR,
                 cover_art_url=cover_art_url,
-                server_name=notification["instanceName"],
+                server_name=notification["instance_name"],
                 timestamp=datetime.datetime.now(datetime.UTC),
                 pretty_name=f"{notification['artist']['name']}",
                 original_json=notification,
@@ -170,7 +170,7 @@ class ArrWebhook(cfa.Routable):
                 arr_type=arr_type,
                 type=ArrSource.READARR,
                 cover_art_url=cover_art_url,
-                server_name=notification["instanceName"],
+                server_name=notification["instance_name"],
                 timestamp=datetime.datetime.now(datetime.UTC),
                 pretty_name=f"{author_name} - {book_str}",
                 original_json=notification,
