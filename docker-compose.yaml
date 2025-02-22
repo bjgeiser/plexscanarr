@@ -4,6 +4,6 @@ services:
     build: .
     restart: always
     ports:
-      - 5000:5000
+      - 5003:5002
     volumes:
       - ./config.yaml:/plexscanarr/config.yaml
