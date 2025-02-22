@@ -28,7 +28,7 @@ export type ServerInfo = {
 };
 
 export type ServiceInfo = {
-  instance_name: string;
+  instanceName: string;
   server_root: string;
 };
 

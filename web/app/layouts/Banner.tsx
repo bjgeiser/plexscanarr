@@ -11,7 +11,7 @@ export function Banner({ loaderData }: Route.ComponentProps) {
   const { libraryState } = useLibrary();
 
   const [serverInfo, setServerInfo] = useState<ServerInfo>({});
-  const [serviceInfo, setServiceInfo] = useState<{ instance_name: string; server_root: string }[]>([]);
+  const [serviceInfo, setServiceInfo] = useState<{ instanceName: string; server_root: string }[]>([]);
   const plexMessage = usePlexMessage();
 
   const handleScanClick = () => {
@@ -127,9 +127,9 @@ export function Banner({ loaderData }: Route.ComponentProps) {
                     <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
                       {serviceInfo.map((service) => {
                         return (
-                          <li key={service.instance_name}>
+                          <li key={service.instanceName}>
                             <Link to={service.server_root} target="_blank" className="text-sm font-bold">
-                              {service.instance_name}
+                              {service.instanceName}
                             </Link>
                           </li>
                         );
