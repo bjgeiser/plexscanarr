@@ -32,37 +32,36 @@ class ArrWebhook(cfa.Routable):
     def get_arr_service_path(self, instance_name: str) -> str | None:
         if self.link_lookup:
             for entry in self.link_lookup:
-                if entry["instance_name"] == instance_name:
+                if entry["arr_instance_name"] == instance_name:
                     return entry["server_root"].rstrip("/")
         return None
 
     def build_notification(
-        self, arr_type: str, notification: dict, agent: str, arr_path: str, scan_started: bool
+        self, arr_type: str, arr_payload: dict, agent: str, arr_path: str, scan_started: bool
     ) -> ArrNotificationModel:
         cover_art_url = None
         release_title = None
         file_size = None
         arr_notification = None
 
-        server_root = self.get_arr_service_path(notification["instanceName"])
-        content_link = server_root
-
         try:
-            release_title = notification["release"]["releaseTitle"]
-            file_size = self.human_readable_size(notification["release"]["size"])
+            server_root = self.get_arr_service_path(arr_payload["instanceName"])
+            content_link = server_root
+            release_title = arr_payload["release"]["releaseTitle"]
+            file_size = self.human_readable_size(arr_payload["release"]["size"])
         except KeyError:
             pass
 
-        if agent.startswith("Apprise") and notification["title"].startswith("Bazarr"):
+        if agent.startswith("Apprise") and arr_payload["title"].startswith("Bazarr"):
             arr_notification = ArrNotificationModel(
-                file_path=f"{notification['message']}",
+                file_path=f"{arr_payload['message']}",
                 type=ArrSource.BAZARR,
                 cover_art_url=cover_art_url,
                 server_name="Bazarr",
                 arr_type=arr_type,
                 timestamp=datetime.datetime.now(datetime.UTC),
-                pretty_name=f"{notification['title']}",
-                original_json=notification,
+                pretty_name=f"{arr_payload['title']}",
+                original_json=arr_payload,
                 release_title=release_title,
                 file_size=file_size,
                 service_link=server_root,
@@ -70,9 +69,9 @@ class ArrWebhook(cfa.Routable):
                 scan_started=scan_started,
             )
 
-        elif agent.startswith("Sonarr") and notification.get("series"):
+        elif agent.startswith("Sonarr") and arr_payload.get("series"):
             try:
-                for image in notification["series"]["images"]:
+                for image in arr_payload["series"]["images"]:
                     if image["coverType"] == "poster":
                         cover_art_url = image.get("remoteUrl")
                         break
@@ -80,7 +79,7 @@ class ArrWebhook(cfa.Routable):
                 pass
 
             try:
-                content_link = f"{server_root}/series/{notification['series'].get('titleSlug', '')}"
+                content_link = f"{server_root}/series/{arr_payload['series']['titleSlug']}"
             except Exception as e:
                 logger.exception(e)
                 pass
@@ -90,19 +89,19 @@ class ArrWebhook(cfa.Routable):
                 arr_type=arr_type,
                 type=ArrSource.SONARR,
                 cover_art_url=cover_art_url,
-                    server_name=notification["instanceName"],
+                server_name=arr_payload["instanceName"],
                 timestamp=datetime.datetime.now(datetime.UTC),
-                pretty_name=f"s{notification['episodes'][0]['seasonNumber']:02d}e{notification['episodes'][0]['episodeNumber']:02d} - {notification['series']['title']} - {notification['episodes'][0]['title']}",
-                original_json=notification,
+                pretty_name=f"s{arr_payload['episodes'][0]['seasonNumber']:02d}e{arr_payload['episodes'][0]['episodeNumber']:02d} - {arr_payload['series']['title']} - {arr_payload['episodes'][0]['title']}",
+                original_json=arr_payload,
                 release_title=release_title,
                 file_size=file_size,
                 service_link=server_root,
                 content_link=content_link,
                 scan_started=scan_started,
             )
-        elif agent.startswith("Radarr") and notification.get("movie"):
+        elif agent.startswith("Radarr") and arr_payload.get("movie"):
             try:
-                for image in notification["movie"]["images"]:
+                for image in arr_payload["movie"]["images"]:
                     if image["coverType"] == "poster":
                         cover_art_url = image.get("remoteUrl")
                         break
@@ -110,7 +109,7 @@ class ArrWebhook(cfa.Routable):
                 pass
 
             try:
-                content_link = f"{server_root}/movie/{notification['movie']['tmdbId']}"
+                content_link = f"{server_root}/movie/{arr_payload['movie']['tmdbId']}"
             except Exception as e:
                 logger.exception(e)
                 pass
@@ -120,10 +119,10 @@ class ArrWebhook(cfa.Routable):
                 arr_type=arr_type,
                 type=ArrSource.RADARR,
                 cover_art_url=cover_art_url,
-                server_name=notification["instance_name"],
+                server_name=arr_payload["instanceName"],
                 timestamp=datetime.datetime.now(datetime.UTC),
-                pretty_name=f"{notification['movie']['title']}",
-                original_json=notification,
+                pretty_name=f"{arr_payload['movie']['title']}",
+                original_json=arr_payload,
                 release_title=release_title,
                 file_size=file_size,
                 service_link=server_root,
@@ -131,10 +130,10 @@ class ArrWebhook(cfa.Routable):
                 scan_started=scan_started,
             )
 
-        elif agent.startswith("Lidarr") and notification.get("artist"):
+        elif agent.startswith("Lidarr") and arr_payload.get("artist"):
             try:
-                release_title = notification["trackFile"]["path"]
-                file_size = self.human_readable_size(notification["trackFile"]["size"])
+                release_title = arr_payload["trackFile"]["path"]
+                file_size = self.human_readable_size(arr_payload["trackFile"]["size"])
             except KeyError:
                 pass
 
@@ -143,10 +142,10 @@ class ArrWebhook(cfa.Routable):
                 arr_type=arr_type,
                 type=ArrSource.LIDARR,
                 cover_art_url=cover_art_url,
-                server_name=notification["instance_name"],
+                server_name=arr_payload["instanceName"],
                 timestamp=datetime.datetime.now(datetime.UTC),
-                pretty_name=f"{notification['artist']['name']}",
-                original_json=notification,
+                pretty_name=f"{arr_payload['artist']['name']}",
+                original_json=arr_payload,
                 release_title=release_title,
                 file_size=file_size,
                 service_link=server_root,
@@ -154,12 +153,12 @@ class ArrWebhook(cfa.Routable):
                 scan_started=scan_started,
             )
 
-        elif agent.startswith("Readarr") and notification.get("author"):
+        elif agent.startswith("Readarr") and arr_payload.get("author"):
             try:
-                release_title = notification["author"]["path"]
-                author_name = notification["author"]["name"]
+                release_title = arr_payload["author"]["path"]
+                author_name = arr_payload["author"]["name"]
                 book_str = ""
-                for books in notification["books"]:
+                for books in arr_payload["books"]:
                     book_str += f"{', ' if len(book_str) else ''}{books['title']}"
                 # file_size = self.human_readable_size(notification["trackFile"]["size"])
             except KeyError:
@@ -170,10 +169,10 @@ class ArrWebhook(cfa.Routable):
                 arr_type=arr_type,
                 type=ArrSource.READARR,
                 cover_art_url=cover_art_url,
-                server_name=notification["instance_name"],
+                server_name=arr_payload["instanceName"],
                 timestamp=datetime.datetime.now(datetime.UTC),
                 pretty_name=f"{author_name} - {book_str}",
-                original_json=notification,
+                original_json=arr_payload,
                 release_title=release_title,
                 file_size=file_size,
                 service_link=server_root,
@@ -184,30 +183,30 @@ class ArrWebhook(cfa.Routable):
         return arr_notification
 
     @cfa.post("/")
-    async def webhook_handler(self, request: Request, notification: dict = Body(...)):
-        logger.debug(f"Received webhook request: {notification}")
+    async def webhook_handler(self, request: Request, arr_payload: dict = Body(...)):
+        logger.debug(f"Received webhook request: {arr_payload}")
         agent = request.headers.get("user-agent")
         # address = request.client
-        event_type = notification.get("eventType", "Unknown")
+        event_type = arr_payload.get("eventType", "Unknown")
         logger.info(f"Rx Event {event_type} from {agent} at {request.scope['client']} ")
         arr_path = None
         ignored_event_types = ["Grab"]
         scan_started = False
 
-        if event_type == "Unknown" and notification.get("path"):
-            arr_path = await self.plex.scan_path(notification["path"])
+        if event_type == "Unknown" and arr_payload.get("path"):
+            arr_path = await self.plex.scan_path(arr_payload["path"])
         elif event_type not in ignored_event_types:
-            if agent.startswith("Sonarr") and notification.get("series"):
-                arr_path = notification["series"]["path"]
+            if agent.startswith("Sonarr") and arr_payload.get("series"):
+                arr_path = arr_payload["series"]["path"]
 
-            elif agent.startswith("Radarr") and notification.get("movie"):
-                arr_path = notification["movie"]["folderPath"]
+            elif agent.startswith("Radarr") and arr_payload.get("movie"):
+                arr_path = arr_payload["movie"]["folderPath"]
 
-            elif agent.startswith("Lidarr") and notification.get("artist"):
-                arr_path = notification["artist"]["path"]
+            elif agent.startswith("Lidarr") and arr_payload.get("artist"):
+                arr_path = arr_payload["artist"]["path"]
 
-            elif agent.startswith("Readarr") and notification.get("author"):
-                arr_path = notification["author"]["path"]
+            elif agent.startswith("Readarr") and arr_payload.get("author"):
+                arr_path = arr_payload["author"]["path"]
 
         if arr_path:
             plex_path = self.path_converter.convert(arr_path)
@@ -217,7 +216,7 @@ class ArrWebhook(cfa.Routable):
 
         try:
             arr_notification = self.build_notification(
-                notification=notification,
+                arr_payload=arr_payload,
                 agent=agent,
                 arr_path=arr_path,
                 arr_type=event_type,
@@ -231,8 +230,8 @@ class ArrWebhook(cfa.Routable):
         return "Hook accepted"
 
     @cfa.put("/")
-    async def put_webhook_handler(self, request: Request, notification: dict = Body(...)):
-        return await self.webhook_handler(request, notification)
+    async def put_webhook_handler(self, request: Request, arr_payload: dict = Body(...)):
+        return await self.webhook_handler(request, arr_payload)
 
     @cfa.get("/services")
     async def get_arr_services(self):
