@@ -1,7 +1,7 @@
 services:
   plexscannar:
     image: bjgeiser/plexscanarr:latest
-    build: .
+    build: ..
     restart: always
     ports:
       - 5003:5002

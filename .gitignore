@@ -107,9 +107,9 @@ dmypy.json
 *.bak
 config.yaml
 
-html/node_modules/
-html/nodejs/
-html/dist/
+archive/html/node_modules/
+archive/html/nodejs/
+archive/html/dist/
 .DS_Store
 node_modules/
 address-book/.react-router/
