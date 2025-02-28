@@ -57,6 +57,7 @@ class Config(cfa.Routable):
     def save(self):
         with open(self.config_path, "w") as f:
             yaml.safe_dump(self.settings.model_dump(), f)
+            logger.info(f"New config saved to {self.config_path}")
 
     @cfa.get("/")
     def get_settings(self):
