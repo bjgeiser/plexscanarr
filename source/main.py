@@ -16,6 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from fastapi.responses import FileResponse
 
+from config import Config
 
 logging.basicConfig(format="[%(levelname)s %(name)s] %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,36 +35,31 @@ async def main_async(
 ):
     logging.getLogger().setLevel(leveldict[log_level])
 
-    if config_path and config_path.is_file():
-        f = open(config_path, "r")
-    else:
-        f = open("config.yaml", "r")
-    config = yaml.safe_load(f)
+    config = Config(config_path)
 
-    verbose = config.get("verbose", False)
-    if verbose:
+    if config.settings.verbose:
         logger.info("Turning on verbose logging")
         logger.setLevel(logging.DEBUG)
 
-    plex_websocket = PlexWebsocket(handle_rx=None)
-    path_converter = PathConverter(config)
-    plex_server = config.get("plex_server")
-    plex_token = config.get("plex_token")
-    preempt_active_scan = config.get("preempt_active_scan", False)
+    plex_websocket = PlexWebsocket(handle_rx=None, config=config)
+    path_converter = PathConverter(config.settings.path_converters)
+
     plex = PlexScan(
-        server=plex_server, token=plex_token, plex_websocket=plex_websocket, preempt_active_scan=preempt_active_scan
+        server=config.settings.plex_server,
+        token=config.settings.plex_token,
+        plex_websocket=plex_websocket,
+        preempt_active_scan=config.settings.preempt_active_scan,
     )
 
-    arr_lookup = config.get("arr_paths")
-
     arr_webhook = ArrWebhook(
-        plex=plex, path_converter=path_converter, plex_websocket=plex_websocket, link_lookup=arr_lookup
+        plex=plex, path_converter=path_converter, plex_websocket=plex_websocket, link_lookup=config.settings.arr_paths
     )
 
     app = FastAPI(favicon_url="/static/favicon.ico")
     app.include_router(arr_webhook.router, tags=["Webhook"])
     app.include_router(plex.router, tags=["Plex"], prefix="/plex")
     app.include_router(plex_websocket.router, tags=["Websocket"])
+    app.include_router(config.router, tags=["Settings"], prefix="/settings")
 
     static_path = pathlib.Path("web/build/client")
     app.mount("/assets", StaticFiles(directory=static_path / "assets"), name="assets")
@@ -87,9 +83,9 @@ async def main_async(
         allow_headers=["*"],
     )
 
-    webserver_port = config.get("port", 5000)
-    host = config.get("listen_address", "0.0.0.0")
-    config = uvicorn.Config(app=app, host=host, port=webserver_port, log_level=log_level.lower())
+    config = uvicorn.Config(
+        app=app, host=config.settings.listen_address, port=config.settings.port, log_level=log_level.lower()
+    )
     server = uvicorn.Server(config=config)
 
     async with asyncio.TaskGroup() as task_group:

@@ -9,6 +9,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 from typing import List
 
 from arr_notification import ArrNotificationModel, ArrSource, NotificationModel, NotificationType
+from config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -63,11 +64,12 @@ class ConnectionManager:
 
 
 class PlexWebsocket(cfa.Routable):
-    def __init__(self, handle_rx):
+    def __init__(self, handle_rx, config: Config):
         super().__init__()
         self.handle_rx = handle_rx
         self.connection_manager = ConnectionManager()
         self.notifications = []
+        self.config = config
 
     @cfa.websocket("/ws")
     async def websocket_endpoint(self, websocket: WebSocket):
@@ -115,6 +117,9 @@ class PlexWebsocket(cfa.Routable):
         plex_notification = NotificationModel(
             type=NotificationType.PLEX_EVENT, notification=notification, uuid=uuid.uuid4()
         )
+
+        if self.config.settings.cache_plex_notifications:
+            self.notifications.append(plex_notification)
 
         await self.connection_manager.broadcast(plex_notification.model_dump_json())
 

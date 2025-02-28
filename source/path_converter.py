@@ -1,12 +1,13 @@
 import logging
 import os
+from config import PathConverters
 
 logger = logging.getLogger(__name__)
 
 
 class PathConverter:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, pathConverters: list[PathConverters]):
+        self.pathConverters = pathConverters
 
     def normalizeFolders(self, path):
         if "\\" in path:
@@ -24,15 +25,14 @@ class PathConverter:
             return path.replace("\\", "/")
 
     def convert(self, notification_path):
-        if self.config.get("path_converters"):
-            for convertPath in self.config["path_converters"]:
-                download_path = self.normalizeFolders(convertPath["download_path"])
-                plex_path = self.normalizeFolders(convertPath["plex_path"])
+        for convertPath in self.pathConverters:
+            download_path = self.normalizeFolders(convertPath.download_path)
+            plex_path = self.normalizeFolders(convertPath.plex_path)
 
-                if notification_path.startswith(download_path):
-                    remaining_path = notification_path.replace(download_path, "")
-                    remaining_path = self.normalizeSlashes(remaining_path, plex_path)
-                    transformed_path = os.path.join(plex_path, remaining_path)
-                    return transformed_path
+            if notification_path.startswith(download_path):
+                remaining_path = notification_path.replace(download_path, "")
+                remaining_path = self.normalizeSlashes(remaining_path, plex_path)
+                transformed_path = os.path.join(plex_path, remaining_path)
+                return transformed_path
 
         return notification_path

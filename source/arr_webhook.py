@@ -5,6 +5,7 @@ import classy_fastapi as cfa
 
 from path_converter import PathConverter
 from plex_scan import PlexScan
+from config import ArrPaths
 from fastapi import Request, Body, HTTPException
 
 from arr_notification import ArrNotificationModel, ArrSource
@@ -14,7 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class ArrWebhook(cfa.Routable):
-    def __init__(self, plex: PlexScan, path_converter: PathConverter, plex_websocket: PlexWebsocket, link_lookup: dict):
+    def __init__(
+        self, plex: PlexScan, path_converter: PathConverter, plex_websocket: PlexWebsocket, link_lookup: list[ArrPaths]
+    ):
         super().__init__()
         self.plex = plex
         self.path_converter = path_converter
@@ -32,8 +35,8 @@ class ArrWebhook(cfa.Routable):
     def get_arr_service_path(self, instance_name: str) -> str | None:
         if self.link_lookup:
             for entry in self.link_lookup:
-                if entry["arr_instance_name"] == instance_name:
-                    return entry["server_root"].rstrip("/")
+                if entry.arr_instance_name == instance_name:
+                    return entry.server_root.rstrip("/")
         return None
 
     def build_notification(
