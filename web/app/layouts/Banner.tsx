@@ -158,6 +158,14 @@ export function Banner({ loaderData }: Route.ComponentProps) {
                   </button>
                 )}
               </li>
+              <li>
+                <div>
+                  <Link to={'settings'} className="text-sm font-bold">
+                    ⚙️
+                  </Link>
+                </div>
+              </li>
+
             </ul>
           </div>
         </div>
