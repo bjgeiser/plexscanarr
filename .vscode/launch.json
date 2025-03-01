@@ -9,7 +9,22 @@
       "webRoot": "${workspaceFolder}/address-book/",
       "sourceMaps": true,
       "trace": true,
+      "env": {
+        "CONFIG": "${workspaceFolder}/config.yaml"
+      }
       // and some more patterns...
-}
+    },
+        {
+            "name": "Python: Webserver",
+            "type": "python",
+            "request": "launch",
+            "program": "source/main.py",
+            "justMyCode": false,
+            "jinja": true,
+            "env": {
+              "CONFIG": "${workspaceFolder}",
+              "LOGGING_LEVEL": "debug",
+            },
+        },
   ]
 }

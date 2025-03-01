@@ -1,7 +1,7 @@
 import pathlib
 import logging
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 import classy_fastapi as cfa
 
 logger = logging.getLogger(__name__)
@@ -33,27 +33,35 @@ class ConfigModel(BaseModel):
 
 
 class Config(cfa.Routable):
+    CONFIG_FILE = "config.yaml"
+
     def __init__(self, config_path: pathlib.Path):
         super().__init__()
         self.config_path = config_path
 
-        if self.config_path and config_path.is_file():
-            f = open(config_path, "r")
-        elif pathlib.Path("config.yaml").is_file():
-            self.config_path = pathlib.Path("config.yaml")
-            f = open("config.yaml", "r")
+        if self.config_path.is_file():
+            config_file = self.config_path
         else:
+            config_file = self.config_path / self.CONFIG_FILE
+
+        if not config_file.exists():
+            config_file.mkdir(parents=True, exist_ok=True)
             new_config = ConfigModel(
                 plex_server="{enter plex server address here}", plex_token="{enter plex token here}"
             )
-            self.config_path = pathlib.Path("config.yaml")
-            with open("config.yaml", "w") as f:
+            config_file = self.config_path / self.CONFIG_FILE
+            with open(config_file, "w") as f:
                 yaml.safe_dump(new_config.model_dump(), f)
             logging.error("New config.yaml created replace plex_server and plex_token and restart app")
             exit(1)
 
-        _config = yaml.safe_load(f)
-        self.settings = ConfigModel.model_validate(_config)
+        with open(config_file, "r") as f:
+            _config = yaml.safe_load(f)
+        try:
+            self.settings = ConfigModel.model_validate(_config)
+        except ValidationError as e:
+            logger.error(f"Error loading config: {e}")
+            exit(1)
 
     def save(self):
         with open(self.config_path, "w") as f:
