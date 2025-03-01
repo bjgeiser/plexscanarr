@@ -3,10 +3,14 @@ import logging
 import asyncio
 import plexapi
 import plexapi.exceptions
+from plexapi.audio import Artist
 from plexapi.server import PlexServer
 import classy_fastapi as cfa
 from pathlib import Path
 from fastapi import HTTPException
+from plexapi.video import Movie, Show, Episode, Video
+
+from config import Config
 
 from arr_notification import ArrNotificationModel, ArrSource
 from plex_websocket import PlexWebsocket
@@ -18,11 +22,10 @@ type_lut = {"artist": "Music", "show": "TV Shows", "series": "TV Shows", "movie"
 
 
 class PlexScan(cfa.Routable):
-    def __init__(
-        self, server: str, token: str, plex_websocket: PlexWebsocket, preempt_active_scan: bool = False
-    ) -> None:
+    def __init__(self, server: str, token: str, plex_websocket: PlexWebsocket, config: Config) -> None:
         super().__init__()
-        self.preempt_active_scan = preempt_active_scan
+        self.config = config
+        self.preempt_active_scan = config.settings.preempt_active_scan
         self.plex = PlexServer(baseurl=server, token=token)
         self.plex_websocket = plex_websocket
         self.version = self.plex.version
@@ -34,6 +37,7 @@ class PlexScan(cfa.Routable):
         self.listener = self.plex.startAlertListener(
             callback=self.plex_event_callback, callbackError=self.plex_error_callback
         )
+        self.library_sizes = {}
 
     def plex_event_callback(self, event):
         # logger.debug(f"Received {event}")
@@ -117,6 +121,8 @@ class PlexScan(cfa.Routable):
                         "server_link": f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?source={section.key}",
                     }
                 )
+                if self.config.settings.calculate_library_sizes:
+                    return_list[-1]["size"] = section.size
         else:
             sections = self.plex.library.sections()
 
@@ -142,6 +148,26 @@ class PlexScan(cfa.Routable):
                     "scan_active": section.refreshing,
                     "server_link": f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?source={section.key}",
                 }
+                if self.config.settings.calculate_library_sizes:
+                    get_size = False
+                    if section.key not in self.library_sizes.keys():
+                        get_size = True
+                    elif datetime.datetime.now(datetime.timezone.utc) - self.library_sizes[section.key][
+                        "timestamp"
+                    ] > datetime.timedelta(hours=5):
+                        get_size = True
+
+                    if get_size:
+                        logger.info(f"caching library size  key: {section.key} title: {section.title}")
+                        self.library_sizes[section.key] = {}
+                        self.library_sizes[section.key]["size"] = section.totalStorage / (1024 * 1024 * 1024)
+                        self.library_sizes[section.key]["timestamp"] = datetime.datetime.now(datetime.timezone.utc)
+                    try:
+                        section_json["size"] = self.library_sizes[section.key]["size"]
+                    except Exception as e:
+                        logger.exception(e)
+                        section_json["size"] = section.totalStorage
+
                 for location in section.locations:
                     section_json["locations"].append(location)
                 return_list.append(section_json)
@@ -174,8 +200,41 @@ class PlexScan(cfa.Routable):
                         "year": item.year if hasattr(item, "year") else "None",
                         "key": item.ratingKey,  # Use this instead of key so we can scan directly
                         "type": item.type,
+                        "locations": item.locations,
+                        "size": 0,
                     }
                 )
+                if self.config.settings.calculate_item_sizes:
+                    if type(item) is Show:
+                        size = 0
+                        logger.info(f"Collecting sizes for title: {item.title}")
+                        episodes = item.episodes()
+
+                        for episode in episodes:
+                            for media in episode.media:
+                                for part in media.parts:
+                                    size += part.size
+                        return_list[-1]["size"] = size / (1024 * 1024 * 1024)
+
+                    elif type(item) is Movie or type(item) is Video:
+                        size = 0
+                        for media in item.media:
+                            for part in media.parts:
+                                size += part.size
+                        return_list[-1]["size"] = size / (1024 * 1024 * 1024)
+
+                    elif type(item) is Artist:
+                        size = 0
+                        logger.info(f"Collecting music sizes for title: {item.title}")
+                        albums = item.albums()
+                        for album in albums:
+                            tracks = album.tracks()
+                            for track in tracks:
+                                for media in track.media:
+                                    for part in media.parts:
+                                        size += part.size
+                        return_list[-1]["size"] = size / (1024 * 1024 * 1024)
+
         except plexapi.exceptions.NotFound:
             logger.error(f"Failed to find section with key {key}")
             raise HTTPException(status_code=404, detail=f"Library {key} not found")

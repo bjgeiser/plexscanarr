@@ -15,6 +15,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 
 export default function Library({ loaderData }: Route.ComponentProps) {
   const libraryDetails: LibraryDetails[] = loaderData.libraryData;
+
   return (
     <>
       <div className="card p-2 h-fit h-max-fit place-items-center">
@@ -25,8 +26,8 @@ export default function Library({ loaderData }: Route.ComponentProps) {
                 <tr className="text-left text-orange-300 text-sm">
                   <th>Title</th>
                   <th>Year</th>
-                  <th>Locations</th>
-                  <th>Size (GB)</th>
+                  { datalayer.configApi.config.include_item_locations ? <th>Locations</th> : null }
+                  { datalayer.configApi.config.calculate_item_sizes ? <th>Size (GB)</th> : null }
                 </tr>
               </thead>
               <tbody>
@@ -48,6 +49,11 @@ export default function Library({ loaderData }: Route.ComponentProps) {
                       <td>
                         <div className="font-medium">{detail.year}</div>
                       </td>
+                      {datalayer.configApi.config.include_item_locations ? detail.locations.map((location) => ( <td><div className="font-medium">{location}</div> </td>)) : null}
+                      { datalayer.configApi.config.calculate_item_sizes ?
+                      <td>
+                        <div className="font-medium"> {detail.size.toFixed(2)}</div>
+                      </td> : null}
                     </tr>
                   );
                 })}

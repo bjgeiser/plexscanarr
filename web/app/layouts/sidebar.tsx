@@ -47,6 +47,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                   <th>Library Name</th>
                   <th>Type</th>
                   <th>Locations</th>
+                  {datalayer.configApi.config.calculate_library_sizes ? <th>Size (GB)</th> : null }
                   <th>Scan</th>
                 </tr>
               </thead>
@@ -94,6 +95,12 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                           </div>
                         ))}
                       </td>
+                      {datalayer.configApi.config.calculate_library_sizes ?
+                          <td>
+                            <div>
+                              {library.size.toFixed(2)}
+                            </div>
+                          </td> : null }
                       <td>
                         {library.scan_active ? (
                           <div className="dropdown dropdown-hover">

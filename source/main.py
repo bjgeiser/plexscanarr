@@ -48,7 +48,7 @@ async def main_async(
         server=config.settings.plex_server,
         token=config.settings.plex_token,
         plex_websocket=plex_websocket,
-        preempt_active_scan=config.settings.preempt_active_scan,
+        config=config,
     )
 
     arr_webhook = ArrWebhook(

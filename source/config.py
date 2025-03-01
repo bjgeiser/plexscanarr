@@ -29,6 +29,7 @@ class ConfigModel(BaseModel):
     cache_plex_notifications: bool = False
     calculate_library_sizes: bool = False
     calculate_item_sizes: bool = False
+    include_item_locations: bool = False
 
 
 class Config(cfa.Routable):
@@ -78,4 +79,9 @@ class Config(cfa.Routable):
     @cfa.post("/enable_plex_notification_cache")
     def enable_plex_notification_cache(self, enable: bool):
         self.settings.cache_plex_notifications = enable
+        self.save()
+
+    @cfa.post("/enable_include_item_locations")
+    def enable_include_item_locations(self, enable: bool):
+        self.settings.include_item_locations = enable
         self.save()

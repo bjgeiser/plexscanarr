@@ -20,11 +20,14 @@ export type Config = {
   cache_plex_notifications: boolean;
   calculate_library_sizes: boolean;
   calculate_item_sizes: boolean;
+  include_item_locations: boolean;
 };
 
 
 
 export class ConfigApi {
+  config: Config
+
   async getConfig(): Promise<Config> {
 
     const url = `${getBaseUrl().plexUrl.toString()}settings/`
@@ -36,8 +39,8 @@ export class ConfigApi {
       throw new Error('Network response was not ok');
     }
 
-    const data = await response.json();
-    return data;
+    this.config = await response.json();
+    return this.config;
   }
 
   async setCachePlexNotifications(enable: boolean): Promise<void> {
@@ -49,6 +52,9 @@ export class ConfigApi {
       console.log(response);
       throw new Error('Network response was not ok');
     }
+    else {
+      await this.getConfig();
+    }
   }
 
   async setEnableLibrarySizes(enable: boolean): Promise<void> {
@@ -59,6 +65,9 @@ export class ConfigApi {
       console.log(response);
       throw new Error('Network response was not ok');
     }
+    else {
+      await this.getConfig();
+    }
   }
 
   async setEnableItemSizes(enable: boolean): Promise<void> {
@@ -68,6 +77,22 @@ export class ConfigApi {
     if (!response.ok) {
       console.log(response);
       throw new Error('Network response was not ok');
+    }
+    else {
+      await this.getConfig();
+    }
+  }
+
+  async setIncludeItemLocations(enable: boolean): Promise<void> {
+    let url = `${getBaseUrl().plexUrl.toString()}settings/enable_include_item_locations?enable=${enable}`
+    console.log('url:', url);
+    const response = await fetch(url, { method: 'POST' });
+    if (!response.ok) {
+      console.log(response);
+      throw new Error('Network response was not ok');
+    }
+    else {
+      await this.getConfig();
     }
   }
 
