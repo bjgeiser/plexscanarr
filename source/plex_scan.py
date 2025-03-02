@@ -8,7 +8,7 @@ from plexapi.server import PlexServer
 import classy_fastapi as cfa
 from pathlib import Path
 from fastapi import HTTPException
-from plexapi.video import Movie, Show, Episode, Video
+from plexapi.video import Movie, Show, Video
 
 from config import Config
 
@@ -109,20 +109,22 @@ class PlexScan(cfa.Routable):
         return_list = []
         if key:
             section = self.plex.library.sectionByID(key)
-            if section:
-                return_list.append(
-                    {
-                        "name": section.title,
-                        "path": section.title.replace(" ", ""),
-                        "key": section.key,
-                        "locations": section.locations,
-                        "type": section.type,
-                        "scan_active": section.refreshing,
-                        "server_link": f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?source={section.key}",
-                    }
-                )
-                if self.config.settings.calculate_library_sizes:
-                    return_list[-1]["size"] = section.size
+            if not section:
+                raise HTTPException(status_code=404, detail=f"Library {key} not found")
+            return_list = [
+                {
+                    "name": section.title,
+                    "path": section.title.replace(" ", ""),
+                    "key": section.key,
+                    "locations": section.locations,
+                    "type": section.type,
+                    "scan_active": section.refreshing,
+                    "server_link": f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?source={section.key}",
+                }
+            ]
+            if self.config.settings.calculate_library_sizes:
+                return_list[-1]["size"] = section.size
+            return return_list
         else:
             sections = self.plex.library.sections()
 
@@ -234,6 +236,8 @@ class PlexScan(cfa.Routable):
                                     for part in media.parts:
                                         size += part.size
                         return_list[-1]["size"] = size / (1024 * 1024 * 1024)
+                    else:
+                        logger.error(f"Unknown type: {type(item)}")
 
         except plexapi.exceptions.NotFound:
             logger.error(f"Failed to find section with key {key}")
