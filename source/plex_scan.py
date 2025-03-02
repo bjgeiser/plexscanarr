@@ -9,6 +9,7 @@ import classy_fastapi as cfa
 from pathlib import Path
 from fastapi import HTTPException
 from plexapi.video import Movie, Show, Video
+from pydantic import BaseModel
 
 from config import Config
 
@@ -16,9 +17,30 @@ from arr_notification import ArrNotificationModel, ArrSource
 from plex_websocket import PlexWebsocket
 
 
+class PlexLibraryDTO(BaseModel):
+    name: str
+    path: str
+    key: int
+    locations: list[str]
+    type: str
+    scan_active: bool
+    server_link: str
+    size: float | None = None
+
+
+class PlexLibraryDetailsDTO(BaseModel):
+    title: str
+    year: int
+    key: int
+    type: str
+    locations: list[str] | None = None
+    size: float | None = None
+
+
 logger = logging.getLogger(__name__)
 
 type_lut = {"artist": "Music", "show": "TV Shows", "series": "TV Shows", "movie": "Movies"}
+BYTES_PER_GB = 2**32
 
 
 class PlexScan(cfa.Routable):
@@ -141,15 +163,15 @@ class PlexScan(cfa.Routable):
 
                 _type = _type[0].upper() + _type[1:]
 
-                section_json = {
-                    "name": section.title,
-                    "path": section.title.replace(" ", ""),
-                    "key": section.key,
-                    "locations": [],
-                    "type": _type,
-                    "scan_active": section.refreshing,
-                    "server_link": f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?source={section.key}",
-                }
+                section_json = PlexLibraryDTO(
+                    name=section.title,
+                    path=section.title.replace(" ", ""),
+                    key=section.key,
+                    locations=[],
+                    type=_type,
+                    scan_active=section.refreshing,
+                    server_link=f"https://app.plex.tv/desktop/#!/media/{self.machine_id}/com.plexapp.plugins.library?source={section.key}",
+                )
                 if self.config.settings.calculate_library_sizes:
                     get_size = False
                     if section.key not in self.library_sizes.keys():
@@ -165,13 +187,13 @@ class PlexScan(cfa.Routable):
                         self.library_sizes[section.key]["size"] = section.totalStorage / (1024 * 1024 * 1024)
                         self.library_sizes[section.key]["timestamp"] = datetime.datetime.now(datetime.timezone.utc)
                     try:
-                        section_json["size"] = self.library_sizes[section.key]["size"]
+                        section_json.size = self.library_sizes[section.key]["size"]
                     except Exception as e:
                         logger.exception(e)
-                        section_json["size"] = section.totalStorage
+                        section_json.size = -1
 
                 for location in section.locations:
-                    section_json["locations"].append(location)
+                    section_json.locations.append(location)
                 return_list.append(section_json)
         return return_list
 
@@ -188,7 +210,7 @@ class PlexScan(cfa.Routable):
         # async with aiohttp.ClientSession() as session:
         #     async with session.get(f"{self.plex.url}/library/sections/{key}/all") as response:
         #         data = await response.json()
-        return_list = []
+        return_list: list[PlexLibraryDetailsDTO] = []
         try:
             section = self.plex.library.sectionByID(key)
             # if section:
@@ -197,18 +219,19 @@ class PlexScan(cfa.Routable):
             items = section.search()
             for item in items:
                 return_list.append(
-                    {
-                        "title": item.title,
-                        "year": item.year if hasattr(item, "year") else "None",
-                        "key": item.ratingKey,  # Use this instead of key so we can scan directly
-                        "type": item.type,
-                        "locations": item.locations,
-                        "size": 0,
-                    }
+                    PlexLibraryDetailsDTO(
+                        title=item.title,
+                        year=item.year if hasattr(item, "year") and item.year else -1,
+                        key=item.ratingKey,  # Use this instead of key so we can scan directly
+                        type=item.type,
+                        locations=item.locations,
+                        size=0,
+                    )
                 )
                 if self.config.settings.calculate_item_sizes:
+                    size = 0
+
                     if type(item) is Show:
-                        size = 0
                         logger.info(f"Collecting sizes for title: {item.title}")
                         episodes = item.episodes()
 
@@ -216,17 +239,14 @@ class PlexScan(cfa.Routable):
                             for media in episode.media:
                                 for part in media.parts:
                                     size += part.size
-                        return_list[-1]["size"] = size / (1024 * 1024 * 1024)
 
                     elif type(item) is Movie or type(item) is Video:
-                        size = 0
+                        logger.info(f"Collecting sizes for title: {item.title}")
                         for media in item.media:
                             for part in media.parts:
                                 size += part.size
-                        return_list[-1]["size"] = size / (1024 * 1024 * 1024)
 
                     elif type(item) is Artist:
-                        size = 0
                         logger.info(f"Collecting music sizes for title: {item.title}")
                         albums = item.albums()
                         for album in albums:
@@ -235,9 +255,10 @@ class PlexScan(cfa.Routable):
                                 for media in track.media:
                                     for part in media.parts:
                                         size += part.size
-                        return_list[-1]["size"] = size / (1024 * 1024 * 1024)
                     else:
                         logger.error(f"Unknown type: {type(item)}")
+                        size = 0
+                    return_list[-1].size = size / BYTES_PER_GB
 
         except plexapi.exceptions.NotFound:
             logger.error(f"Failed to find section with key {key}")

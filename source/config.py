@@ -33,27 +33,26 @@ class ConfigModel(BaseModel):
 
 
 class Config(cfa.Routable):
-    CONFIG_FILE = "config.yaml"
+    DEFAULT_CONFIG_FILENAME = "config.yaml"
 
     def __init__(self, config_path: pathlib.Path):
         super().__init__()
-        self.config_path = config_path
 
-        if self.config_path.is_file():
-            config_file = self.config_path
+        if config_path.is_file():
+            config_file = config_path
         else:
-            config_file = self.config_path / self.CONFIG_FILE
+            config_file = config_path / self.DEFAULT_CONFIG_FILENAME
 
         if not config_file.exists():
             config_file.mkdir(parents=True, exist_ok=True)
             new_config = ConfigModel(
                 plex_server="{enter plex server address here}", plex_token="{enter plex token here}"
             )
-            config_file = self.config_path / self.CONFIG_FILE
             with open(config_file, "w") as f:
                 yaml.safe_dump(new_config.model_dump(), f)
             logging.error("New config.yaml created replace plex_server and plex_token and restart app")
             exit(1)
+        self.config_file = config_file
 
         with open(config_file, "r") as f:
             _config = yaml.safe_load(f)
@@ -64,9 +63,9 @@ class Config(cfa.Routable):
             exit(1)
 
     def save(self):
-        with open(self.config_path, "w") as f:
+        with open(self.config_file, "w") as f:
             yaml.safe_dump(self.settings.model_dump(), f)
-            logger.info(f"New config saved to {self.config_path}")
+            logger.info(f"New config saved to {self.config_file}")
 
     @cfa.get("/")
     def get_settings(self):

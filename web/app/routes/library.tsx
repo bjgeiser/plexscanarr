@@ -26,8 +26,8 @@ export default function Library({ loaderData }: Route.ComponentProps) {
                 <tr className="text-left text-orange-300 text-sm">
                   <th>Title</th>
                   <th>Year</th>
-                  { datalayer.configApi.config.include_item_locations ? <th>Locations</th> : null }
-                  { datalayer.configApi.config.calculate_item_sizes ? <th>Size (GB)</th> : null }
+                  {datalayer.configApi.config.include_item_locations ? <th>Locations</th> : null}
+                  {datalayer.configApi.config.calculate_item_sizes ? <th>Size (GB)</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -49,11 +49,18 @@ export default function Library({ loaderData }: Route.ComponentProps) {
                       <td>
                         <div className="font-medium">{detail.year}</div>
                       </td>
-                      {datalayer.configApi.config.include_item_locations ? detail.locations.map((location) => ( <td><div className="font-medium">{location}</div> </td>)) : null}
-                      { datalayer.configApi.config.calculate_item_sizes ?
-                      <td>
-                        <div className="font-medium"> {detail.size.toFixed(2)}</div>
-                      </td> : null}
+                      {datalayer.configApi.config.include_item_locations
+                        ? detail.locations.map((location) => (
+                            <td>
+                              <div className="font-medium">{location}</div>{' '}
+                            </td>
+                          ))
+                        : null}
+                      {datalayer.configApi.config.calculate_item_sizes ? (
+                        <td>
+                          <div className="font-medium"> {detail.size.toFixed(2)}</div>
+                        </td>
+                      ) : null}
                     </tr>
                   );
                 })}

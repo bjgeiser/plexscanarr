@@ -47,7 +47,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                   <th>Library Name</th>
                   <th>Type</th>
                   <th>Locations</th>
-                  {datalayer.configApi.config.calculate_library_sizes ? <th>Size (GB)</th> : null }
+                  {datalayer.configApi.config.calculate_library_sizes ? <th>Size (GB)</th> : null}
                   <th>Scan</th>
                 </tr>
               </thead>
@@ -95,12 +95,11 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                           </div>
                         ))}
                       </td>
-                      {datalayer.configApi.config.calculate_library_sizes ?
-                          <td>
-                            <div>
-                              {library.size.toFixed(2)}
-                            </div>
-                          </td> : null }
+                      {datalayer.configApi.config.calculate_library_sizes ? (
+                        <td>
+                          <div>{library.size?.toFixed(2) ?? 'N/A'}</div>
+                        </td>
+                      ) : null}
                       <td>
                         {library.scan_active ? (
                           <div className="dropdown dropdown-hover">
@@ -144,13 +143,17 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
           )}
         </div>
       </div>
-      <div className={"flex w-full h-max-content mr-5 ml-5 mt-5 bg-accent-content  rounded-box"} id="detail">
-        <div className={navigation.state === 'loading' ? 'flex w-full items-center justify-center' : 'flex w-full items-start'}>
-          <div className={navigation.state === 'loading' ? "" : "hidden "  + ""}>
+      <div className={'flex w-full h-max-content mr-5 ml-5 mt-5 bg-accent-content  rounded-box'} id="detail">
+        <div
+          className={
+            navigation.state === 'loading' ? 'flex w-full items-center justify-center' : 'flex w-full items-start'
+          }
+        >
+          <div className={navigation.state === 'loading' ? '' : 'hidden ' + ''}>
             <span className="loading loading-bars loading-lg"></span>
           </div>
-          <div className={navigation.state === 'loading' ? "hidden" : "flex w-full"}>
-              <Outlet/>
+          <div className={navigation.state === 'loading' ? 'hidden' : 'flex w-full'}>
+            <Outlet />
           </div>
         </div>
       </div>

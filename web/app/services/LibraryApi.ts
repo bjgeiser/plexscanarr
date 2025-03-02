@@ -90,7 +90,7 @@ export class LibraryApi {
     return null;
   }
 
-  async getLibraryDetails(key: string): Promise<LibraryDetails | null> {
+  async getLibraryDetails(key: string): Promise<LibraryDetails> {
     const details = await this.getPlexLibraryDetails(key);
     return details;
   }
