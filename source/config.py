@@ -26,6 +26,7 @@ class ConfigModel(BaseModel):
     preempt_active_scan: bool = True
     arr_paths: list[ArrPaths] = []
     verbose: bool = False
+    max_notification_cache: int = 200
     cache_plex_notifications: bool = False
     calculate_library_sizes: bool = False
     calculate_item_sizes: bool = False

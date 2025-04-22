@@ -110,7 +110,7 @@ class PlexWebsocket(cfa.Routable):
         arr_notification = NotificationModel(
             type=NotificationType.ARR_EVENT, notification=notification, uuid=uuid.uuid4()
         )
-        self.notifications.append(arr_notification)
+        self.append_notification(arr_notification)
         await self.connection_manager.broadcast(arr_notification.model_dump_json())
 
     async def send_plex_notification(self, notification: ArrNotificationModel):
@@ -119,9 +119,16 @@ class PlexWebsocket(cfa.Routable):
         )
 
         if self.config.settings.cache_plex_notifications:
-            self.notifications.append(plex_notification)
+            self.append_notification(plex_notification)
 
         await self.connection_manager.broadcast(plex_notification.model_dump_json())
+
+    def append_notification(self, notification: NotificationModel):
+        self.notifications.append(notification)
+
+        while len(self.notifications) > self.config.settings.max_notification_cache:
+            logger.debug("Removing oldest notification from cache")
+            self.notifications.pop(0)
 
 
 # last_values = {"label": {}, "disabled": {}, "progress": {}}
